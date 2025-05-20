@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('business_infos', function (Blueprint $table) {
             $table->id();
+            $table->decimal('total_profit', 10, 2)->default(0.00);
+            $table->decimal('total_income', 10, 2)->default(0.00);
+            $table->bigInteger('reserved_tickets')->default(0);
+            $table->bigInteger('total_group_trips')->default(0);
             $table->timestamps();
         });
     }

@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('translations', function (Blueprint $table) {
             $table->id();
+            $table->morphs('translatable');
+            $table->string('key');
+            $table->text('translation');
             $table->timestamps();
         });
     }

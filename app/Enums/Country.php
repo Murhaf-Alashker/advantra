@@ -230,4 +230,10 @@ enum country: string
     case ZAMBIA = 'zambia';
     case ZIMBABWE = 'zimbabwe';
 
+    public static function values(): array
+    {
+        return array_map(fn($case) => $case->value, self::cases());
+    }
+
+
 }
