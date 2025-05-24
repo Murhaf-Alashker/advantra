@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Guide;
+use App\Models\Language;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,6 +16,8 @@ return new class extends Migration
     {
         Schema::create('guide_language', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Guide::class);
+            $table->foreignIdFor(Language::class);
             $table->timestamps();
         });
     }
