@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->text('description')->nullable();
-            $table->string('card_number')->unique();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('card_number')->unique()->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->decimal('price', 8, 2);
             $table->decimal('const_salary', 8, 2)->default(100);
             $table->decimal('extra_salary', 8, 2)->default(0);
