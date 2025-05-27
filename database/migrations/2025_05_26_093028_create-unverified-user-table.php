@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->id();
+        Schema::create('users', function (Blueprint $table) {
             $table->string('name');
             $table->string('email');
-            $table->string('instagram');
-            $table->string('icon')->nullable();
-            $table->timestamps();
+            $table->string('password');
+            $table->string('verify_code');
+            $table->dateTime('expired_at');
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        //
     }
 };
