@@ -17,7 +17,11 @@ class SettingFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->name(),
+            'email' => 'adventra@gmail.com',
+            'instagram' => 'https://www.instagram.com/Adventra/',
+            'icon' => url('storage/images/test.jpg'),
+
         ];
     }
 }

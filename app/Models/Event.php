@@ -68,14 +68,14 @@ class Event extends Model
 
     public function soloTrips(): BelongsToMany
     {
-        return $this->belongsToMany(SoloTrip::class, 'solo_trips_events', 'event_id', 'solo_trip_id')
+        return $this->belongsToMany(SoloTrip::class, 'event_solo_trips', 'event_id', 'solo_trip_id')
             ->withPivot('price')
             ->withTimestamps();
     }
 
     public function groupTrips(): BelongsToMany
     {
-        return $this->belongsToMany(GroupTrip::class,'group_trip_event','event_id','group_trip_id')
+        return $this->belongsToMany(GroupTrip::class,'event_group_trip','event_id','group_trip_id')
             ->withTimestamps();
     }
 }

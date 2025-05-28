@@ -103,6 +103,8 @@ class User extends Authenticatable
         return $this->morphMany(Translation::class, 'translatable');
     }
 
+
+
     public function groupTrips()
     {
         return GroupTrip::whereHas('reservations', function ($query) {
@@ -121,12 +123,12 @@ class User extends Authenticatable
     public function directEvents(): HasManyThrough
     {
         return $this->hasManyThrough(
-            Event::class,
-            Reservation::class,
-            'user_id',
-            'id',
-            'id',
-            'reservable_id')
+            Event::class,//الجدول يلي بدي اربط معو
+            Reservation::class,//الجدول الوسيط بين التنين
+            'user_id',//ال foriegnkey يلي بيربط الجدول (*) بالجدول يلي نحنا هلق واقفين عندو(موجود بالجدول * واذا مو موجود منكتب id)
+            'id',//الforiegnkey يلي بيربط الجدول يلي نحنا هلق واقفين عندو بالجدول (*) (موجود بالجدول يلي واقفين عندو واذا مو موجود منحط id)
+            'id',//لforiegnkey يلي بيربط الجدول (#) بالجدول (*)(موجود بالجدول # واذا مو موجود منكتب id)
+            'reservable_id')//الforiegnkey يلي بيربط الجدول (*) بالجدول (#) (موجود بالجدول * واذا مو موجود منكتب id)
             ->where('reservable_type', Event::class);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Guide;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +13,6 @@ class GuideSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Guide::factory(5)->create();
     }
 }
