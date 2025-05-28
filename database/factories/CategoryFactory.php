@@ -17,7 +17,17 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->unique()->randomElement([
+                'Adventure',
+                'Religious',
+                'Cultural',
+                'Historical',
+                'Nature',
+                'Luxury',
+                'Wellness',
+                'Eco-tourism',
+                'Food',
+            ]),
         ];
     }
 }

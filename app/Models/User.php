@@ -103,6 +103,8 @@ class User extends Authenticatable
         return $this->morphMany(Translation::class, 'translatable');
     }
 
+
+
     public function groupTrips()
     {
         return GroupTrip::whereHas('reservations', function ($query) {

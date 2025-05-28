@@ -69,7 +69,7 @@ class GroupTrip extends Model
 
     public function events(): BelongsToMany
     {
-        return $this->belongsToMany(Event::class, 'group_trips_events', 'group_trip_id', 'event_id')
+        return $this->belongsToMany(Event::class, 'event_group_trip', 'group_trip_id', 'event_id')
             ->withTimestamps();
     }
 
