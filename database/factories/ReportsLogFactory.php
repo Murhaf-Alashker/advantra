@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\GroupTrip;
+use App\Models\Guide;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,9 @@ class ReportsLogFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'file_path' => $this->faker->filePath(),
+            'guide_id' => Guide::inRandomOrder()->first()->id ?? Guide::factory(),
+            'group_trip_id' => GroupTrip::inRandomOrder()->first()->id ?? GroupTrip::factory()
         ];
     }
 }
