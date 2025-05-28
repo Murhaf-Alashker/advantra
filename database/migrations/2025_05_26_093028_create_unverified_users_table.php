@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('unverified_users', function (Blueprint $table) {
             $table->string('name');
-            $table->string('email')->unique();
             $table->string('password');
             $table->string('verify_code');
             $table->dateTime('expired_at');
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        schema::dropIfExists('unverified_users');
     }
 };
