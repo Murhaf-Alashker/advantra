@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 use Mockery\Exception;
 
 class AuthController extends Controller
@@ -142,6 +143,52 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully.']);
     }
 
+    public function redirect()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    public function callback()
+    {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = User::where('email', $googleUser->email)->first();
+        try {
+            if (!$user)
+            {
+                DB::transaction(function () use($googleUser,&$user)
+                {
+                    $user = User::create([
+                        'name' => $googleUser->name,
+                        'email' => $googleUser->email,
+                        'password' => $this->createRandomPassword(8),
+                        'google_id' => $googleUser->id,
+                        'email_verified_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ]);
+                });
+            }
+
+            else if (!$user->google_id)
+            {
+                $user->google_id = $googleUser->id;
+                $user->save();
+            }
+
+            else if ($user->google_id != $googleUser->id)
+            {
+                return response()->json(['message' => 'Sorry , something went wrong. Please try again later.']);
+            }
+
+            $token = $user->createToken('user_token', ['api-user'])->plainTextToken;
+
+            return response()->json(['message' => 'Login successful.', 'token' => $token]);
+
+        }
+        catch (\Exception $e) {
+            throw new \Exception($e->getMessage() ?: 'something went wrong.');
+        }
+    }
+
 
     private function sendVerificationCodeMail(string $verifyCode, string $name, string $email):void
     {
@@ -245,16 +292,48 @@ class AuthController extends Controller
                 return false;
             }
 
-            Cache::increment($key);
-
             if ($requestCount == 0) {
-                Cache::put($key, 1, now()->addDays(1));
+                Cache::put($key, 0, now()->addDays(1));
             }
+
+            Cache::increment($key);
 
             return true;
         }
         catch (\Exception $e) {
             throw new \Exception($e->getMessage() ?: 'something went wrong.');
         }
+    }
+
+    private function createRandomPassword(int $length = 8):string
+    {
+        $uppercase = range('A', 'Z');
+        $lowercase = range('a', 'z');
+        $numbers = range(0, 9);
+        $all=array_merge($uppercase, $lowercase, $numbers);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            if($i == 0)
+            {
+                $randomString .= array_rand($uppercase);
+            }
+
+            else if($i == 1)
+            {
+                $randomString .= array_rand($lowercase);
+            }
+
+            else if($i == 2)
+            {
+                $randomString .= array_rand($numbers);
+            }
+
+            else
+            {
+                $randomString .= array_rand($all);
+            }
+        }
+
+        return $randomString;
     }
 }
