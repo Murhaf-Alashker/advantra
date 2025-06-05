@@ -10,6 +10,7 @@
         "kreait/laravel-firebase": "^6.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.1",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.10.1",
         "predis/predis": "^3.0"
     },
