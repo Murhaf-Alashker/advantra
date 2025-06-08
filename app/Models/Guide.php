@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 
 class Guide extends Model
 {
     /** @use HasFactory<\Database\Factories\GuideFactory> */
-    use HasFactory,Notifiable,SoftDeletes;
+    use HasFactory,Notifiable,SoftDeletes,HasApiTokens;
 
     protected $fillable = [
         'name',

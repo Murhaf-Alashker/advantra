@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum country: string
+enum Country: string
 {
     case AFGHANISTAN = 'afghanistan';
     case ALBANIA = 'albania';
