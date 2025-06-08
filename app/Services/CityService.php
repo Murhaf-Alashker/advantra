@@ -1,0 +1,58 @@
+<?php
+namespace App\Services;
+
+use App\Http\Resources\CityResource;
+use App\Http\Resources\GuideResource;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\Event;
+use App\Http\Resources\EventResource;
+class CityService{
+
+    public function index()
+    {
+        return  CityResource::collection(City::with(['country','language'])
+                                             ->where('status','active')
+                                             ->paginate(10));
+    }
+
+    public function show(City $city)
+    {
+        $city->load(['country','language']);
+       return new CityResource($city);
+    }
+
+   public function store(array $data,Country $country)
+   {
+      $city= $country->cities()->create($data);
+      $city->refresh();
+        return $city;
+   }
+
+   public function update(array $data, City $city)
+   {
+       $city->update($data);
+      return new CityResource($city);
+   }
+
+   public function getEvents(City $city)
+   {
+        return EventResource::collection($city->events()
+                                              ->where('status','=','active')
+                                              ->paginate(5));
+   }
+
+   public function getGuides(City $city)
+   {
+      return GuideResource::collection($city->guides()
+                                            ->where('status','=','active')
+                                            ->paginate(5));
+   }
+
+   public function citiesWithMostEvents(){
+        $cities = City::withCount('events')
+                        ->orderBy('events_count','desc')
+                        ->paginate(10);
+        return CityResource::collection($cities);
+   }
+}
