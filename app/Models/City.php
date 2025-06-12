@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Ramsey\Uuid\Guid\Guid;
+
 
 class City extends Model
 {
@@ -52,7 +52,7 @@ class City extends Model
 
     public function guides(): HasMany
     {
-        return $this->hasMany(Guid::class);
+        return $this->hasMany(Guide::class);
     }
 
     public function translations(): MorphMany
