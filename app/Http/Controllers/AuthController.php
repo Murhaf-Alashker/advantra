@@ -21,58 +21,14 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
-    public  function generateUnverifiedUser(UnverifiedUserRequest $request)
+    public  function sendVerificationCode(UnverifiedUserRequest $request)
     {
-        try {
-            $requestAble = $this->requestAble($request->email);
-
-            if(!$requestAble)
-            {
-                return response()->json(['message' => __('rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
-            }
-
-            $user=$this->createOrUpdateUnverifiedUser($request->validated(),'create');
-
-            if(!$user['status'])
-            {
-                return response()->json(['message' =>   __('message.something_wrong')],ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
-
-            return response()->json(['message' =>   __('message.send_verify_code')],ResponseAlias::HTTP_OK);
-        }
-
-        catch (\Exception $e) {
-            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->createVerificationCode($request,__FUNCTION__);
     }
 
     public function resendVerificationCode(UnverifiedUserRequest $request)
     {
-        try {
-            $requestAble = $this->requestAble($request->email);
-
-            if(!$requestAble)
-            {
-                return response()->json(['message' => __('message.rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
-            }
-
-            $user=$this->createOrUpdateUnverifiedUser($request->validated(),'update');
-
-            if(!$user['status'])
-            {
-                return response()->json(['message' => __('message.something_wrong')],ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
-
-            return response()->json(['message' => __('message.resend_verify_code')],ResponseAlias::HTTP_OK);
-        }
-
-        catch (\Exception $e) {
-            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->createVerificationCode($request,__FUNCTION__);
     }
 
 
@@ -193,6 +149,42 @@ class AuthController extends Controller
 
         }
         catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function createVerificationCode($request,string $function_name)
+    {
+        try {
+            $requestAble = $this->requestAble($request->email);
+
+            if(!$requestAble)
+            {
+                return response()->json(['message' => __('message.rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
+            }
+
+            $action = 'send';
+            $method = 'create';
+
+            if(Str::before($function_name,'Verification') === 'resend'){
+                $action = 'resend';
+                $method = 'update';
+            }
+
+            $user=$this->createOrUpdateUnverifiedUser($request->validated(),$method);
+
+            if(!$user['status'])
+            {
+                return response()->json(['message' => __('message.something_wrong')],ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
+
+            return response()->json(['message' => __("message.{$action}_verify_code")],ResponseAlias::HTTP_OK);
+        }
+
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
             throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
