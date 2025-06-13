@@ -185,6 +185,7 @@ class AuthController extends Controller
 
         catch (\Exception $e) {
             throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
