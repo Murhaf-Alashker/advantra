@@ -14,7 +14,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/generateUnverifiedUser', [AuthController::class, 'generateUnverifiedUser'])->name('generateUnverifiedUser');
+Route::post('/generateUnverifiedUser', [AuthController::class, 'sendVerificationCode'])->name('generateUnverifiedUser');
 Route::post('/resendVerificationCode', [AuthController::class, 'resendVerificationCode'])->name('resendVerificationCode');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('auth/google/redirect', [AuthController::class, 'redirect'])->name('redirectToGoogle');

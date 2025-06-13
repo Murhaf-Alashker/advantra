@@ -9,6 +9,7 @@ use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,61 +17,18 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Mockery\Exception;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
-    public  function generateUnverifiedUser(UnverifiedUserRequest $request)
+    public  function sendVerificationCode(UnverifiedUserRequest $request)
     {
-        try {
-            $requestAble = $this->requestAble($request->email);
-
-            if(!$requestAble)
-            {
-                return response()->json(['message' => 'Rate limit exceeded. Try again later.'], 429);
-            }
-
-            $user=$this->createOrUpdateUnverifiedUser($request->validated(),'create');
-
-            if(!$user['status'])
-            {
-                return response()->json('Sorry , something went wrong. Please try again later');
-            }
-
-            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
-
-            return response()->json('Verification code has been sent to your email.');
-        }
-
-        catch (\Exception $e) {
-            throw new \Exception($e->getMessage()?: 'something went wrong');
-        }
+        return $this->createVerificationCode($request,__FUNCTION__);
     }
 
     public function resendVerificationCode(UnverifiedUserRequest $request)
     {
-        try {
-            $requestAble = $this->requestAble($request->email);
-
-            if(!$requestAble)
-            {
-                return response()->json(['message' => 'Rate limit exceeded. Try again later.'], 429);
-            }
-
-            $user=$this->createOrUpdateUnverifiedUser($request->validated(),'update');
-
-            if(!$user['status'])
-            {
-                return response()->json(['message' => 'Sorry , something went wrong. Please try again later.']);
-            }
-
-            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
-
-            return response()->json(['message' => 'Verification code has been resent to your email.']);
-        }
-
-        catch (\Exception $e) {
-            throw new \Exception($e->getMessage() ?: 'something went wrong.');
-        }
+        return $this->createVerificationCode($request,__FUNCTION__);
     }
 
 
@@ -84,19 +42,19 @@ class AuthController extends Controller
 
         if(!$unVerifiedUser)
         {
-            return response()->json(['message' => 'This email is not valid.']);
+            return response()->json(['message' => __('message.invalid_email')], ResponseAlias::HTTP_BAD_REQUEST);
         }
 
         if($unVerifiedUser->verify_code!=$info['code'])
         {
-            return response()->json('This code is not valid.');
+            return response()->json(['message' => __('message.invalid_code')], ResponseAlias::HTTP_BAD_REQUEST);
         }
 
         $expiredDate=$unVerifiedUser->expired_at;
 
         if(Carbon::parse($expiredDate)->lessThan(Carbon::now()))
         {
-            return response()->json(['message' => 'This code has expired.']);
+            return response()->json(['message' => __('message.expired_code')],ResponseAlias::HTTP_GONE);
         }
 
         try {
@@ -114,25 +72,31 @@ class AuthController extends Controller
                 ->where('email', $unVerifiedUser->email)
                 ->delete();
 
-            return response()->json(['message' => 'Registration successful.', 'user'=>$user, 'token'=>$token]);
+            return response()->json(['message' => __('message.register_successfully'), 'user'=>$user, 'token'=>$token]);
         }
 
         catch (\Exception $e) {
-            throw new \Exception($e->getMessage() ?: 'something went wrong.');
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
 
     public function login(LoginRequest $request)
     {
-        $user = User::where('email',$request->email)->first();
+        $user = User::where('email',$request->email)->first() ?? User::onlyTrashed()->where('email',$request->email)->first();
         if(!$user || !Hash::check( $request->password , $user->password )){
-            return response()->json(['message' => 'Wrong email or password .']);
+            return response()->json(['message' => __('message.wrong_email_or_password')]);
+        }
+
+        if($user->trashed()){
+            $user->restore();
+            $user->points = 0.00;
+            $user->save();
         }
 
         $token = $user->createToken('user_token',['api-user'])->plainTextToken;
 
-        return response()->json(['message' => 'Login successful.', 'token' => $token]);
+        return response()->json(['message' => __('message.login_successfully'), 'token' => $token]);
 
     }
 
@@ -140,7 +104,7 @@ class AuthController extends Controller
     {
         auth()->guard('api-user')->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out successfully.']);
+        return response()->json(['message' => __('message.logout_successfully')], ResponseAlias::HTTP_OK);
     }
 
     public function redirect()
@@ -176,16 +140,51 @@ class AuthController extends Controller
 
             else if ($user->google_id != $googleUser->id)
             {
-                return response()->json(['message' => 'Sorry , something went wrong. Please try again later.']);
+                return response()->json(['message' => __('message.something_wrong')], ResponseAlias::HTTP_BAD_REQUEST);
             }
 
             $token = $user->createToken('user_token', ['api-user'])->plainTextToken;
 
-            return response()->json(['message' => 'Login successful.', 'token' => $token]);
+            return response()->json(['message' => __('message.login_successfully'), 'token' => $token],ResponseAlias::HTTP_OK);
 
         }
         catch (\Exception $e) {
-            throw new \Exception($e->getMessage() ?: 'something went wrong.');
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function createVerificationCode($request,string $function_name)
+    {
+        try {
+            $requestAble = $this->requestAble($request->email);
+
+            if(!$requestAble)
+            {
+                return response()->json(['message' => __('message.rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
+            }
+
+            $action = 'send';
+            $method = 'create';
+
+            if(Str::before($function_name,'Verification') === 'resend'){
+                $action = 'resend';
+                $method = 'update';
+            }
+
+            $user=$this->createOrUpdateUnverifiedUser($request->validated(),$method);
+
+            if(!$user['status'])
+            {
+                return response()->json(['message' => __('message.something_wrong')],ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $this->sendVerificationCodeMail($user['verify_code'], $user['name'], $user['email']);
+
+            return response()->json(['message' => __("message.{$action}_verify_code")],ResponseAlias::HTTP_OK);
+        }
+
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -197,7 +196,7 @@ class AuthController extends Controller
         }
 
         catch (\Exception $e) {
-            throw new \Exception($e->getMessage() ?: 'something went wrong.');
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -301,7 +300,7 @@ class AuthController extends Controller
             return true;
         }
         catch (\Exception $e) {
-            throw new \Exception($e->getMessage() ?: 'something went wrong.');
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
