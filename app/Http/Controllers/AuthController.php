@@ -201,9 +201,19 @@ class AuthController extends Controller
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleToken = $request->input('token');
+
+        if($googleToken)
+        {
+            $googleUser = Socialite::driver('google')->stateless()->userFromToken($googleToken);
+        }
+
+        else
+        {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        }
 
         $user = User::where('email', $googleUser->email)->first();
         try {
