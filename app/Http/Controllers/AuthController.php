@@ -383,7 +383,7 @@ class AuthController extends Controller
     {
         try {
             $key = "verify_code_to:{$email}";
-
+            Cache::forget($key);
             $requestCount = Cache::get($key) ?? 0;
 
             if ($requestCount >= 5) {
