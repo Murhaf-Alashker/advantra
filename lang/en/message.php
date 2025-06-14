@@ -10,5 +10,7 @@ return [
     'login_successfully' => 'Login successfully.',
     'logout_successfully' => 'Logout successfully.',
     'register_successfully' => 'Register successfully.',
-    'wrong_email_or_password' => 'Wrong email or password.'
+    'wrong_email_or_password' => 'Wrong email or password.',
+    'reset_password_code' => 'Reset password code has been sent to your email.',
+    'reset_password_successfully' => 'Reset password successfully.',
 ];

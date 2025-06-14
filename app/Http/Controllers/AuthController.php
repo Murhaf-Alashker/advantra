@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CheckResetPasswordCodeRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\resetPasswordRequest;
 use App\Http\Requests\UnverifiedUserRequest;
 use App\Mail\VerificationCodeMail;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -107,14 +110,110 @@ class AuthController extends Controller
         return response()->json(['message' => __('message.logout_successfully')], ResponseAlias::HTTP_OK);
     }
 
+    public function requestResetPasswordCode(Request $request)
+    {
+        if($request->email)
+        {
+            $validated = $request->validate([
+                'email' => ['required','string','max:30','min:15','email','exists:users,email'],
+            ]);
+            $email = $validated['email'];
+            $user = User::where('email' , $email)->first();
+        }
+        else
+        {
+            $user=Auth::guard('api-user')->user();
+            $email = $user->email;
+        }
+        $requestAble = $this->requestAble($email);
+
+        if(!$requestAble)
+        {
+            return response()->json(['message' => __('message.rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
+        }
+        try{
+            $exist = DB::table('password_reset_tokens')->where('email' , $email)->first();
+            $code = (string) rand(100000, 999999);
+
+            DB::transaction(function () use ($email,$code,$exist){
+                if($exist){
+                    DB::table('password_reset_tokens')
+                        ->where('email' , $email)
+                        ->update([
+                            'code' => $code,
+                            'expired_at' => Carbon::now()->addMinutes(5)->format('Y-m-d H:i:s'),
+                        ]);
+                }
+                else{
+                DB::table('password_reset_tokens')->insert([
+                    'email' => $email,
+                    'code' => $code,
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'expired_at' => Carbon::now()->addMinutes(5)->format('Y-m-d H:i:s'),
+                ]);}
+            });
+
+            $this->sendVerificationCodeMail($code, $user->name, $user->email);
+
+            return response()->json(['message' => __('message.send_verify_code')], ResponseAlias::HTTP_OK);
+        }
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    public function checkResetPasswordCode(CheckResetPasswordCodeRequest $request)
+    {
+        $data = $request->validated();
+        $info = DB::table('password_reset_tokens')->where('email',$data['email'])->first();
+        if($info && $info->code == $data['code']){
+            if(Carbon::parse($info->expired_at)->lessThan(Carbon::now())){
+                return response()->json(['message' => __('message.expired_code'), 'data' => false],ResponseAlias::HTTP_GONE);
+            }
+            return response()->json(true, ResponseAlias::HTTP_OK);
+        }
+        return response()->json(false, ResponseAlias::HTTP_BAD_REQUEST);
+    }
+
+    public function resetPasswordUsingCode(resetPasswordRequest $request)
+    {
+        $data = $request->validated();
+        $info = DB::table('password_reset_tokens')->where('email',$data['email'])->first();
+        if(!$info){
+            return response()->json(['message' => __('message.invalid_email')], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+        if($info->code != $data['code']){
+            return response()->json(['message' => __('message.invalid_code')], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+        if (Carbon::parse($info->expired_at)->lessThan(Carbon::now())) {
+            return response()->json(['message' => __('message.expired_code')], ResponseAlias::HTTP_GONE);
+        }
+        $user = User::where('email',$data['email'])->first();
+        $user->password = Hash::make($data['password']);
+        $user->save();
+        DB::table('password_reset_tokens')->where('email',$data['email'])->delete();
+        return response()->json(['message' => __('message.reset_password_successfully')], ResponseAlias::HTTP_OK);
+    }
+
     public function redirect()
     {
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleToken = $request->input('token');
+
+        if($googleToken)
+        {
+            $googleUser = Socialite::driver('google')->stateless()->userFromToken($googleToken);
+        }
+
+        else
+        {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        }
 
         $user = User::where('email', $googleUser->email)->first();
         try {
@@ -184,7 +283,6 @@ class AuthController extends Controller
         }
 
         catch (\Exception $e) {
-            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
             throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

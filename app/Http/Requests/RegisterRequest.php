@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'code' => ['required', 'string','size:6','regex:/^\d+$/'],
-            'email'=>['required','string','max:30','min:15','email','unique:users','exists:unverified_users,email'],
+            'email' => ['required','string','max:30','min:15','email','unique:users','exists:unverified_users,email'],
         ];
     }
 }
