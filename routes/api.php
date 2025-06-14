@@ -20,7 +20,9 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('auth/google/redirect', [AuthController::class, 'redirect'])->name('redirectToGoogle');
 Route::get('auth/google/callback', [AuthController::class, 'callback'])->name('loginUsingGoogle');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-
+Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
+Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
+Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
 
 
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {

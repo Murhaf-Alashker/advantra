@@ -2,21 +2,27 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
-class LoginRequest extends FormRequest
+class CheckResetPasswordCodeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        if(!Auth::guard('api-user')->guest()){
-            throw new AuthorizationException('you are already authenticated ');
-        }
         return true;
+    }
+
+    protected function prepareForValidation()
+    {
+
+        $user = auth()->guard('api-user')->user();
+        if(!$this->email && $user){
+            $this->merge([
+                'email' => $user['email'],
+            ]);
+        }
     }
 
     /**
@@ -27,8 +33,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string','size:6','regex:/^\d+$/'],
             'email' => ['required','string','max:30','min:15','email','exists:users,email'],
-            'password' => ['required','string','min:8','max:30','regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
         ];
     }
+
+
 }
