@@ -18,7 +18,8 @@ Route::post('/generateUnverifiedUser', [AuthController::class, 'sendVerification
 Route::post('/resendVerificationCode', [AuthController::class, 'resendVerificationCode'])->name('resendVerificationCode');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('auth/google/redirect', [AuthController::class, 'redirect'])->name('redirectToGoogle');
-Route::get('auth/google/callback', [AuthController::class, 'callback'])->name('loginUsingGoogle');
+Route::get('auth/google/callback', [AuthController::class, 'callback'])->name('loginUsingGoogle')->middleware('VerifyGoogleRedirect');
+Route::post('auth/google/callback/mobile', [AuthController::class, 'callbackMobile'])->name('mobileLoginUsingGoogle');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
