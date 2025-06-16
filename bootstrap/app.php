@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append([\App\Http\Middleware\SetLocaleFromHeader::class]);
+        $middleware->alias(['VerifyGoogleRedirect' => \App\Http\Middleware\VerifyGoogleRedirect::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

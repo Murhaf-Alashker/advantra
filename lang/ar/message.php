@@ -12,5 +12,6 @@ return [
     'register_successfully' => 'تم انشاء الحساب بنجاح.',
     'wrong_email_or_password' => 'كلمة السر أو البريد الإلكتروني غير صحيح',
     'reset_password_code' => 'تم ارسال كود التحقق لاعادة تعيين كلمة السر بنجاح.',
-    'reset_password_successfully' => 'تم تعيين كلمة مرور جديدة'
+    'reset_password_successfully' => 'تم تعيين كلمة مرور جديدة',
+    'invalid_google_redirect' => 'لم يتم اعادة التوجيه من غوغل.'
 ];

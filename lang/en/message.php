@@ -13,4 +13,5 @@ return [
     'wrong_email_or_password' => 'Wrong email or password.',
     'reset_password_code' => 'Reset password code has been sent to your email.',
     'reset_password_successfully' => 'Reset password successfully.',
+    'invalid_google_redirect' => 'Invalid Google redirect'
 ];
