@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckResetPasswordCodeRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\MobileGoogleAuthRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\resetPasswordRequest;
 use App\Http\Requests\UnverifiedUserRequest;
@@ -203,53 +204,65 @@ class AuthController extends Controller
 
     public function callback(Request $request)
     {
-        $googleToken = $request->input('token');
-
-        if($googleToken)
-        {
-            $googleUser = Socialite::driver('google')->stateless()->userFromToken($googleToken);
-        }
-
-        else
-        {
-            $googleUser = Socialite::driver('google')->stateless()->user();
-        }
-
-        $user = User::where('email', $googleUser->email)->first();
         try {
-            if (!$user)
-            {
-                DB::transaction(function () use($googleUser,&$user)
-                {
-                    $user = User::create([
-                        'name' => $googleUser->name,
-                        'email' => $googleUser->email,
-                        'password' => $this->createRandomPassword(8),
-                        'google_id' => $googleUser->id,
-                        'email_verified_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                    ]);
-                });
-            }
 
-            else if (!$user->google_id)
-            {
-                $user->google_id = $googleUser->id;
-                $user->save();
-            }
+        $googleUser = Socialite::driver('google')->stateless()->user();
 
-            else if ($user->google_id != $googleUser->id)
-            {
-                return response()->json(['message' => __('message.something_wrong')], ResponseAlias::HTTP_BAD_REQUEST);
-            }
-
-            $token = $user->createToken('user_token', ['api-user'])->plainTextToken;
-
-            return response()->json(['message' => __('message.login_successfully'), 'token' => $token],ResponseAlias::HTTP_OK);
+            return $this->authUsingGoogle($googleUser);
 
         }
         catch (\Exception $e) {
             throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function callbackMobile(MobileGoogleAuthRequest $request)
+    {
+        try {
+        $googleToken = $request->input('token');
+
+        $googleUser = Socialite::driver('google')->stateless()->userFromToken($googleToken);
+
+        return $this->authUsingGoogle($googleUser);
+
+        }
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function authUsingGoogle($googleUser)
+    {
+        $user = User::where('email', $googleUser->email)->first();
+
+        if (!$user)
+        {
+            DB::transaction(function () use($googleUser,&$user)
+            {
+                $user = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'password' => $this->createRandomPassword(8),
+                    'google_id' => $googleUser->id,
+                    'email_verified_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                ]);
+            });
+        }
+
+        else if (!$user->google_id)
+        {
+            $user->google_id = $googleUser->id;
+            $user->save();
+        }
+
+        else if ($user->google_id != $googleUser->id)
+        {
+            return response()->json(['message' => __('message.something_wrong')], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+
+        $token = $user->createToken('user_token', ['api-user'])->plainTextToken;
+
+        return response()->json(['message' => __('message.login_successfully'), 'token' => $token],ResponseAlias::HTTP_OK);
     }
 
     private function createVerificationCode($request,string $function_name)
