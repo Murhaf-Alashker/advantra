@@ -16,9 +16,9 @@ class VerifyGoogleRedirect
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $referer = $request->headers->get('referer');
+        $referer = $request->get('scope');
 
-        if (!$referer || !str_contains($referer, 'google.com')) {
+        if (!$referer || !str_contains($referer, 'googleapis.com/auth/userinfo')) {
             throw new \Exception(__('message.invalid_google_redirect'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
 
         }
