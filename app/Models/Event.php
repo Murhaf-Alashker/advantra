@@ -65,6 +65,11 @@ class Event extends Model
     {
         return $this->morphMany(Translation::class, 'translatable');
     }
+    public function translate($column)
+    {
+        return $this->translations()->where('key', '=', 'event.' . $column)
+            ->value('translation');
+    }
 
     public function soloTrips(): BelongsToMany
     {

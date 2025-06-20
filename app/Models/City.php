@@ -59,4 +59,10 @@ class City extends Model
     {
         return $this->morphMany(Translation::class, 'translatable');
     }
+
+    public function translate($column)
+    {
+        return $this->translations()->where('key', '=', 'city.' . $column)
+           ->value('translation');
+    }
 }

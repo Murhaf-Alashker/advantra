@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LanguageController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Mail\VerificationCodeMail;
@@ -25,7 +26,7 @@ Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
 
-
+//
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //city api
     Route::controller(CityController::class)->group(function () {
@@ -40,6 +41,10 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     });
     //country api
     Route::post('/countries/{country}', [CountryController::class,'update'])->name('updateCountry');
+
+    //language api
+    Route::post('/languages',[LanguageController::class,'store'])->name('createLanguage');
+    Route::delete('/languages/{language}',[LanguageController::class,'destroy'])->name('deleteLanguage');
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {

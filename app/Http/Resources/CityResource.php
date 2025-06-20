@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\App;
 
 class CityResource extends JsonResource
 {
@@ -14,6 +15,12 @@ class CityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $locale = App::getLocale();
+
+        if ($locale == 'ar') {
+            $this->name = $this->translate('name');
+            $this->description = $this->translate('description');
+        }
 
         return [
           'id'=>$this->id,
