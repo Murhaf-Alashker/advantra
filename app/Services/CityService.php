@@ -18,7 +18,7 @@ class CityService{
 
     public function show(City $city)
     {
-        $city->load(['country','language']);
+        $city->load(['country','language','media']);
        return new CityResource($city);
     }
 

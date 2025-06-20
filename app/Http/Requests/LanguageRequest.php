@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCityRequest extends FormRequest
+class LanguageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,16 +22,8 @@ class StoreCityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|max:50|unique:cities,name',
-            'name_ar'=>'required|string|max:50|unique:cities,name',
-            'description'=>'string|max:10000',
-            'description_ar'=>'string|max:10000',
-            'status' => 'in:active,inactive',
-            'language_id'=>'required|exists:languages,id',
-            'images'=>'required',
-            'images.*'=>'image|mimes:jpg,jpeg,png|max:2048',
-
-
+            'name' => 'required|string',
+            'name_ar' => 'required|string',
         ];
     }
 }

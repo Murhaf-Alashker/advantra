@@ -33,18 +33,34 @@ class CityController extends Controller
     public function store(StoreCityRequest $request,Country $country)
     {
        $validated = $request->validated();
-        $cityData = collect($validated)->except('images')->all();
+        $cityData = collect($validated)->except('images','name_ar','description_ar')->all();
         $city =   $this->cityService->store($cityData,$country);
         if ($request->hasFile('images')) {
             $images = $request->file('images');
-           if(is_array($images))
+            $data = [
+                'mediable_type' => 'city',
+                'mediable_id' => $city->id,
+                'images' => $images,
+            ];
+            $this->mediaService->uploadImages($data);
+            /*  if(is_array($images))
            {
                $this->mediaService->storeMany($city, $images);
            }else
            {
                $this->mediaService->store($city, $images);
-           }
+           }*/
         }
+
+        $city->translations()->createMany([
+           ['key' => 'city.name',
+            'translation' => $validated['name_ar'],
+           ],
+            [
+                'key' => 'city.description',
+                'translation' => $validated['description_ar'],
+            ]
+        ]);
         return response()->json(new CityResource($city),201);
     }
 

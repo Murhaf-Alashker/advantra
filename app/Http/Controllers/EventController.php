@@ -34,19 +34,35 @@ class EventController extends Controller
     public function store(StoreEventRequest $request,City $city){
         $validated = $request->validated();
         $validated['slug']=Str::slug($validated['name']);
-        $eventData = collect($validated)->except('images')->all();
+        $eventData = collect($validated)->except('images','name_ar','description_ar')->all();
         $event =  $this->eventService->store($eventData,$city);
         if($request->hasFile('images')){
             $images = $request->file('images');
-            if(is_array($images))
+            $data = [
+                'mediable_type' => 'event',
+                'mediable_id' => $event->id,
+                'images' => $images,
+            ];
+            $this->mediaService->uploadImages($data);
+           /* if(is_array($images))
             {
                 $this->mediaService->storeMany($event, $images);
             }else
             {
                 $this->mediaService->store($event, $images);
-            }
+            }*/
         }
 
+        $event->translations()->createMany([
+            ['key' => 'event.name',
+                'translation' => $validated['name_ar'],
+            ],
+            [
+                'key' => 'event.description',
+                'translation' => $validated['description_ar'],
+            ]
+        ]);
+       $event->load('media');
        return response()->json(new EventResource($event),201) ;
     }
 
