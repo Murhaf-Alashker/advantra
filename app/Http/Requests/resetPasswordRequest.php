@@ -31,7 +31,7 @@ class resetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required','string','max:30','min:15','email','exists:users,email'],
+            'email' => ['required','string','max:30','min:15','email','exists:users,email','exists:password_reset_tokens,email'],
             'code' => ['required', 'string','size:6','regex:/^\d+$/'],
             'password'=>['required','string','min:8','confirmed','max:30','regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
         ];

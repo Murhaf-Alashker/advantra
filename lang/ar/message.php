@@ -7,11 +7,12 @@ return [
     'invalid_email' => 'هذا البريد الالكتروني غير صالح.',
     'invalid_code' => 'كود التحقق غير صالح.',
     'expired_code' => 'انتهت صلاحية كود التحقق. الرجاء اعادة طلب الكود مرة اخرى.',
-    'login_successfully' => 'تم تسلجيل الدخول بنجاح.',
+    'login_successfully' => 'تم تسجيل الدخول بنجاح.',
     'logout_successfully' => 'تم تسجيل الخروج بنجاح.',
     'register_successfully' => 'تم انشاء الحساب بنجاح.',
     'wrong_email_or_password' => 'كلمة السر أو البريد الإلكتروني غير صحيح',
     'reset_password_code' => 'تم ارسال كود التحقق لاعادة تعيين كلمة السر بنجاح.',
     'reset_password_successfully' => 'تم تعيين كلمة مرور جديدة',
-    'invalid_google_redirect' => 'لم يتم اعادة التوجيه من غوغل.'
+    'invalid_google_redirect' => 'لم يتم اعادة التوجيه من غوغل.',
+    'already_authenticated' => 'تم انشاء حساب خاص بهذا البريد الالكتروني مسبقا',
 ];
