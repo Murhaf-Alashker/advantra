@@ -24,6 +24,8 @@ class UpdateEventRequest extends FormRequest
         return [
             'name' => 'string|max:50,unique:events,name'.$this->event->id,
             'description' => 'string|max:1000',
+            'name_ar'=>'string|max:50',
+            'description_ar'=>'string|max:10000',
             'ticket_price' => 'numeric',
             'status' => 'in:active,inactive',
             'tickets_limit' => 'numeric',

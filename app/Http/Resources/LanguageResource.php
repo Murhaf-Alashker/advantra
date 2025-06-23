@@ -19,7 +19,6 @@ class LanguageResource extends JsonResource
 
         if ($locale == 'ar') {
             $this->name = $this->translate('name');
-            $this->description = $this->translate('description');
         }
 
         return [

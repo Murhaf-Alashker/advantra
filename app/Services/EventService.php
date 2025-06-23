@@ -28,8 +28,33 @@ class EventService{
     }
 
     public function update(array $data, Event $event){
+//        $event->update($data);
+//        return new EventResource($event);
+
+        $name_ar = $data['name_ar'] ?? null;
+        $description_ar = $data['description_ar'] ?? null;
+
+
+        unset($data['name_ar'], $data['description_ar']);
+
+
         $event->update($data);
-        return new EventResource($event);
+
+        if ($name_ar) {
+            $event->translations()->updateOrCreate(
+                ['key' => 'event.name'],
+                ['translation' => $name_ar]
+            );
+        }
+
+        if ($description_ar) {
+            $event->translations()->updateOrCreate(
+                ['key' => 'event.description'],
+                ['translation' => $description_ar]
+            );
+        }
+
+        return new EventResource($event->fresh(['translations']));
     }
 
     public function destroy(Event $event){

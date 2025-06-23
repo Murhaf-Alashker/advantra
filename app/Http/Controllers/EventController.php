@@ -7,6 +7,7 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateCityRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Http\Resources\EventResource;
+use App\Libraries\FileManager;
 use App\Models\City;
 use App\Models\Event;
 use App\Services\EventService;
@@ -16,11 +17,14 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
+    public $UPLOUD_PAHT = 'events/';
     protected MediaService $mediaService;
     protected EventService $eventService;
-    public function __construct(EventService $eventService,MediaService $mediaService){
+    protected  FileManager $fileManager;
+    public function __construct(EventService $eventService,MediaService $mediaService,FileManager $fileManager){
         $this->eventService = $eventService;
         $this->mediaService = $mediaService;
+        $this->fileManager = $fileManager;
     }
 
     public function index(){
@@ -36,14 +40,25 @@ class EventController extends Controller
         $validated['slug']=Str::slug($validated['name']);
         $eventData = collect($validated)->except('images','name_ar','description_ar')->all();
         $event =  $this->eventService->store($eventData,$city);
-        if($request->hasFile('images')){
+        $path = $this->UPLOUD_PAHT.$event->id;
+        if($request->hasFile('images')) {
             $images = $request->file('images');
-            $data = [
-                'mediable_type' => 'event',
-                'mediable_id' => $event->id,
-                'images' => $images,
-            ];
-            $this->mediaService->uploadImages($data);
+            $filenames = $this->fileManager->storeMany($path, $images, 'pic');
+            $mediaData = [];
+
+            foreach ($filenames as $filename) {
+                $mediaData[] = [
+                    'path' => $filename,
+                ];
+            }
+            $event->media()->createMany($mediaData);
+        }
+//            $data = [
+//                'mediable_type' => 'event',
+//                'mediable_id' => $event->id,
+//                'images' => $images,
+//            ];
+//            $this->mediaService->uploadImages($data);
            /* if(is_array($images))
             {
                 $this->mediaService->storeMany($event, $images);
@@ -51,7 +66,7 @@ class EventController extends Controller
             {
                 $this->mediaService->store($event, $images);
             }*/
-        }
+      //  }
 
         $event->translations()->createMany([
             ['key' => 'event.name',

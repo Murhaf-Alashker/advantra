@@ -80,6 +80,12 @@ class Guide extends Model
         return $this->morphMany(Translation::class,'translatable');
     }
 
+    public function translate($column)
+    {
+        return $this->translations()->where('key', '=', 'guide.' . $column)
+            ->value('translation');
+    }
+
     public function languages(): belongsToMany
     {
         return $this->belongsToMany(Language::class)
