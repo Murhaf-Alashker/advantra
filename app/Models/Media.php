@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\FileManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -15,6 +16,7 @@ class Media extends Model
     protected $fillable = [
         'path'
     ];
+  //  public $path;
 
     protected function casts(): array
     {
@@ -29,9 +31,14 @@ class Media extends Model
         return $this->morphTo();
     }
 
-    public function getUrlAttribute(): string
-    {
-        return asset(Storage::url($this->path));
-    }
-}
+//    public function getUrlAttribute(): string
+//    {
+//            if (!$this->path) return '';
+//        $fileManager = new FileManager();
+//            $urls = $fileManager->upload($this->path, $this->filename);
+//            return $urls[0] ?? '';
+//        }
 
+
+
+}

@@ -22,8 +22,10 @@ class UpdateCityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'string|max:50|unique:cities,name' .$this->city->id,
+            'name' => 'string|max:50|unique:cities,name,' . $this->city->id,
             'description'=>'string|max:10000',
+            'name_ar'=>'string|max:50',
+            'description_ar'=>'string|max:10000',
             'status' => 'in:active,inactive',
             'country_id'=>'exists:countries,id',
             'language_id'=>'exists:languages,id'

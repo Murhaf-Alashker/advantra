@@ -26,8 +26,8 @@ class FileManager
 
         $files = Storage::disk('public')->files($path);
 
-        return array_map(fn ($file) => Storage::disk('public')->url($file), $files);
-
+       return array_map(fn ($file) => Storage::disk('public')->url($file), $files);
+      //  return [1];
     }
 
 
@@ -51,6 +51,19 @@ class FileManager
 
         return $filename;
     }
+
+    public function storeMany(string $path, array $files, string $type = 'pic'): array
+    {
+        $stored = [];
+
+        foreach ($files as $file) {
+            $filename = $this->store($path, $file, $type);
+            $stored[] = $filename;
+        }
+
+        return $stored;
+    }
+
 
     public function delete(string $path, string $filename = null)
     {

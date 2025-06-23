@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Libraries\FileManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\App;
@@ -21,7 +22,8 @@ class EventResource extends JsonResource
             $this->name = $this->translate('name');
             $this->description = $this->translate('description');
         }
-
+        $path = 'events/' . $this->id;
+        $fileManager = new FileManager();
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -35,7 +37,15 @@ class EventResource extends JsonResource
             'tickets_limit' => $this->tickets_limit,
             'city' => $this->whenLoaded('city', fn () => new CityResource($this->city)),
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($this->category)),
-            'images' => MediaResource::collection($this->whenLoaded('media'))
+            'images' => $this->whenLoaded('media', function () use ($fileManager, $path) {
+                return $this->media->map(function ($media) use ($fileManager, $path) {
+                    $url = $fileManager->upload($path, $media->path);
+                    return [
+                        'id' => $media->id,
+                        'url' => $url,
+                    ];
+                });
+            })
 
         ];
     }

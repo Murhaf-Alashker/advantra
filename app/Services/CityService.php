@@ -31,9 +31,35 @@ class CityService{
 
    public function update(array $data, City $city)
    {
+//       $city->update($data);
+//      return new CityResource($city);
+
+       $name_ar = $data['name_ar'] ?? null;
+       $description_ar = $data['description_ar'] ?? null;
+
+
+       unset($data['name_ar'], $data['description_ar']);
+
+
        $city->update($data);
-      return new CityResource($city);
+
+       if ($name_ar) {
+           $city->translations()->updateOrCreate(
+               ['key' => 'city.name'],
+               ['translation' => $name_ar]
+           );
+       }
+
+       if ($description_ar) {
+           $city->translations()->updateOrCreate(
+               ['key' => 'city.description'],
+               ['translation' => $description_ar]
+           );
+       }
+
+       return new CityResource($city->fresh(['translations']));
    }
+
 
    public function getEvents(City $city)
    {
@@ -46,7 +72,9 @@ class CityService{
    {
       return GuideResource::collection($city->guides()
                                             ->where('status','=','active')
-                                            ->paginate(5));
+                                            ->with('media','languages')
+                                            ->paginate(5)
+                                           );
    }
 
    public function citiesWithMostEvents(){
