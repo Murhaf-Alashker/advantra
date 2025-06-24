@@ -3,14 +3,13 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
-use App\Services\GuideService;
+use App\Services\GroupTripService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
-use function PHPUnit\Framework\isNull;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
-class GuideResource extends JsonResource
+class GroupTripResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,35 +18,38 @@ class GuideResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = GuideService::FILE_PATH . $this->id;
+        $path = GroupTripService::FILE_PATH . $this->id;
 
+        $local = App::getLocale();
+
+        if($local == 'ar'){
+            $this->name = $this->translate('name');
+            $this->description = $this->translate('description');
+        }
 
         $forUser = [
             'id' => $this->id,
             'name' => $this->name,
-            'phone' => $this->phone,
-            'description' => $this->description,
-            'price' => $this->price,
+            'started_date' => $this->starting_date,
+            'ended_at' => $this->ending_date,
             'rate' => $this->rating ?? '0',
-            'city_id' => $this->city_id,
-            'languages' => LanguageResource::collection($this->whenLoaded('languages')),
-            'city' => $this->whenLoaded('city', fn() => new CityResource($this->city)),
+            'price' => $this->price,
+            'tickets_count' => $this->tickets_count,
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
-            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'events' => EventResource::collection($this->whenLoaded('events')),
+            'guide' => $this->whenLoaded('guide', fn() => new GuideResource($this->guide)),
+            'cities' => CityResource::collection($this->whenLoaded('cities')),
             'images' => $this->whenLoaded('media', function () use ($path) {
                 return FileManager::bringMedia($this->media , $path);
             })
         ];
 
         $moreInfo = [
-            'email' => $this->email,
-            'const_salary' => $this->const_salary,
-            'extra_salary' => $this->extra_salary,
             'stars_count' => $this->stars_count,
             'reviews_count' => $this->reviews_count,
-            'is_deleted' => $this->deleted_at != null,
+            'guide_id' => $this->guide_id,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->updated_at
         ];
         if(Auth::guard('api-user')->check()) {
             return $forUser;

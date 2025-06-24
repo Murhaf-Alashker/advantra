@@ -3,14 +3,12 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
-use App\Services\GuideService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use function PHPUnit\Framework\isNull;
-use Illuminate\Support\Facades\App;
 
-class GuideResource extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,21 +17,11 @@ class GuideResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = GuideService::FILE_PATH . $this->id;
-
+        $path = 'users/' . $this->id;
 
         $forUser = [
             'id' => $this->id,
             'name' => $this->name,
-            'phone' => $this->phone,
-            'description' => $this->description,
-            'price' => $this->price,
-            'rate' => $this->rating ?? '0',
-            'city_id' => $this->city_id,
-            'languages' => LanguageResource::collection($this->whenLoaded('languages')),
-            'city' => $this->whenLoaded('city', fn() => new CityResource($this->city)),
-            'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
-            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'images' => $this->whenLoaded('media', function () use ($path) {
                 return FileManager::bringMedia($this->media , $path);
             })
@@ -41,13 +29,12 @@ class GuideResource extends JsonResource
 
         $moreInfo = [
             'email' => $this->email,
-            'const_salary' => $this->const_salary,
-            'extra_salary' => $this->extra_salary,
-            'stars_count' => $this->stars_count,
-            'reviews_count' => $this->reviews_count,
+            'email_verified_at' => $this->email_verified_at,
+            'status' => $this->status,
+            'points' => $this->points,
             'is_deleted' => $this->deleted_at != null,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->updated_at
         ];
         if(Auth::guard('api-user')->check()) {
             return $forUser;

@@ -67,6 +67,12 @@ class GroupTrip extends Model
         return $this->morphMany(Translation::class, 'translatable');
     }
 
+    public function translate($column)
+    {
+        return $this->translations()->where('key', '=', 'groupTrip.' . $column)
+            ->value('translation');
+    }
+
     public function events(): BelongsToMany
     {
         return $this->belongsToMany(Event::class, 'event_group_trip', 'group_trip_id', 'event_id')
@@ -88,5 +94,10 @@ class GroupTrip extends Model
             'id',
             'city_id'
         );
+    }
+
+    public function scopeGroupTripWithRate($query)
+    {
+        return $query->selectRaw('group_trips.*, ROUND(stars_count / NULLIF(reviews_count, 0), 1) as rating');
     }
 }
