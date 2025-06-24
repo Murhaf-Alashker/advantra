@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\User\HomeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Mail\VerificationCodeMail;
@@ -14,7 +15,6 @@ use App\Http\Controllers\CityController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-
 Route::post('/generateUnverifiedUser', [AuthController::class, 'sendVerificationCode'])->name('generateUnverifiedUser');
 Route::post('/resendVerificationCode', [AuthController::class, 'resendVerificationCode'])->name('resendVerificationCode');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
@@ -58,6 +58,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
 Route::middleware('auth:api-user')->group(function () {
     //auth api
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/home',[HomeController::class,'index'])->name('home');
 //city api
 Route::controller(CityController::class)->group(function () {
     Route::get('/cities', 'index')->name('getCities');

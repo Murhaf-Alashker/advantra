@@ -12,7 +12,7 @@ class CityService{
     public function index()
     {
         return  CityResource::collection(City::with(['country','language'])
-                                             ->where('status','active')
+                                             ->activeCities()
                                              ->paginate(10));
     }
 

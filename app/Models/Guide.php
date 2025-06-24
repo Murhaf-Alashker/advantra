@@ -102,4 +102,14 @@ class Guide extends Model
     {
         return $this->hasMany(Report::class);
     }
+
+    public function scopeActiveGuides($query)
+    {
+        return $query->where('status', '!=', 'active');
+    }
+
+    public function scopeGuideWithRate($query)
+    {
+        return $query->selectRaw('guides.*, ROUND(stars_count / NULLIF(reviews_count, 0), 1) as rating');
+    }
 }

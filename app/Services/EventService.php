@@ -9,11 +9,14 @@ use App\Models\Guide;
 
 
 class EventService{
+    public const FILE_PATH =  'uploads/events/';
 
     public function index(){
-        return EventResource::collection(Event::with(['city,category,media'])
-                                               ->where('status','active')
-                                              ->paginate(10));
+        return EventResource::collection(Event::with(['media'])
+                                                ->activeEvents()
+                                                ->eventWithRate()
+                                                ->latest()
+                                                ->paginate(10));
     }
 
     public function show(Event $event){
@@ -65,13 +68,25 @@ class EventService{
         return EventResource::collection(Event::where('city_id',$event->city_id)
                                               ->where('id','!=',$event->id)
                                               ->where('status','active')
+                                              ->enentWithRate()
                                               ->paginate(10));
     }
 
     public function relatedGuides(Event $event){
         return GuideResource::collection(Guide::where('city_id',$event->city_id)
                                                ->where('status','active')
+                                               ->guideWithRate()
                                                ->paginate(5));
 
     }
+
+    public function topRatedEvents()
+    {
+        return EventResource::collection(Event::with(['media'])
+                                                ->activeEvents()
+                                                ->eventWithRate()
+                                                ->orderByDesc('rating')
+                                                ->paginate(10));
+    }
+
 }

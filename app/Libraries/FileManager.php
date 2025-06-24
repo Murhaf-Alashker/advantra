@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class FileManager
 {
-    public function upload(string $path, string $filename = null): array
+    public static function upload(string $path, string $filename = null): array
     {
         if ($filename != null) {
 
@@ -31,7 +31,7 @@ class FileManager
     }
 
 
-    public function store(string $path, $file,string $type = 'pic'): string
+    public static function store(string $path, $file,string $type = 'pic'): string
     {
         $path = Str::of($path)->finish('/');
 
@@ -52,12 +52,12 @@ class FileManager
         return $filename;
     }
 
-    public function storeMany(string $path, array $files, string $type = 'pic'): array
+    public static function storeMany(string $path, array $files, string $type = 'pic'): array
     {
         $stored = [];
 
         foreach ($files as $file) {
-            $filename = $this->store($path, $file, $type);
+            $filename = self::store($path, $file, $type);
             $stored[] = $filename;
         }
 
@@ -65,7 +65,7 @@ class FileManager
     }
 
 
-    public function delete(string $path, string $filename = null)
+    public static function delete(string $path, string $filename = null)
     {
         if ($filename != null) {
             $path = Str::of($path)->finish('/');
@@ -75,4 +75,16 @@ class FileManager
 
         return Storage::disk('public')->deleteDirectory($path);
     }
+
+    public static function bringMedia($collection, $path)
+    {
+        return $collection->map(function ($media) use ($path) {
+            $url = self::upload($path, $media->path);
+            return [
+                'id' => $media->id,
+                'url' => $url[0] ?? null,
+            ];
+        });
+    }
+
 }

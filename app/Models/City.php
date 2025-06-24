@@ -65,4 +65,9 @@ class City extends Model
         return $this->translations()->where('key', '=', 'city.' . $column)
            ->value('translation');
     }
+
+    public function scopeActiveCities($query)
+    {
+        return $query->where('status', '=', 'active');
+    }
 }

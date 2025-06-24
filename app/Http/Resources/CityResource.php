@@ -19,28 +19,22 @@ class CityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $path = 'cities/' . $this->id;
+
         $locale = App::getLocale();
 
         if ($locale == 'ar') {
             $this->name = $this->translate('name');
             $this->description = $this->translate('description');
         }
-        $fileManager = new FileManager();
-        $path = 'cities/' . $this->id;
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'images' => $this->whenLoaded('media', function () use ($fileManager, $path) {
-                return $this->media->map(function ($media) use ($fileManager, $path) {
-                    $url = $fileManager->upload($path, $media->path);
-                    return [
-                        'id' => $media->id,
-                        'url' => $url[0] ?? null,
-                    ];
-                });
+            'images' => $this->whenLoaded('media', function () use ($path) {
+                return FileManager::bringMedia($this->media , $path);
             }),
             'language' => $this->whenLoaded('language', fn() => new LanguageResource($this->language)),
             'country' => $this->whenLoaded('country', fn() => new CountryResource($this->country)),

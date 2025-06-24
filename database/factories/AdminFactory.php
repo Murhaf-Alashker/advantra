@@ -19,7 +19,7 @@ class AdminFactory extends Factory
     {
         return [
             'email' => 'admin@gmail.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password1'),
             'card_number' => '9999999999'
         ];
     }

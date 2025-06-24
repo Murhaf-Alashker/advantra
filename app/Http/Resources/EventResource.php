@@ -3,9 +3,11 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
+use App\Services\EventService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\App;
+use function PHPUnit\Framework\isNull;
 
 class EventResource extends JsonResource
 {
@@ -16,19 +18,21 @@ class EventResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $path = EventService::FILE_PATH . $this->id;
+
         $locale = App::getLocale();
 
         if ($locale == 'ar') {
             $this->name = $this->translate('name');
             $this->description = $this->translate('description');
         }
-        $path = 'events/' . $this->id;
-        $fileManager = new FileManager();
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
+            'rate' => $this->rating ?? '0',
             'ticket_price' => $this->ticket_price,
             'tickets_count' => $this->tickets_count ,
             'status' => $this->status ,
@@ -37,14 +41,8 @@ class EventResource extends JsonResource
             'tickets_limit' => $this->tickets_limit,
             'city' => $this->whenLoaded('city', fn () => new CityResource($this->city)),
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($this->category)),
-            'images' => $this->whenLoaded('media', function () use ($fileManager, $path) {
-                return $this->media->map(function ($media) use ($fileManager, $path) {
-                    $url = $fileManager->upload($path, $media->path);
-                    return [
-                        'id' => $media->id,
-                        'url' => $url,
-                    ];
-                });
+            'images' => $this->whenLoaded('media', function () use ($path) {
+                return FileManager::bringMedia($this->media , $path);
             })
 
         ];

@@ -83,4 +83,14 @@ class Event extends Model
         return $this->belongsToMany(GroupTrip::class,'event_group_trip','event_id','group_trip_id')
             ->withTimestamps();
     }
+
+    public function scopeActiveEvents($query)
+    {
+        return $query->where('status', '=', 'active');
+    }
+
+    public function scopeEventWithRate($query)
+    {
+        return $query->selectRaw('events.*, ROUND(stars_count / NULLIF(reviewer_count, 0), 1) as rating');
+    }
 }
