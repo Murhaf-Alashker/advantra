@@ -17,7 +17,8 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
-    public $UPLOUD_PAHT = 'events/';
+  //  public const UPLOAD_PAHT = 'events/';
+
     protected MediaService $mediaService;
     protected EventService $eventService;
     protected  FileManager $fileManager;
@@ -40,7 +41,7 @@ class EventController extends Controller
         $validated['slug']=Str::slug($validated['name']);
         $eventData = collect($validated)->except('images','name_ar','description_ar')->all();
         $event =  $this->eventService->store($eventData,$city);
-        $path = $this->UPLOUD_PAHT.$event->id;
+        $path = EventService::FILE_PATH . $event->id;
         if($request->hasFile('images')) {
             $images = $request->file('images');
             $filenames = $this->fileManager->storeMany($path, $images, 'pic');
@@ -53,21 +54,6 @@ class EventController extends Controller
             }
             $event->media()->createMany($mediaData);
         }
-//            $data = [
-//                'mediable_type' => 'event',
-//                'mediable_id' => $event->id,
-//                'images' => $images,
-//            ];
-//            $this->mediaService->uploadImages($data);
-           /* if(is_array($images))
-            {
-                $this->mediaService->storeMany($event, $images);
-            }else
-            {
-                $this->mediaService->store($event, $images);
-            }*/
-      //  }
-
         $event->translations()->createMany([
             ['key' => 'event.name',
                 'translation' => $validated['name_ar'],

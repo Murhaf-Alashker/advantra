@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Controllers\EventController;
 use App\Libraries\FileManager;
 use App\Services\EventService;
 use Illuminate\Http\Request;
