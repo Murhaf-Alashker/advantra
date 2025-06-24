@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
+use App\Services\CityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\App;
@@ -19,7 +20,7 @@ class CityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = 'cities/' . $this->id;
+        $path = CityService::FILE_PATH . $this->id;
 
         $locale = App::getLocale();
 

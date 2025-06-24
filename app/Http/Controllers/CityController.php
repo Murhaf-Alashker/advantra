@@ -14,7 +14,7 @@ use App\Services\MediaService;
 
 class CityController extends Controller
 {
-    public $UPLOUD_PAHT = 'cities/';
+  //  public $UPLOUD_PAHT = 'cities/';
     protected CityService $cityService;
     protected MediaService $mediaService;
     protected  FileManager $fileManager;
@@ -39,7 +39,7 @@ class CityController extends Controller
        $validated = $request->validated();
         $cityData = collect($validated)->except('images','name_ar','description_ar')->all();
         $city =   $this->cityService->store($cityData,$country);
-        $path = $this->UPLOUD_PAHT.$city->id;
+        $path = CityService::FILE_PATH . $city->id;
         if ($request->hasFile('images')) {
             $images = $request->file('images');
             $filenames = $this->fileManager->storeMany($path, $images, 'pic');

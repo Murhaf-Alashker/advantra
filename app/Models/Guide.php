@@ -105,7 +105,7 @@ class Guide extends Model
 
     public function scopeActiveGuides($query)
     {
-        return $query->where('status', '!=', 'active');
+        return $query->where('status', '===', 'active');
     }
 
     public function scopeGuideWithRate($query)

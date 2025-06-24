@@ -20,9 +20,9 @@ class GuideService
                                                 ->paginate(10));
     }
 
-    public function show(GroupTrip $groupTrip)
+    public function show(Guide $guide)
     {
-        $groupTrip->guideWithRate()
+        $guide->guideWithRate()
             ->load(['media',
             'city',
             'languages',
@@ -30,7 +30,7 @@ class GuideService
             'feedbacks' => fn ($query) =>
             $query->whereHas('user', fn ($userQuery) =>
             $userQuery->where('status', 'active'))]);
-        return new GuideResource($groupTrip);
+        return new GuideResource($guide);
     }
 
     public function topRatedGuides()

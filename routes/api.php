@@ -26,8 +26,8 @@ Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
 
-
-Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
+//->middleware('auth:api-admin')
+Route::prefix('/dashboard')->group(function () {
     //city api
     Route::controller(CityController::class)->group(function () {
         Route::post('/countries/{country}/cities', 'store')->name('createCity');
