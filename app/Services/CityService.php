@@ -12,7 +12,7 @@ class CityService{
     public const FILE_PATH =  'uploads/cities/';
     public function index()
     {
-        return  CityResource::collection(City::with(['country','language'])
+        return  CityResource::collection(City::with(['country','language','media'])
                                              ->activeCities()
                                              ->paginate(10));
     }
