@@ -18,7 +18,7 @@ class EventService{
                                                 ->latest()
                                                 ->paginate(10));
     }
-
+//
     public function show(Event $event){
         $event->load(['city','category','media']);
         return new EventResource($event);
@@ -68,6 +68,7 @@ class EventService{
         return EventResource::collection(Event::where('city_id',$event->city_id)
                                               ->where('id','!=',$event->id)
                                               ->where('status','active')
+                                              ->with(['media'])
                                               ->enentWithRate()
                                               ->paginate(10));
     }
@@ -75,6 +76,7 @@ class EventService{
     public function relatedGuides(Event $event){
         return GuideResource::collection(Guide::where('city_id',$event->city_id)
                                                ->where('status','active')
+                                               ->with(['media'])
                                                ->guideWithRate()
                                                ->paginate(5));
 
