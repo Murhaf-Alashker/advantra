@@ -82,8 +82,8 @@ class CityService{
    public function citiesWithMostEvents(){
         $cities = City::withCount('events')
                         ->orderBy('events_count','desc')
+                        ->with(['media'])
                         ->paginate(10);
-        return CityResource::collection($cities
-                                        ->with(['media'])    );
+        return CityResource::collection($cities);
    }
 }
