@@ -18,7 +18,7 @@ class EventService{
                                                 ->latest()
                                                 ->paginate(10));
     }
-
+//
     public function show(Event $event){
         $event->load(['city','category','media']);
         return new EventResource($event);
