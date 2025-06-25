@@ -66,6 +66,7 @@ class CityService{
    {
         return EventResource::collection($city->events()
                                               ->where('status','=','active')
+                                              ->with(['media'])
                                               ->paginate(5));
    }
 
@@ -82,6 +83,7 @@ class CityService{
         $cities = City::withCount('events')
                         ->orderBy('events_count','desc')
                         ->paginate(10);
-        return CityResource::collection($cities);
+        return CityResource::collection($cities
+                                        ->with(['media'])    );
    }
 }
