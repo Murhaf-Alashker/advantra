@@ -15,4 +15,9 @@ return [
     'reset_password_successfully' => 'تم تعيين كلمة مرور جديدة',
     'invalid_google_redirect' => 'لم يتم اعادة التوجيه من غوغل.',
     'already_authenticated' => 'تم انشاء حساب خاص بهذا البريد الالكتروني مسبقا',
+    'unauthorized_admin' => 'فقط المالك يستطيع القيام بهذا الاجراء.',
+    'cannot_delete_guide_with_active_group' => 'لا يمكنك حذف هذا الدليل السياحي لانه يقود رحلة جماعية.',
+    'guide_deleted_successfully' => 'تم حذف الدليل السياحي بنجاح.',
+    'guide_created_successfully' => 'تم انشاء الدليل السياحي بنجاح.',
+    'unauthorized' => 'ليس لديك الصلاحية للقيام بهذا الاجراء',
 ];

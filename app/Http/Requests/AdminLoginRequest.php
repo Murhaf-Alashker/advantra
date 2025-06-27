@@ -6,15 +6,15 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class UnverifiedUserRequest extends FormRequest
+class AdminLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        if(!Auth::guard('api-user')->guest()){
-            throw new AuthorizationException(__('message.already_authenticated'));
+        if(!Auth::guard('api-admin')->guest()){
+            throw new AuthorizationException(__('already_authenticated'));
         }
         return true;
     }
@@ -27,9 +27,8 @@ class UnverifiedUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required_with:password','string','min:3','max:20','unique:users,name','unique:unverified_users,name'],
-            'email'=>['required','string','email','unique:users,email'],
-            'password'=>['required_with:name','string','min:8','confirmed','max:30','regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
+            'email'=>['required','string','email','exists:admins,email'],
+            'password' => ['required','string','min:8','max:30','regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
         ];
     }
 }

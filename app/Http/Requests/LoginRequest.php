@@ -14,7 +14,7 @@ class LoginRequest extends FormRequest
     public function authorize(): bool
     {
         if(!Auth::guard('api-user')->guest()){
-            throw new AuthorizationException('you are already authenticated ');
+            throw new AuthorizationException(__('already_authenticated'));
         }
         return true;
     }
