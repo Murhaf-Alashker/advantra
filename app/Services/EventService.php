@@ -69,13 +69,13 @@ class EventService{
                                               ->where('id','!=',$event->id)
                                               ->where('status','active')
                                               ->with(['media'])
-                                              ->enentWithRate()
+                                              ->eventWithRate()
                                               ->paginate(10));
     }
 
     public function relatedGuides(Event $event){
         return GuideResource::collection(Guide::where('city_id',$event->city_id)
-                                               ->where('status','active')
+                                               ->activeGuides()
                                                ->with(['media'])
                                                ->guideWithRate()
                                                ->paginate(5));

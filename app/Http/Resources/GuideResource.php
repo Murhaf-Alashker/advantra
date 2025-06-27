@@ -20,6 +20,7 @@ class GuideResource extends JsonResource
     public function toArray(Request $request): array
     {
         $path = GuideService::FILE_PATH . $this->id;
+        $media = FileManager::bringMediaWithType($path);
 
 
         $forUser = [
@@ -34,9 +35,11 @@ class GuideResource extends JsonResource
             'city' => $this->whenLoaded('city', fn() => new CityResource($this->city)),
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
-            'images' => $this->whenLoaded('media', function () use ($path) {
-                return FileManager::bringMedia($this->media , $path);
-            })
+            'images' => $media['images'] ?? [],
+            'videos' => $media['videos'] ?? [],
+//            'images' => $this->whenLoaded('media', function () use ($path) {
+//                return FileManager::bringMedia($this->media , $path);
+//            })
         ];
 
         $moreInfo = [

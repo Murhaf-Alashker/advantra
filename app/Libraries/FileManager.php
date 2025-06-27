@@ -23,15 +23,18 @@ class FileManager
 
             return [];
         }
+        if(Storage::disk('public')->exists($path))
+        {
+            $files = Storage::disk('public')->files($path);
 
-        $files = Storage::disk('public')->files($path);
+            return array_map(fn ($file) => Storage::disk('public')->url($file), $files);
+        }
 
-       return array_map(fn ($file) => Storage::disk('public')->url($file), $files);
-      //  return [1];
+        return [];
     }
 
 
-    public static function store(string $path, $file,string $type = 'pic'): string
+    public static function store(string $path, $file,string $type = 'images'): string
     {
         $path = Str::of($path)->finish('/');
 
@@ -39,9 +42,10 @@ class FileManager
 
         $filename = Str::snake($filename);
 
-        if($type === 'pic')
+        if($type === 'images' || $type === 'videos')
         {
-            $file->storeAs($path, $filename, 'public');
+            $finalPath = $path . $type . '/';
+            $file->storeAs($finalPath, $filename, 'public');
         }
 
         else if($type === 'pdf')
@@ -52,7 +56,7 @@ class FileManager
         return $filename;
     }
 
-    public static function storeMany(string $path, array $files, string $type = 'pic'): array
+    public static function storeMany(string $path, array $files, string $type = 'images'): array
     {
         $stored = [];
 
@@ -65,15 +69,16 @@ class FileManager
     }
 
 
-    public static function delete(string $path, string $filename = null)
+    public static function delete(string $path, string $filename = null, string $type = 'images')
     {
         if ($filename != null) {
             $path = Str::of($path)->finish('/');
+            $path = $path . $type.'/';
 
-            return Storage::disk('public')->delete($path . $filename);
+            Storage::disk('public')->delete($path . $filename);
         }
 
-        return Storage::disk('public')->deleteDirectory($path);
+        Storage::disk('public')->deleteDirectory($path);
     }
 
     public static function bringMedia($collection, $path)
@@ -85,6 +90,22 @@ class FileManager
                 'url' => $url[0] ?? null,
             ];
         });
+    }
+
+    public static function bringMediaWithType($path)
+    {
+        $images = self::upload($path. '/images');
+        $videos = self::upload($path. '/videos');
+        return [
+            'images' => $images,
+            'videos' => $videos,
+        ];
+    }
+
+    public static function updateSinglePic(string $path, string $oldFilename, $file, string $type = 'images')
+    {
+        self::delete($path, $oldFilename);
+        return self::store($path, $file, 'images');
     }
 
 }
