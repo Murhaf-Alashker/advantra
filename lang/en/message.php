@@ -15,4 +15,9 @@ return [
     'reset_password_successfully' => 'Reset password successfully.',
     'invalid_google_redirect' => 'Invalid Google redirect',
     'already_authenticated' => 'You are already authenticated.',
+    'unauthorized_admin' => 'Sorry ,only admin can do this action.',
+    'cannot_delete_guide_with_active_group' => 'You can not delete guide with because he is leading a group trip.',
+    'guide_deleted_successfully' => 'Guide deleted successfully.',
+    'guide_created_successfully' => 'Guide successfully created.',
+    'unauthorized' => 'You are not authorized to do this action.',
 ];

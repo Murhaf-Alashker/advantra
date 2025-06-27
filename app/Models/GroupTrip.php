@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -99,5 +100,10 @@ class GroupTrip extends Model
     public function scopeGroupTripWithRate($query)
     {
         return $query->selectRaw('group_trips.*, ROUND(stars_count / NULLIF(reviews_count, 0), 1) as rating');
+    }
+
+    public function scopeNotFinished($query)
+    {
+        return $query->where('status', '=', Status::PENDING)->orWhere('status', '=', Status::IN_PROGRESS);
     }
 }

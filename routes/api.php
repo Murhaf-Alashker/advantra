@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Http\Request;
@@ -25,9 +27,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
+Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin');
 
 //->middleware('auth:api-admin')
-Route::prefix('/dashboard')->group(function () {
+Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //city api
     Route::controller(CityController::class)->group(function () {
         Route::post('/countries/{country}/cities', 'store')->name('createCity');
@@ -45,6 +48,13 @@ Route::prefix('/dashboard')->group(function () {
     //language api
     Route::post('/languages',[LanguageController::class,'store'])->name('createLanguage');
     Route::delete('/languages/{language}',[LanguageController::class,'destroy'])->name('deleteLanguage');
+
+    //guide api
+    Route::controller(GuideController::class)->group(function () {
+        Route::post('/guides/store','store')->name('createGuide');
+        Route::post('/guides/{guide}','update')->name('updateGuide');
+        Route::get('/guides/{guide}','destroy')->name('deleteGuide');
+    });
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
@@ -55,7 +65,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
 });
 
 
-Route::middleware('auth:api-user')->group(function () {
+Route::middleware('auth:api-user,api-admin')->group(function () {
     //auth api
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/home',[HomeController::class,'index'])->name('home');
@@ -74,4 +84,10 @@ Route::controller(EventController::class)->group(function () {
     Route::get('/events/{event:slug}/relatedEvents','relatedEvents')->name('getRelatedEvents');
     Route::get('/events/{event:slug}/relatedGuides','relatedGuides')->name('getRelatedGuides');
 });
+//guide api
+    Route::controller(GuideController::class)->prefix('/guides')->group(function () {
+        Route::get('/','index')->name('getGuides');
+        Route::get('/{guide}','show')->name('showGuide');
+        Route::get('/{guide}/relatedGuides','relatedGuides')->name('getRelatedGuides');
+    });
 });
