@@ -102,4 +102,9 @@ class GuideController extends Controller
 
         return response()->json(['message' => __('message.guide_deleted_successfully')], 204);
     }
+
+    public function relatedGuides(Guide $guide)
+    {
+        return $this->guideService->relatedGuides($guide);
+    }
 }
