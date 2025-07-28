@@ -18,12 +18,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->longText('description')->nullable();
-            $table->float('ticket_price');
-            $table->bigInteger('tickets_count')->nullable()->default(0);
+            $table->decimal('basic_cost',10,2);
+            $table->decimal('ticket_price',10,2);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->bigInteger('stars_count')->default(0);
             $table->bigInteger('reviewer_count')->default(0);
-            $table->bigInteger('tickets_limit')->nullable();
             $table->foreignIdFor(City::class)->constrained();
             $table->foreignIdFor(Category::class)->constrained();
             $table->softDeletes();

@@ -23,7 +23,7 @@ class GuideFactory extends Factory
             'phone'=>$this->faker->phoneNumber(),
             'description'=>$this->faker->text(),
             'card'=>$this->faker->unique()->numerify('##########'),
-            'status'=>'inactive',
+            'status'=>'active',
             'price'=>$this->faker->randomFloat(2, 50.00, 999999.99),
             'const_salary'=>100.00,
             'extra_salary'=>0.00,

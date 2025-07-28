@@ -8,6 +8,7 @@ use App\Http\Resources\GuideResource;
 use App\Libraries\FileManager;
 use App\Models\GroupTrip;
 use App\Models\Guide;
+use App\Models\Scopes\WithMediaScope;
 use Illuminate\Support\Facades\Auth;
 
 class GuideService
@@ -28,9 +29,7 @@ class GuideService
     }
     public function index()
     {
-        return GuideResource::collection(Guide::with(['media'])
-                                        ->activeGuides()
-                                        ->guideWithRate()
+        return GuideResource::collection(Guide::guideWithRate()
                                         ->paginate($this->count));
     }
 
@@ -38,13 +37,12 @@ class GuideService
     {
         $guide=Guide::where('id', '=', $guide->id)
             ->guideWithRate()
-            ->with(['media',
+            ->with([
             'city',
             'languages',
             'categories',
             'feedbacks' => fn ($query) =>
-            $query->whereHas('user', fn ($userQuery) =>
-            $userQuery->where('status', 'active'))])
+            $query->whereHas('user')])
         ->firstOrFail();
         return new GuideResource($guide);
     }
@@ -69,9 +67,7 @@ class GuideService
 
     public function topRatedGuides()
     {
-        return GuideResource::collection(Guide::with(['media'])
-                                        ->activeGuides()
-                                        ->guideWithRate()
+        return GuideResource::collection(Guide::guideWithRate()
                                         ->orderByDesc('rating')
                                         ->paginate($this->count));
     }
@@ -80,15 +76,13 @@ class GuideService
     {
         return GuideResource::collection(Guide::where('city_id', '=', $guide->city_id)
                                                 ->where('id', '!=', $guide->id)
-                                                ->activeGuides()
-                                                ->with(['media'])
                                                 ->guideWithRate()
                                                 ->paginate($this->count));
     }
 
     public function trashedGuides()
     {
-        return GuideResource::collection(Guide::with(['media'])
+        return GuideResource::collection(Guide::withoutGlobalScope(WithMediaScope::class)
                                                 ->onlyTrashed()
                                                 ->guideWithRate()
                                                 ->paginate($this->count));

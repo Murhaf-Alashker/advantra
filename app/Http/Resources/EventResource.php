@@ -20,6 +20,7 @@ class EventResource extends JsonResource
     public function toArray(Request $request): array
     {
         $path = EventService::FILE_PATH . $this->id;
+        $media = FileManager::bringMediaWithType($path);
 
         $locale = App::getLocale();
 
@@ -34,17 +35,16 @@ class EventResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'rate' => $this->rating ?? '0',
+            'basic_cost' => $this->basic_cost ?? '0',
             'ticket_price' => $this->ticket_price,
-            'tickets_count' => $this->tickets_count ,
             'status' => $this->status ,
             'stars_count' => $this->stars_count ,
             'reviewer_count' => $this->reviewer_count ,
-            'tickets_limit' => $this->tickets_limit,
+            'has offer' => $this->hasOffer(),
             'city' => $this->whenLoaded('city', fn () => new CityResource($this->city)),
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($this->category)),
-            'images' => $this->whenLoaded('media', function () use ($path) {
-                return FileManager::bringMedia($this->media , $path);
-            })
+            'images' => $media['images'] ?? [],
+            'videos' => $media['videos'] ?? [],
 
         ];
     }

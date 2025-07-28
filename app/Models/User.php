@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\WithMediaScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -57,6 +59,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime:Y-m-d H:i:s',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new ActiveScope());
+        static::addGlobalScope(new WithMediaScope());
     }
 
     public function contacts():HasMany
@@ -116,43 +124,48 @@ class User extends Authenticatable
 
     public function allEvents()
     {
-        return $this->directEvents()
-            ->merge($this->soloTripEvents())
-            ->merge($this->groupTripEvents());
+        return Event::withoutGlobalScope(ActiveScope::class)
+                    ->withTrashed()
+                    ->distinct()->where(function ($query) {
+                        $query->whereHas('reservations', fn($q) => $q->where('user_id', $this->id))
+                            ->orWhereHas('soloTrips', fn($q) => $q->where('user_id', $this->id))
+                            ->orWhereHas('groupTrips.reservations', fn($q) =>
+                            $q->where('user_id', $this->id)
+                                ->where('reservable_type', GroupTrip::class)
+                );
+        });
     }
 
-    public function directEvents(): HasManyThrough
+    public function directEvents()
     {
-        return $this->hasManyThrough(
-            Event::class,//الجدول يلي بدي اربط معو
-            Reservation::class,//الجدول الوسيط بين التنين
-            'user_id',//ال foriegnkey يلي بيربط الجدول (*) بالجدول يلي نحنا هلق واقفين عندو(موجود بالجدول * واذا مو موجود منكتب id)
-            'id',//الforiegnkey يلي بيربط الجدول يلي نحنا هلق واقفين عندو بالجدول (*) (موجود بالجدول يلي واقفين عندو واذا مو موجود منحط id)
-            'id',//لforiegnkey يلي بيربط الجدول (#) بالجدول (*)(موجود بالجدول # واذا مو موجود منكتب id)
-            'reservable_id')//الforiegnkey يلي بيربط الجدول (*) بالجدول (#) (موجود بالجدول * واذا مو موجود منكتب id)
-            ->where('reservable_type', Event::class);
+        return Event::withoutGlobalScope(ActiveScope::class)
+                    ->withTrashed()
+                    ->whereHas('reservations', fn ($q) =>
+                        $q->where('user_id', $this->id)
+                    );
+
     }
 
     protected function groupTripEvents()
     {
-        return Event::whereHas('groupTrips', function ($query) {
-            $query->whereHas('reservations', function ($reservationQuery) {
-                $reservationQuery->where('user_id', $this->id)
-                    ->where('reservable_type', GroupTrip::class);
-            });
-        })->get();
+        return Event::withoutGlobalScope(ActiveScope::class)
+                    ->withTrashed()
+                    ->whereHas('groupTrips', fn($query) =>
+                                            $query->whereHas('reservations', fn($q) =>
+                                                $q->where('user_id', $this->id)
+                                                    ->where('reservable_type', GroupTrip::class)
+                                            )
+                            );
     }
 
-    protected function soloTripEvents(): HasManyThrough
+
+    protected function soloTripEvents()
     {
-        return $this->HasManyThrough(
-            Event::class,
-            SoloTrip::class,
-            'user_id',
-            'id',
-            'id',
-            'id'
-        );
+        return Event::withoutGlobalScope(ActiveScope::class)
+                    ->withTrashed()
+                    ->whereHas('soloTrips', fn ($q) =>
+                        $q->where('user_id',$this->id)
+                    );
     }
 
 }

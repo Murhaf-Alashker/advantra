@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('contact_us', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_read')->default(false);
             $table->text('body');
             $table->foreignIdFor(User::class)->constrained();
             $table->timestamps();

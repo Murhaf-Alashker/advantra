@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
 use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 
 class GroupTrip extends Model
@@ -22,9 +24,12 @@ class GroupTrip extends Model
         'description',
         'starting_date',
         'ending_date',
+        'basic_cost',
+        'extra_cost',
         'status',
         'price',
         'tickets_count',
+        'tickets_limit',
         'stars_count',
         'reviews_count',
         'guide_id'
@@ -97,6 +102,11 @@ class GroupTrip extends Model
         );
     }
 
+    public function offers(): morphMany
+    {
+        return $this->morphMany(Offer::class, 'offerable');
+    }
+
     public function scopeGroupTripWithRate($query)
     {
         return $query->selectRaw('group_trips.*, ROUND(stars_count / NULLIF(reviews_count, 0), 1) as rating');
@@ -105,5 +115,20 @@ class GroupTrip extends Model
     public function scopeNotFinished($query)
     {
         return $query->where('status', '=', Status::PENDING)->orWhere('status', '=', Status::IN_PROGRESS);
+    }
+
+    public function scopeHasOffer($query)
+    {
+        return $query->whereHas('offers');
+    }
+
+    public function scopeWithoutOffer($query)
+    {
+        return $query->whereDoesntHave('offers');
+    }
+
+    public function hasOffer(): bool
+    {
+        return $this->offers()->exists();
     }
 }

@@ -12,15 +12,13 @@ class EventService{
     public const FILE_PATH =  'uploads/events/';
 
     public function index(){
-        return EventResource::collection(Event::with(['media'])
-                                                ->activeEvents()
-                                                ->eventWithRate()
+        return EventResource::collection(Event::eventWithRate()
                                                 ->latest()
                                                 ->paginate(10));
     }
 //
     public function show(Event $event){
-        $event->load(['city','category','media']);
+        $event->load(['city','category']);
         return new EventResource($event);
     }
 
@@ -67,16 +65,12 @@ class EventService{
     public function relatedEvents(Event $event){
         return EventResource::collection(Event::where('city_id',$event->city_id)
                                               ->where('id','!=',$event->id)
-                                              ->where('status','active')
-                                              ->with(['media'])
                                               ->eventWithRate()
                                               ->paginate(10));
     }
 
     public function relatedGuides(Event $event){
         return GuideResource::collection(Guide::where('city_id',$event->city_id)
-                                               ->activeGuides()
-                                               ->with(['media'])
                                                ->guideWithRate()
                                                ->paginate(5));
 
@@ -84,9 +78,7 @@ class EventService{
 
     public function topRatedEvents()
     {
-        return EventResource::collection(Event::with(['media'])
-                                                ->activeEvents()
-                                                ->eventWithRate()
+        return EventResource::collection(Event::eventWithRate()
                                                 ->orderByDesc('rating')
                                                 ->paginate(10));
     }

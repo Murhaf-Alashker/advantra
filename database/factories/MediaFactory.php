@@ -31,7 +31,7 @@ class MediaFactory extends Factory
         Event::class,
     ];
         $taskableTypes=$this->faker->randomElement($taskableModels);
-        $taskableInstance=$taskableTypes::inRandomOrder()->first() ?? $taskableTypes::factory();
+        $taskableInstance=$taskableTypes::inRandomOrder()->first() ?? $taskableTypes::factory()->create();;
 
         $type = strtolower(class_basename($taskableTypes));
        $folder =  match($type){
@@ -51,7 +51,8 @@ class MediaFactory extends Factory
         return [
             'mediable_type' => $taskableTypes,
             'mediable_id' => $taskableInstance->id,
-            'path' => $filename
+            'path' => $filename,
+            'type' => 'images'
         ];
     }
 }

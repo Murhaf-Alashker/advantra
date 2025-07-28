@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\WithMediaScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Event extends Model
 {
@@ -19,11 +22,11 @@ class Event extends Model
         'name',
         'slug',
         'description',
+        'basic_cost',
         'ticket_price',
-        'ticket_count',
         'status',
         'stars_count',
-        'ticket_limit',
+        'reviewer_count',
         'city_id',
         'category_id',
     ];
@@ -34,6 +37,12 @@ class Event extends Model
             'created_at' => 'datetime:Y-m-d H:i:s',
             'updated_at' => 'datetime:Y-m-d H:i:s',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new ActiveScope());
+        static::addGlobalScope(new WithMediaScope());
     }
 
     public function category(): BelongsTo
@@ -84,6 +93,21 @@ class Event extends Model
             ->withTimestamps();
     }
 
+    public function offers(): morphMany
+    {
+        return $this->morphMany(Offer::class, 'offerable');
+    }
+
+    public function limitedEvents(): HasMany
+    {
+        return $this->hasMany(LimitedEvents::class, 'event_id', 'id');
+    }
+
+    public function guides()
+    {
+        return Guide::where('city_id', $this->city_id);
+    }
+
     public function scopeActiveEvents($query)
     {
         return $query->where('status', '=', 'active');
@@ -93,4 +117,30 @@ class Event extends Model
     {
         return $query->selectRaw('events.*, ROUND(stars_count / NULLIF(reviewer_count, 0), 1) as rating');
     }
+
+    public function scopeHasOffer($query)
+    {
+        return $query->whereHas('offers');
+    }
+
+    public function scopeWithoutOffer($query)
+    {
+        return $query->whereDoesntHave('offers');
+    }
+
+    public function scopeWhereIsLimited($query)
+    {
+        return $query->whereHas('limitedEvents');
+    }
+
+    public function scopeWhereIsNotLimited($query)
+    {
+        return $query->whereDoesntHave('limitedEvents');
+    }
+
+    public function hasOffer(): bool
+    {
+        return $this->offers()->exists();
+    }
+
 }

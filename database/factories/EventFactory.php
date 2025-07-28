@@ -25,11 +25,10 @@ class EventFactory extends Factory
             'slug'=>Str::slug($name),
             'description'=>$this->faker->realText(),
             'ticket_price'=>$this->faker->randomFloat(2,10,500),
-            'tickets_count'=>0,
             'status'=>'active',
             'stars_count'=>0,
             'reviewer_count'=>0,
-            'tickets_limit'=>$this->faker->numberBetween(20, 100),
+            'basic_cost'=>rand(0.00,100.00),
             'city_id' => City::inRandomOrder()->first()->id ?? City::factory(),
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory()
 
