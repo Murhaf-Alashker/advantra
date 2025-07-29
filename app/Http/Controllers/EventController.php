@@ -77,7 +77,7 @@ class EventController extends Controller
     public function destroy(Event $event){
         $this->eventService->destroy($event);
         return response()->json([
-            'message'=>'Event deleted!',204
+            'message'=>__('message.deleted_successfully',['attribute' => __('message.attributes.event')]),204
         ]);
     }
 

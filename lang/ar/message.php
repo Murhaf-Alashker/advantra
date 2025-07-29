@@ -17,7 +17,21 @@ return [
     'already_authenticated' => 'تم انشاء حساب خاص بهذا البريد الالكتروني مسبقا',
     'unauthorized_admin' => 'فقط المالك يستطيع القيام بهذا الاجراء.',
     'cannot_delete_guide_with_active_group' => 'لا يمكنك حذف هذا الدليل السياحي لانه يقود رحلة جماعية.',
-    'guide_deleted_successfully' => 'تم حذف الدليل السياحي بنجاح.',
-    'guide_created_successfully' => 'تم انشاء الدليل السياحي بنجاح.',
+    'deleted_successfully' => 'تم حذف attribute: بنجاح.',
+    'created_successfully' => 'تم انشاء attribute: بنجاح.',
+    'updated_successfully' => 'تم تعديل attribute: بنجاح.',
     'unauthorized' => 'ليس لديك الصلاحية للقيام بهذا الاجراء',
+//////////////////////////////////////////////////////////////
+    'custom' => [
+        'attribute-name' => [
+            'rule-name' => 'custom-message',
+        ],
+    ],
+//////////////////////////////////////////////////////////////
+    'attributes' => [
+        'guide' => 'الدليل السياحي',
+        'event'=> 'الحدث',
+        'group_trip' => 'الرحلة الجماعية',
+        'solo_trip' =>'الرحلة الفردية',
+    ]
 ];

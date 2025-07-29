@@ -30,10 +30,6 @@ class AppServiceProvider extends ServiceProvider
         Country::observe(CountryObserver::class);
         City::observe(CityObserver::class);
         Guide::observe(GuideObserver::class);
-        Admin::firstOrCreate(
-            ['email' => config('admin.default_email')],
-            ['password' => Hash::make(config('admin.default_password')),
-            'card_number' => config('admin.default_card'),
-        ]);
+
     }
 }

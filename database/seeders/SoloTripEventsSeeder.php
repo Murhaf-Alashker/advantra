@@ -21,7 +21,7 @@ class SoloTripEventsSeeder extends Seeder
             $attachData = [];
             foreach ($randomEvents as $event) {
                 $attachData[$event->id] = [
-                    'price' => $event->ticket_price,
+                    'price' => $event->price,
                 ];
             }
             $soloTrip->events()->attach($attachData);
