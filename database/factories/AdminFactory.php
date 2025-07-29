@@ -18,7 +18,7 @@ class AdminFactory extends Factory
     public function definition(): array
     {
         return [
-            'email' => 'admin@gmail.com',
+            'email' => 'adventracompany@gmail.com',
             'password' => Hash::make('Password1'),
             'card_number' => '9999999999'
         ];
