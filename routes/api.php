@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
@@ -66,6 +67,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
 
 
 Route::middleware('auth:api-user,api-admin')->group(function () {
+    Route::post('/search',[SearchController::class,'search'])->name('search');
     //auth api
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/home',[HomeController::class,'index'])->name('home');

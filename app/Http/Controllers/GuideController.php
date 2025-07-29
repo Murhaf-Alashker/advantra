@@ -57,7 +57,7 @@ class GuideController extends Controller
 
         });
 
-        return response()->json(['message' => __('message.guide_created_successfully'), 'guide ' => new GuideResource($guide)],201) ;
+        return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.guide')]), 'guide ' => new GuideResource($guide)],201) ;
     }
 
     public function update(UpdateGuideRequest $request, Guide $guide)
@@ -100,7 +100,7 @@ class GuideController extends Controller
 
          $deleted = $this->guideService->destroy($guide);
 
-        return response()->json(['message' => __('message.guide_deleted_successfully')], 204);
+        return response()->json(['message' => __('message.deleted_successfully',['attribute' => 'message.attributes.guide'])], 204);
     }
 
     public function relatedGuides(Guide $guide)

@@ -17,7 +17,20 @@ return [
     'already_authenticated' => 'You are already authenticated.',
     'unauthorized_admin' => 'Sorry ,only admin can do this action.',
     'cannot_delete_guide_with_active_group' => 'You can not delete guide with because he is leading a group trip.',
-    'guide_deleted_successfully' => 'Guide deleted successfully.',
-    'guide_created_successfully' => 'Guide successfully created.',
+    'deleted_successfully' => 'attribute: deleted successfully.',
+    'created_successfully' => 'attribute: successfully created.',
     'unauthorized' => 'You are not authorized to do this action.',
+//////////////////////////////////////////////////////////////
+    'custom' => [
+        'attribute-name' => [
+            'rule-name' => 'custom-message',
+        ],
+    ],
+//////////////////////////////////////////////////////////////
+    'attributes' => [
+        'guide' => 'guide',
+        'event'=> 'event',
+        'group_trip' => 'group trip',
+        'solo_trip' =>'solo trip',
+    ]
 ];
