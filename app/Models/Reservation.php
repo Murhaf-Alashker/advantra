@@ -16,6 +16,7 @@ class Reservation extends Model
     protected $fillable = [
         'tickets_count',
         'ticket_price',
+        'basic_cost',
         'expire_date',
         'user_id',
     ];

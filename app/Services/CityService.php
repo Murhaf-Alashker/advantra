@@ -7,19 +7,20 @@ use App\Models\City;
 use App\Models\Country;
 use App\Models\Event;
 use App\Http\Resources\EventResource;
+use App\Models\Scopes\ActiveScope;
+
 class CityService{
 
     public const FILE_PATH =  'uploads/cities/';
     public function index()
     {
-        return  CityResource::collection(City::with(['country','language','media'])
-                                             ->activeCities()
+        return  CityResource::collection(City::with(['country','language'])
                                              ->paginate(10));
     }
 
     public function show(City $city)
     {
-        $city->load(['country','language','media']);
+        $city->load(['country','language']);
        return new CityResource($city);
     }
 
@@ -65,24 +66,21 @@ class CityService{
    public function getEvents(City $city)
    {
         return EventResource::collection($city->events()
-                                              ->where('status','=','active')
-                                              ->with(['media'])
                                               ->paginate(5));
    }
 
    public function getGuides(City $city)
    {
       return GuideResource::collection($city->guides()
-                                            ->where('status','=','active')
-                                            ->with('media','languages')
+                                            ->with('languages')
                                             ->paginate(5)
                                            );
    }
 
    public function citiesWithMostEvents(){
-        $cities = City::withCount('events')
+        $cities = City::withoutGlobalScope(ActiveScope::class)
+                        ->withCount('events')
                         ->orderBy('events_count','desc')
-                        ->with(['media'])
                         ->paginate(10);
         return CityResource::collection($cities);
    }

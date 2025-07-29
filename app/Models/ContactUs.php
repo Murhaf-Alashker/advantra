@@ -13,6 +13,7 @@ class ContactUs extends Model
 
     protected $fillable = [
         'body',
+        'is_read',
         'user_id'
     ];
 

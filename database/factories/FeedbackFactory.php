@@ -25,7 +25,7 @@ class FeedbackFactory extends Factory
         Event::class
     ];
         $feedbackableTypes=$this->faker->randomElement($feedbackableModels);
-        $feedbackableInstance=$feedbackableTypes::inRandomOrder()->first() ?? $feedbackableTypes::factory();
+        $feedbackableInstance=$feedbackableTypes::inRandomOrder()->first() ?? $feedbackableTypes::factory()->create();
         return [
             'feedbackable_type' => $feedbackableTypes,
             'feedbackable_id' => $feedbackableInstance->id,

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->morphs('reservable');
             $table->bigInteger('tickets_count');
             $table->decimal('ticket_price',8,2);
+            $table->decimal('basic_cost',10,2);
             $table->dateTime('expire_date')->nullable();
             $table->foreignIdFor(User::class)->constrained();
             $table->timestamps();

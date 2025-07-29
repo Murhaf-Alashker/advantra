@@ -80,9 +80,9 @@ Route::controller(CityController::class)->group(function () {
 //event api
 Route::controller(EventController::class)->group(function () {
     Route::get('/events','index')->name('getEvents');
-    Route::get('/events/{event:slug}','show')->name('getEvent');
-    Route::get('/events/{event:slug}/relatedEvents','relatedEvents')->name('getRelatedEvents');
-    Route::get('/events/{event:slug}/relatedGuides','relatedGuides')->name('getRelatedGuides');
+    Route::get('/events/{event}','show')->name('getEvent');
+    Route::get('/events/{event}/relatedEvents','relatedEvents')->name('getRelatedEvents');
+    Route::get('/events/{event}/relatedGuides','relatedGuides')->name('getRelatedGuides');
 });
 //guide api
     Route::controller(GuideController::class)->prefix('/guides')->group(function () {

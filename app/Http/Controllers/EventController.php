@@ -10,8 +10,10 @@ use App\Http\Resources\EventResource;
 use App\Libraries\FileManager;
 use App\Models\City;
 use App\Models\Event;
+use App\Models\Offer;
 use App\Services\EventService;
 use App\Services\MediaService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 

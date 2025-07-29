@@ -19,9 +19,12 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->dateTime('starting_date');
             $table->dateTime('ending_date');
+            $table->decimal('basic_cost',10,2);
+            $table->decimal('extra_cost',10,2)->default(0.00);
             $table->enum('status',Status::values())->default(Status::PENDING);
             $table->decimal('price',10,2);
             $table->bigInteger('tickets_count');
+            $table->bigInteger('tickets_limit')->default(0);
             $table->bigInteger('stars_count')->default(0);
             $table->bigInteger('reviews_count')->default(0);
             $table->foreignIdFor(Guide::class)->constrained();
