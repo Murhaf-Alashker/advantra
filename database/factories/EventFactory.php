@@ -24,7 +24,7 @@ class EventFactory extends Factory
             'name'=>$name,
             'slug'=>Str::slug($name),
             'description'=>$this->faker->realText(),
-            'ticket_price'=>$this->faker->randomFloat(2,10,500),
+            'price'=>$this->faker->randomFloat(2,10,500),
             'status'=>'active',
             'stars_count'=>0,
             'reviewer_count'=>0,
