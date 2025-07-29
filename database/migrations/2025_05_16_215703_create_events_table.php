@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('slug');
             $table->longText('description')->nullable();
             $table->decimal('basic_cost',10,2);
-            $table->decimal('ticket_price',10,2);
+            $table->decimal('price',10,2);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->bigInteger('stars_count')->default(0);
             $table->bigInteger('reviewer_count')->default(0);
