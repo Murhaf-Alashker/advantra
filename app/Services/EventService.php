@@ -6,6 +6,7 @@ use App\Http\Resources\GuideResource;
 use App\Models\City;
 use App\Models\Event;
 use App\Models\Guide;
+use App\Models\Scopes\ActiveScope;
 
 
 class EventService{
@@ -18,14 +19,16 @@ class EventService{
     }
 //
     public function show(Event $event){
-        $event->load(['city','category']);
+        $event->load([
+            'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
+            'category'
+        ]);
         return new EventResource($event);
     }
 
     public function store(array $data,City $city){
-       $event=  $city->events()->create($data);
-       $event->refresh();
-       return $event;
+       $event =  $city->events()->create($data);
+       return Event::withoutGlobalScope(ActiveScope::class)->find($event->id);
     }
 
     public function update(array $data, Event $event){
@@ -55,7 +58,7 @@ class EventService{
             );
         }
 
-        return new EventResource($event->fresh(['translations']));
+        return new EventResource($event->fresh(['translations'])->withoutGlopalScope(ActiveScope::class));
     }
 
     public function destroy(Event $event){

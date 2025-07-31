@@ -2,6 +2,7 @@
 
 namespace App\Libraries;
 
+use App\Enums\MediaType;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -34,26 +35,40 @@ class FileManager
     }
 
 
-    public static function store(string $path, $file,string $type = 'images'): string
+    public static function store(string $path, $file): array
     {
+        $type = 'images';
+
+        $extension = $file->getClientOriginalExtension();
+
+        if(in_array($extension,MediaType::pdf())){
+            $type = 'pdf';
+        }
+
+        else if(in_array($extension,MediaType::videos())){
+            $type = 'videos';
+        }
+
         $path = Str::of($path)->finish('/');
 
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
 
         $filename = Str::snake($filename);
 
-        if($type === 'images' || $type === 'videos')
+        if($type === 'pdf')
+        {
+            Storage::disk('public')->put($path . $filename, $file->getContent());
+        }
+
+        else
         {
             $finalPath = $path . $type . '/';
             $file->storeAs($finalPath, $filename, 'public');
         }
 
-        else if($type === 'pdf')
-        {
-            Storage::disk('public')->put($path . $filename, $file->getContent());
-        }
 
-        return $filename;
+        return ['path' => $filename, 'type' => $type];
+
     }
 
     public static function storeMany(string $path, array $files, string $type = 'images'): array
@@ -61,7 +76,7 @@ class FileManager
         $stored = [];
 
         foreach ($files as $file) {
-            $filename = self::store($path, $file, $type);
+            $filename = self::store($path, $file);
             $stored[] = $filename;
         }
 
@@ -74,11 +89,12 @@ class FileManager
         if ($filename != null) {
             $path = Str::of($path)->finish('/');
             $path = $path . $type.'/';
-
+            if(Storage::disk('public')->exists($path . $filename)){
             Storage::disk('public')->delete($path . $filename);
+            }
+        }else{
+            Storage::disk('public')->deleteDirectory($path);
         }
-
-        Storage::disk('public')->deleteDirectory($path);
     }
 
     public static function bringMedia($collection, $path)
@@ -92,20 +108,22 @@ class FileManager
         });
     }
 
-    public static function bringMediaWithType($path)
+    public static function bringMediaWithType($path): array
     {
         $images = self::upload($path. '/images');
         $videos = self::upload($path. '/videos');
+        $pdfs = self::upload($path. '/pdf');
         return [
             'images' => $images,
             'videos' => $videos,
+            'pdfs' => $pdfs,
         ];
     }
 
-    public static function updateSinglePic(string $path, string $oldFilename, $file, string $type = 'images')
+    public static function updateSinglePic(string $path, string $oldFilename, $file): array
     {
         self::delete($path, $oldFilename);
-        return self::store($path, $file, 'images');
+        return self::store($path, $file);
     }
 
 }

@@ -23,11 +23,9 @@ class EventController extends Controller
 
     protected MediaService $mediaService;
     protected EventService $eventService;
-    protected  FileManager $fileManager;
-    public function __construct(EventService $eventService,MediaService $mediaService,FileManager $fileManager){
+    public function __construct(EventService $eventService,MediaService $mediaService){
         $this->eventService = $eventService;
         $this->mediaService = $mediaService;
-        $this->fileManager = $fileManager;
     }
 
     public function index(){
@@ -41,21 +39,25 @@ class EventController extends Controller
     public function store(StoreEventRequest $request,City $city){
         $validated = $request->validated();
         $validated['slug']=Str::slug($validated['name']);
-        $eventData = collect($validated)->except('images','name_ar','description_ar')->all();
+        $eventData = collect($validated)->except('media','name_ar','description_ar')->all();
         $event =  $this->eventService->store($eventData,$city);
         $path = EventService::FILE_PATH . $event->id;
-        if($request->hasFile('images')) {
-            $images = $request->file('images');
-            $filenames = $this->fileManager->storeMany($path, $images, 'pic');
-            $mediaData = [];
 
-            foreach ($filenames as $filename) {
-                $mediaData[] = [
-                    'path' => $filename,
-                ];
+        if($request->hasFile('media')) {
+            $allFiles = array_filter($request->file('media'), fn($file) => $file->isValid());
+            if(count($allFiles) > 0) {
+                $files = FileManager::storeMany($path, $allFiles);
+                /*$mediaData = [];
+
+                foreach ($filenames as $filename) {
+                    $mediaData[] = [
+                        'path' => $filename,
+                    ];
+                }*/
+                $event->media()->createMany($files);
             }
-            $event->media()->createMany($mediaData);
         }
+
         $event->translations()->createMany([
             ['key' => 'event.name',
                 'translation' => $validated['name_ar'],

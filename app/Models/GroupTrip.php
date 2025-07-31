@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Enums\Status;
+use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\WithMediaScope;
+use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +20,7 @@ use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 class GroupTrip extends Model
 {
     /** @use HasFactory<\Database\Factories\GroupTripFactory> */
-    use HasFactory;
+    use HasFactory,MediaHandler;
 
     protected $fillable = [
         'name',
@@ -41,6 +44,11 @@ class GroupTrip extends Model
             'created_at' => 'datetime:Y-m-d H:i:s',
             'updated_at' => 'datetime:Y-m-d H:i:s',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new WithMediaScope());
     }
 
     public function feedbacks(): MorphMany
@@ -90,16 +98,15 @@ class GroupTrip extends Model
         return $this->hasOne(Report::class);
     }
 
-    public function cities(): HasManyThrough
+    public function tasks(): MorphMany
     {
-        return $this->hasManyThrough(
-            City::class,
-            Event::class,
-            'id',
-            'id',
-            'id',
-            'city_id'
-        );
+        return $this->morphMany(Task::class, 'taskable');
+    }
+
+    public function cities()
+    {
+        $ids = $this->events()->pluck('city_id')->toArray() ?? [];
+        return City::withoutGlobalScope(ActiveScope::class)->whereIn('id',$ids)->get();
     }
 
     public function offers(): morphMany

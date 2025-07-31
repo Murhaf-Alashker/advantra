@@ -17,6 +17,7 @@ return [
     'already_authenticated' => 'تم انشاء حساب خاص بهذا البريد الالكتروني مسبقا',
     'unauthorized_admin' => 'فقط المالك يستطيع القيام بهذا الاجراء.',
     'cannot_delete_guide_with_active_group' => 'لا يمكنك حذف هذا الدليل السياحي لانه يقود رحلة جماعية.',
+    'cannot_delete_unfinished_group_trip' => 'لا يمكنك حذف رحلة جماعية غير منتهية.',
     'deleted_successfully' => 'تم حذف attribute: بنجاح.',
     'created_successfully' => 'تم انشاء attribute: بنجاح.',
     'updated_successfully' => 'تم تعديل attribute: بنجاح.',

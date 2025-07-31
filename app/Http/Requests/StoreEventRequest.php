@@ -26,12 +26,12 @@ class StoreEventRequest extends FormRequest
             'name_ar' => 'required|string|max:50|unique:events,name',
             'description' => 'string|max:1000',
             'description_ar' => 'string|max:1000',
-            'ticket_price' => 'required|numeric',
+            'price' => 'required|numeric',
             'status' => 'in:active,inactive',
             'tickets_limit' => 'numeric',
             'category_id' => 'required|exists:categories,id',
-            'images'=>'required',
-            'images.*'=>'image|mimes:jpg,jpeg,png|max:2048',
+            'media'=>'required|array',
+            'media.*'=>'image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }
