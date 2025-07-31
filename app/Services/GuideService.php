@@ -8,6 +8,7 @@ use App\Http\Resources\GuideResource;
 use App\Libraries\FileManager;
 use App\Models\GroupTrip;
 use App\Models\Guide;
+use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,19 +39,19 @@ class GuideService
         $guide=Guide::where('id', '=', $guide->id)
             ->guideWithRate()
             ->with([
-            'city',
-            'languages',
-            'categories',
-            'feedbacks' => fn ($query) =>
-            $query->whereHas('user')])
-        ->firstOrFail();
+                'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
+                'languages',
+                'categories',
+                'feedbacks' => fn ($query) =>
+                $query->whereHas('user')])
+            ->firstOrFail();
         return new GuideResource($guide);
     }
 
     public function update(Guide $guide, array $data)
     {
         $guide->update($data);
-        return new GuideResource($guide->fresh(['media','languages','categories']));
+        return new GuideResource($guide->fresh(['media','languages','categories'])->withoutGlobalScope(ActiveScope::class));
     }
 
     public function store(array $data)
@@ -82,7 +83,7 @@ class GuideService
 
     public function trashedGuides()
     {
-        return GuideResource::collection(Guide::withoutGlobalScope(WithMediaScope::class)
+        return GuideResource::collection(Guide::withoutGlobalScope(ActiveScope::class)
                                                 ->onlyTrashed()
                                                 ->guideWithRate()
                                                 ->paginate($this->count));

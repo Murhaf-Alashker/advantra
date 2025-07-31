@@ -47,6 +47,7 @@ class GroupTripResource extends JsonResource
             'cities' => CityResource::collection($this->whenLoaded('cities')),
             'images' => $media['images'] ?? [],
             'videos' => $media['videos'] ?? [],
+            'cities' => $this->cities()
         ];
 
         $moreInfo = [

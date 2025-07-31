@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SearchController;
@@ -91,5 +92,12 @@ Route::controller(EventController::class)->group(function () {
         Route::get('/','index')->name('getGuides');
         Route::get('/{guide}','show')->name('showGuide');
         Route::get('/{guide}/relatedGuides','relatedGuides')->name('getRelatedGuides');
+    });
+
+    Route::controller(GroupTripController::class)->prefix('/group_trip')->group(function () {
+        Route::get('/','index')->name('getGroupTrips');
+        Route::get('/{groupTripId}','show')->name('showGroupTrip');
+        Route::post('/create_group_trip','store')->name('createGroupTrip');
+        Route::get('/{groupTripId}/delete','destroy')->name('deleteGroupTrip');
     });
 });

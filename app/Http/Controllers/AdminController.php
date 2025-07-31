@@ -13,11 +13,11 @@ class AdminController extends Controller
     {
         $user = Admin::first();
         if(!$user || !Hash::check( $request->password , $user->password )){
-            return response()->json(['message' => __('message.wrong_email_or_password')]);
+            return response()->json(['message' => __('message.wrong_email_or_password')],401);
         }
 
         $token = $user->createToken('user_token',['api-admin'])->plainTextToken;
 
-        return response()->json(['message' => __('message.login_successfully'), 'token' => $token]);
+        return response()->json(['message' => __('message.login_successfully'), 'token' => $token],201);
     }
 }
