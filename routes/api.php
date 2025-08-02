@@ -35,14 +35,14 @@ Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //city api
     Route::controller(CityController::class)->group(function () {
-        Route::post('/countries/{country}/cities', 'store')->name('createCity');
+        Route::post('/countries/cities', 'store')->name('createCity');
         Route::post('/cities/{city}', 'update')->name('updateCity');
     });
     //event api
     Route::controller(EventController::class)->group(function () {
-        Route::post('/cities/{city}/events','store')->name('createEvent');
-        Route::post('/events/{event:slug}','update')->name('updateEvent');
-        Route::delete('/events/{event:slug}','destroy')->name('deleteEvent');
+        Route::post('/cities/events','store')->name('createEvent');
+        Route::post('/events/{event}','update')->name('updateEvent');
+        Route::delete('/events/{event}','destroy')->name('deleteEvent');
     });
     //country api
     Route::post('/countries/{country}', [CountryController::class,'update'])->name('updateCountry');

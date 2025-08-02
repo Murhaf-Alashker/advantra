@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateGuideRequest;
 use App\Http\Requests\UpdateGuideRequest;
 use App\Http\Resources\GuideResource;
-use App\Libraries\FileManager;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Guide;
 use App\Models\Language;
+use App\Models\Scopes\ActiveScope;
 use App\Services\GuideService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GuideController extends Controller
@@ -26,7 +25,7 @@ class GuideController extends Controller
         return $this->guideService->index();
     }
 
-    public function show(Guide $guide )
+    public function show(Guide $guide)
     {
         return $this->guideService->show($guide);
     }
@@ -66,6 +65,8 @@ class GuideController extends Controller
 
         $data =collect($validated)->except('media','languages','categories')->all();
 
+        $guide = $this->guideService->update($guide, $data);
+
         if(isset($validated['languages']))
         {
             $languageIds =Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
@@ -80,17 +81,14 @@ class GuideController extends Controller
             $guide->categories()->sync($categoriesId);
         }
 
-        if($request->hasFile('image'))
-        {
-            $fileName = $this->guideService->updateMedia($guide, $request->file('image'));
-        }
+        $guide->updateMedia(GuideService::FILE_PATH);
 
-        return $this->guideService->update($guide, $data);
+        return new GuideResource($guide);
+
     }
 
     public function destroy(Guide $guide)
     {
-
         $exists = $guide->groupTrips()->notFinished()->exists();
 
         if($exists)
@@ -106,5 +104,10 @@ class GuideController extends Controller
     public function relatedGuides(Guide $guide)
     {
         return $this->guideService->relatedGuides($guide);
+    }
+
+    public function onlyTrashedGuides()
+    {
+        return $this->guideService->trashedGuides();
     }
 }

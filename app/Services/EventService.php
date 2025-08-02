@@ -26,9 +26,9 @@ class EventService{
         return new EventResource($event);
     }
 
-    public function store(array $data,City $city){
-       $event =  $city->events()->create($data);
-       return Event::withoutGlobalScope(ActiveScope::class)->find($event->id);
+    public function store(array $data){
+       $event = Event::create($data);
+       return $event;
     }
 
     public function update(array $data, Event $event){
@@ -58,7 +58,7 @@ class EventService{
             );
         }
 
-        return new EventResource($event->fresh(['translations'])->withoutGlopalScope(ActiveScope::class));
+        return new EventResource($event->fresh(['translations']));
     }
 
     public function destroy(Event $event){
@@ -66,14 +66,16 @@ class EventService{
     }
 
     public function relatedEvents(Event $event){
-        return EventResource::collection(Event::where('city_id',$event->city_id)
+        return EventResource::collection(Event::activeEvents()
+                                              ->where('city_id',$event->city_id)
                                               ->where('id','!=',$event->id)
                                               ->eventWithRate()
                                               ->paginate(10));
     }
 
     public function relatedGuides(Event $event){
-        return GuideResource::collection(Guide::where('city_id',$event->city_id)
+        return GuideResource::collection(Guide::activeGuides()
+                                               ->where('city_id',$event->city_id)
                                                ->guideWithRate()
                                                ->paginate(5));
 
@@ -81,7 +83,8 @@ class EventService{
 
     public function topRatedEvents()
     {
-        return EventResource::collection(Event::eventWithRate()
+        return EventResource::collection(Event::activeEvents()
+                                                ->eventWithRate()
                                                 ->orderByDesc('rating')
                                                 ->paginate(10));
     }

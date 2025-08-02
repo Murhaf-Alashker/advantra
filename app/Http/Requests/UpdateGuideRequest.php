@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MediaType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -29,12 +30,12 @@ class UpdateGuideRequest extends FormRequest
     {
         return [
             'description' => ['nullable','string','min:10','max:255'],
-            'phone' => ['nullable','string','min:11','max:17','unique:guides,phone','regex:/^\+[0-9]+$/'],
-            'languages' => ['nullable', 'array'],
-            'languages.*' => ['nullable', 'string', 'exists:languages,name'],
-            'categories' => ['nullable', 'array'],
-            'categories.*' => ['nullable', 'string', 'exists:categories,name'],
-            'image' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
+            'phone' => ['string','min:11','max:17','unique:guides,phone','regex:/^\+[1-9][0-9]{4,15}$/'],
+            'languages' => ['array'],
+            'languages.*' => ['string', 'exists:languages,name'],
+            'categories' => ['array'],
+            'categories.*' => ['string', 'exists:categories,name'],
+            'media' => ['image','mimes:'.implode(',',MediaType::images()),'max:2048'],
             'card' => ['nullable', 'string', 'email'],
         ];
     }

@@ -46,11 +46,6 @@ class GroupTrip extends Model
         ];
     }
 
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new WithMediaScope());
-    }
-
     public function feedbacks(): MorphMany
     {
         return $this->morphMany(Feedback::class, 'feedbackable');

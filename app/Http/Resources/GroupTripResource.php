@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
+use App\Models\Guide;
+use App\Models\Scopes\ActiveScope;
 use App\Services\GroupTripService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,8 +20,9 @@ class GroupTripResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = GroupTripService::FILE_PATH . $this->id;
-        $media = FileManager::bringMediaWithType($path);
+        $path = GroupTripService::FILE_PATH;
+        $media = $this->getMedia($path);
+        $hasOffer = $this->hasOffer();
 
         $local = App::getLocale();
 
@@ -32,29 +35,27 @@ class GroupTripResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'started_date' => $this->starting_date,
-            'ended_at' => $this->ending_date,
+            'starting_date' => $this->starting_date,
+            'ending_date' => $this->ending_date,
             'rate' => $this->rating ?? '0',
-            'basic_cost' => $this->basic_cost,
-            'extra_cost' => $this->extra_cost,
             'status' => $this->status,
-            'price' => $this->price,
+            'price' =>$hasOffer? $this->price - $this->offer()->first() : $this->price,
             'tickets_count' => $this->tickets_count,
-            'has offer' => $this->hasOffer(),
+            'has offer' => $hasOffer,
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
             'events' => EventResource::collection($this->whenLoaded('events')),
-            'guide' => $this->whenLoaded('guide', fn() => new GuideResource($this->guide)),
-            'cities' => CityResource::collection($this->whenLoaded('cities')),
+            'guide' => new GuideResource($this->guide),
             'images' => $media['images'] ?? [],
             'videos' => $media['videos'] ?? [],
-            'cities' => $this->cities()
+            'cities' => $this->cities(),
+            'reviews_count' => $this->reviews_count,
         ];
 
         $moreInfo = [
             'stars_count' => $this->stars_count,
-            'reviews_count' => $this->reviews_count,
             'tickets_limit' => $this->tickets_limit,
-            'guide_id' => $this->guide_id,
+            'basic_cost' => $this->basic_cost,
+            'extra_cost' => $this->extra_cost,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

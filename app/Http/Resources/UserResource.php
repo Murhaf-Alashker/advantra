@@ -17,14 +17,13 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = 'users/' . $this->id;
+        $path = '';//UserService::FILE_PATH ;
+        $media = $this->getMedia($path);
 
         $forUser = [
             'id' => $this->id,
             'name' => $this->name,
-            'images' => $this->whenLoaded('media', function () use ($path) {
-                return FileManager::bringMedia($this->media , $path);
-            })
+            'image' => $media['images'] ?? [],
         ];
 
         $moreInfo = [

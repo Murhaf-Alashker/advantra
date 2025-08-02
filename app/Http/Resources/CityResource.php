@@ -20,7 +20,8 @@ class CityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = CityService::FILE_PATH . $this->id;
+        $path = CityService::FILE_PATH ;
+        $media = $this->getMedia($path);
 
         $locale = App::getLocale();
 
@@ -29,16 +30,29 @@ class CityResource extends JsonResource
             $this->description = $this->translate('description');
         }
 
-        return [
+        $forUser = [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'images' => $this->whenLoaded('media', function () use ($path) {
-                return FileManager::bringMedia($this->media , $path);
-            }),
+            'images' => $media['images'] ?? [],
+            'videos' => $media['videos'] ?? [],
             'language' => $this->whenLoaded('language', fn() => new LanguageResource($this->language)),
             'country' => $this->whenLoaded('country', fn() => new CountryResource($this->country)),
         ];
+
+        $moreInfo = [
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+        if(Auth::guard('api-user')->check()) {
+            return $forUser;
+        }
+
+        if(Auth::guard('api-admin')->check()) {
+            return array_merge($forUser, $moreInfo);
+        }
+
+        return [];
     }
 }

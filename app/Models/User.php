@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
+use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +19,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable , SoftDeletes,HasApiTokens;
+    use HasFactory, Notifiable , SoftDeletes,HasApiTokens,MediaHandler;
 
     /**
      * The attributes that are mass assignable.
@@ -85,11 +86,6 @@ class User extends Authenticatable
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
-    }
-
-    public function media(): MorphMany
-    {
-        return $this->morphMany(Media::class, 'mediable');
     }
 
     public function city(): BelongsTo

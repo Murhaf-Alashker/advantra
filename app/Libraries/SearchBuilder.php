@@ -35,7 +35,7 @@ class SearchBuilder
         return $this;
     }
 
-    public function search()
+    public function search(): array
     {
         return $this->search->search();
     }

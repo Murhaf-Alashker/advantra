@@ -31,7 +31,7 @@ class CreateGuideRequest extends FormRequest
         return [
             'name' => ['required', 'string','min:3', 'max:25'],
             'email' => ['required','string','email','unique:guides,email'],
-            'phone' => ['required','string','min:5','max:17','unique:guides,phone','regex:/^\+[0-9]+$/'],
+            'phone' => ['required','string','min:5','max:17','unique:guides,phone','regex:/^\+[1-9][0-9]{4,15}$/'],
             'description' => ['nullable','string','min:10','max:255'],
             'const_salary' => ['required', 'string', 'regex:/^\d{1,6}(\.\d{1,2})?$/'],
             'city' => ['required', 'string', 'exists:cities,name'],

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
+use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Support\Carbon;
 class Event extends Model
 {
     /** @use HasFactory<\Database\Factories\EventFactory> */
-    use HasFactory,SoftDeletes;
+    use HasFactory,SoftDeletes,MediaHandler;
 
     protected $fillable = [
         'name',
@@ -39,12 +40,6 @@ class Event extends Model
         ];
     }
 
-    protected static function booted()
-    {
-        static::addGlobalScope(new ActiveScope());
-        static::addGlobalScope(new WithMediaScope());
-    }
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -63,11 +58,6 @@ class Event extends Model
     public function reservations(): MorphMany
     {
         return $this->morphMany(Reservation::class, 'reservable');
-    }
-
-    public function media(): MorphMany
-    {
-        return $this->morphMany(Media::class, 'mediable');
     }
 
     public function translations(): MorphMany
