@@ -34,12 +34,13 @@ class GuideService
                                         ->paginate($this->count));
     }
 
-    public function show(Guide $guide)
+    public function show($guideID)
     {
-        $guide=Guide::where('id', '=', $guide->id)
+        $guide=Guide::withoutGlobalScope(ActiveScope::class)
+            ->where('id', '=', $guideID)
             ->guideWithRate()
             ->with([
-                'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
+                'city' => function ($query) {$query->withoutGlobalScope(ActiveScope::class);},
                 'languages',
                 'categories',
                 'feedbacks' => fn ($query) =>
@@ -48,10 +49,12 @@ class GuideService
         return new GuideResource($guide);
     }
 
-    public function update(Guide $guide, array $data)
+    public function update($guideID, array $data)
     {
+        $guide = Guide::withoutGlobalScope(ActiveScope::class)->findOrFail($guideID);
         $guide->update($data);
-        return new GuideResource($guide->fresh(['media','languages','categories'])->withoutGlobalScope(ActiveScope::class));
+        return $guide->load(['languages', 'categories', 'feedbacks']);
+
     }
 
     public function store(array $data)
@@ -87,21 +90,5 @@ class GuideService
                                                 ->onlyTrashed()
                                                 ->guideWithRate()
                                                 ->paginate($this->count));
-    }
-
-    public function updateMedia(Guide $guide, $file): string
-    {
-        $media = $guide->media()->first();
-
-        if($media){
-            $oldFileName = $media->path;
-            $fileName = FileManager::updateSinglePic(self::FILE_PATH.$guide->id, $oldFileName, $file);
-            $media->update(['path' => $fileName]);
-        }
-        else{
-            $fileName = FileManager::store(self::FILE_PATH.$guide->id, $file);
-            $guide->media()->create(['path' => $fileName]);
-        }
-        return $fileName;
     }
 }

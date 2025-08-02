@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
+use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,7 @@ use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 class Guide extends Model
 {
     /** @use HasFactory<\Database\Factories\GuideFactory> */
-    use HasFactory,Notifiable,SoftDeletes,HasApiTokens;
+    use HasFactory,Notifiable,SoftDeletes,HasApiTokens,MediaHandler;
 
     protected $fillable = [
         'name',
@@ -66,11 +67,6 @@ class Guide extends Model
     public function groupTrips(): HasMany
     {
         return $this->hasMany(GroupTrip::class);
-    }
-
-    public function media(): MorphMany
-    {
-        return $this->morphMany(Media::class,'mediable');
     }
 
     public function chats(): HasMany

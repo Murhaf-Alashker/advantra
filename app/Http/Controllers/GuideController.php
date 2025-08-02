@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateGuideRequest;
 use App\Http\Requests\UpdateGuideRequest;
 use App\Http\Resources\GuideResource;
-use App\Libraries\FileManager;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Guide;
 use App\Models\Language;
+use App\Models\Scopes\ActiveScope;
 use App\Services\GuideService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GuideController extends Controller
@@ -26,9 +25,9 @@ class GuideController extends Controller
         return $this->guideService->index();
     }
 
-    public function show(Guide $guide )
+    public function show($guideID)
     {
-        return $this->guideService->show($guide);
+        return $this->guideService->show($guideID);
     }
 
     public function store(CreateGuideRequest $request)
@@ -60,11 +59,13 @@ class GuideController extends Controller
         return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.guide')]), 'guide ' => new GuideResource($guide)],201) ;
     }
 
-    public function update(UpdateGuideRequest $request, Guide $guide)
+    public function update(UpdateGuideRequest $request, $guideID)
     {
         $validated = $request->validated();
 
         $data =collect($validated)->except('media','languages','categories')->all();
+
+        $guide = $this->guideService->update($guideID, $data);
 
         if(isset($validated['languages']))
         {
@@ -80,16 +81,15 @@ class GuideController extends Controller
             $guide->categories()->sync($categoriesId);
         }
 
-        if($request->hasFile('image'))
-        {
-            $fileName = $this->guideService->updateMedia($guide, $request->file('image'));
-        }
+        $guide->updateMedia(GuideService::FILE_PATH);
 
-        return $this->guideService->update($guide, $data);
+        return new GuideResource($guide->load(['media']));
+
     }
 
-    public function destroy(Guide $guide)
+    public function destroy($guideID)
     {
+        $guide = Guide::withoutGlobalScope(ActiveScope::class)->findOrFail($guideID);
 
         $exists = $guide->groupTrips()->notFinished()->exists();
 
@@ -103,8 +103,15 @@ class GuideController extends Controller
         return response()->json(['message' => __('message.deleted_successfully',['attribute' => 'message.attributes.guide'])], 204);
     }
 
-    public function relatedGuides(Guide $guide)
+    public function relatedGuides($guideID)
     {
+        $guide = Guide::withoutGlobalScope(ActiveScope::class)->findOrFail($guideID);
+
         return $this->guideService->relatedGuides($guide);
+    }
+
+    public function onlyTrashedGuides()
+    {
+        return $this->guideService->trashedGuides();
     }
 }
