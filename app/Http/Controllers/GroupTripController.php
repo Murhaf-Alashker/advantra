@@ -27,10 +27,8 @@ class GroupTripController extends Controller
         return $this->groupTripService->index();
     }
 
-    public function show($groupTripId)
+    public function show(GroupTrip $groupTrip)
     {
-        $groupTrip = GroupTrip::findOrFail($groupTripId);
-
         return $this->groupTripService->show($groupTrip);
     }
 
@@ -41,14 +39,11 @@ class GroupTripController extends Controller
             return $this->groupTripService->store($request->validated());
 
         });
-        $groupTrip->load('media');
         return response()->json(new GroupTripResource($groupTrip),201);
     }
 
-    public function destroy($groupTripId)
+    public function destroy(GroupTrip $groupTrip)
     {
-        $groupTrip = GroupTrip::withoutGlobalScope(ActiveScope::class)->findOrFail($groupTripId);
-
         if($groupTrip->status !== Status::FINISHED->value){
             return response()->json(['message' => __('message.cannot_delete_unfinished_group_trip')], 400);
         }

@@ -59,16 +59,18 @@ trait MediaHandler
         $path = Str::of($path)->finish('/').$this->id;
 
         if(!$ids){
-            return $this->getAllTypesOfMedia($path);
+            $allMedia = $this->media()->get();
         }
-
-        $ids = is_array($ids)? $ids : [$ids];
-        $allMedia = $this->media()->whereIn('id', $ids)->get();
+        else{
+            $ids = is_array($ids)? $ids : [$ids];
+            $allMedia = $this->media()->whereIn('id', $ids)->get();
+        }
+        if(count($allMedia) > 0){
         foreach ($allMedia as $singleMedia) {
             $url =  FileManager::upload($path.'/'.$singleMedia->type, $singleMedia->path);
-            $media[$singleMedia->type][] = ['id' => $singleMedia->id , 'url' => $url[0]];
+            $media[$singleMedia->type][] = ['id' => $singleMedia->id , 'url' => $url];
         }
-
+        }
         return $media;
 
     }
@@ -85,6 +87,9 @@ trait MediaHandler
            $ids = is_array($ids)? $ids : [$ids];
            $idsToDelete = $this->media()->whereNOTIn('id', $ids)->pluck('id')->toArray();
            $this->deleteMedia($path, $idsToDelete);
+        }
+        else{
+            $this->deleteMedia($path);
         }
 
         $this->storeMedia($path);

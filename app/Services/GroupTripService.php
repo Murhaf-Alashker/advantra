@@ -28,8 +28,8 @@ class GroupTripService
     {
         $groupTrip->load([
             'feedbacks',
-            'events' => function ($query) {$query->withoutGlobalScope(ActiveScope::class);},
-            'guide' => function ($query) {$query->withoutGlobalScope(ActiveScope::class);},
+            'events',
+            'guide',
         ]);
         return new GroupTripResource($groupTrip);
     }
@@ -56,7 +56,7 @@ class GroupTripService
 
         $groupTrip->storeMedia(self::FILE_PATH);
 
-        return $groupTrip->refresh()->withoutGlobalScope(ActiveScope::class)->where('id',$groupTrip->id)->first();
+        return $groupTrip->refresh();
 
     }
 

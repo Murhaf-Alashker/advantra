@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MediaType;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
@@ -30,8 +31,9 @@ class StoreEventRequest extends FormRequest
             'status' => 'in:active,inactive',
             'tickets_limit' => 'numeric',
             'category_id' => 'required|exists:categories,id',
-            'media'=>'required|array',
-            'media.*'=>'image|mimes:jpg,jpeg,png|max:2048',
+            'media' => ['required','array'],
+            'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
+            'city_id' => 'required|exists:cities,id',
         ];
     }
 }

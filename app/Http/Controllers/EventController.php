@@ -19,13 +19,9 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
-  //  public const UPLOAD_PAHT = 'events/';
-
-    protected MediaService $mediaService;
     protected EventService $eventService;
-    public function __construct(EventService $eventService,MediaService $mediaService){
+    public function __construct(EventService $eventService){
         $this->eventService = $eventService;
-        $this->mediaService = $mediaService;
     }
 
     public function index(){
@@ -36,27 +32,13 @@ class EventController extends Controller
         return $this->eventService->show($event);
     }
 
-    public function store(StoreEventRequest $request,City $city){
+    public function store(StoreEventRequest $request){
         $validated = $request->validated();
         $validated['slug']=Str::slug($validated['name']);
         $eventData = collect($validated)->except('media','name_ar','description_ar')->all();
-        $event =  $this->eventService->store($eventData,$city);
-        $path = EventService::FILE_PATH . $event->id;
+        $event =  $this->eventService->store($eventData);
 
-        if($request->hasFile('media')) {
-            $allFiles = array_filter($request->file('media'), fn($file) => $file->isValid());
-            if(count($allFiles) > 0) {
-                $files = FileManager::storeMany($path, $allFiles);
-                /*$mediaData = [];
-
-                foreach ($filenames as $filename) {
-                    $mediaData[] = [
-                        'path' => $filename,
-                    ];
-                }*/
-                $event->media()->createMany($files);
-            }
-        }
+        $event->storeMedia(EventService::FILE_PATH);
 
         $event->translations()->createMany([
             ['key' => 'event.name',
@@ -67,7 +49,6 @@ class EventController extends Controller
                 'translation' => $validated['description_ar'],
             ]
         ]);
-       $event->load('media');
        return response()->json(new EventResource($event),201) ;
     }
 

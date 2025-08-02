@@ -14,7 +14,8 @@ class Media extends Model
     use HasFactory;
 
     protected $fillable = [
-        'path'
+        'path',
+        'type'
     ];
   //  public $path;
 

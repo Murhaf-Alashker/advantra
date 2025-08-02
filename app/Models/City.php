@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
+use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class City extends Model
 {
     /** @use HasFactory<\Database\Factories\CityFactory> */
-    use HasFactory;
+    use HasFactory,MediaHandler;
 
     protected $fillable = [
         'name',
@@ -32,12 +33,6 @@ class City extends Model
         ];
     }
 
-    protected static function booted()
-    {
-        static::addGlobalScope(new ActiveScope());
-        static::addGlobalScope(new WithMediaScope());
-    }
-
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
@@ -51,11 +46,6 @@ class City extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
-    }
-
-    public function media(): MorphMany
-    {
-        return $this->morphMany(Media::class, 'mediable');
     }
 
     public function guides(): HasMany

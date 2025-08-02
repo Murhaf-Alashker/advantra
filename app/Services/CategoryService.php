@@ -15,21 +15,21 @@ class CategoryService
     public function show(Category $category)
     {
         $category->load([
-            'events' => fn ($query) => $query->eventWithRate()->limit(5),
-            'guides' => fn ($query) => $query->guideWithRate()->limit(5),]);
+            'events' => fn ($query) => $query->where('status', '=', 'active')->eventWithRate()->limit(5),
+            'guides' => fn ($query) => $query->where('status', '=', 'active')->guideWithRate()->limit(5),]);
         return new CategoryResource($category);
     }
 
     public function getAllCategoriesEvents()
     {
-        return CategoryResource::collection(Category::with([
+        return CategoryResource::collection(Category::activeGuides()->with([
             'events' => fn ($query) => $query->eventWithRate()->limit(5)
         ])->get());
     }
 
     public function getAllCategoriesGuides()
     {
-        return CategoryResource::collection(Category::with([
+        return CategoryResource::collection(Category::activeGuides()->with([
             'guides' => fn ($query) => $query->limit(5)
         ])->get());
     }

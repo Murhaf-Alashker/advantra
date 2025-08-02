@@ -19,6 +19,11 @@ enum MediaType: string
         return array_map(fn($case) => $case->value, self::cases());
     }
 
+    public static function type(): array
+    {
+        return array_map(fn($case) => $case, ['images','videos','pdf']);
+    }
+
     public static function images()
     {
         return array_map(fn($case) => $case->value, [self::JPG, self::JPEG, self::PNG ,self::WEBP]);

@@ -15,31 +15,22 @@ use Illuminate\Support\Facades\Auth;
 class GuideService
 {
     public const FILE_PATH =  'uploads/guides/';
-    protected string $type = "";
-    protected int $count = 5;
 
     public function __construct()
     {
-        if(Auth::guard('api-user')->check()){
-            $this->type = "user";
-        }
-        elseif (Auth::guard('api-admin')->check()){
-            $this->type = "admin";
-            $this->count = 10;
-        }
     }
     public function index()
     {
-        return GuideResource::collection(Guide::guideWithRate()
-                                        ->paginate($this->count));
+        return GuideResource::collection(Guide::activeGuides()
+                                        ->guideWithRate()
+                                        ->paginate(10));
     }
 
     public function show(Guide $guide)
     {
-        $guide=Guide::where('id', '=', $guide->id)
-            ->guideWithRate()
-            ->with([
-                'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
+        $guide->guideWithRate()
+                ->with([
+                'city' ,
                 'languages',
                 'categories',
                 'feedbacks' => fn ($query) =>
@@ -51,7 +42,8 @@ class GuideService
     public function update(Guide $guide, array $data)
     {
         $guide->update($data);
-        return new GuideResource($guide->fresh(['media','languages','categories'])->withoutGlobalScope(ActiveScope::class));
+        return $guide->fresh(['languages', 'categories', 'feedbacks']);
+
     }
 
     public function store(array $data)
@@ -68,40 +60,25 @@ class GuideService
 
     public function topRatedGuides()
     {
-        return GuideResource::collection(Guide::guideWithRate()
+        return GuideResource::collection(Guide::activeGuides()
+                                        ->guideWithRate()
                                         ->orderByDesc('rating')
-                                        ->paginate($this->count));
+                                        ->paginate(10));
     }
 
     public function relatedGuides(Guide $guide)
     {
-        return GuideResource::collection(Guide::where('city_id', '=', $guide->city_id)
+        return GuideResource::collection(Guide::activeGuides()
+                                                ->where('city_id', '=', $guide->city_id)
                                                 ->where('id', '!=', $guide->id)
                                                 ->guideWithRate()
-                                                ->paginate($this->count));
+                                                ->paginate(10));
     }
 
     public function trashedGuides()
     {
-        return GuideResource::collection(Guide::withoutGlobalScope(ActiveScope::class)
-                                                ->onlyTrashed()
+        return GuideResource::collection(Guide::onlyTrashed()
                                                 ->guideWithRate()
-                                                ->paginate($this->count));
-    }
-
-    public function updateMedia(Guide $guide, $file): string
-    {
-        $media = $guide->media()->first();
-
-        if($media){
-            $oldFileName = $media->path;
-            $fileName = FileManager::updateSinglePic(self::FILE_PATH.$guide->id, $oldFileName, $file);
-            $media->update(['path' => $fileName]);
-        }
-        else{
-            $fileName = FileManager::store(self::FILE_PATH.$guide->id, $file);
-            $guide->media()->create(['path' => $fileName]);
-        }
-        return $fileName;
+                                                ->paginate(10));
     }
 }

@@ -16,7 +16,7 @@ class FeedbackResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $user = User::with('media')->findOrFail($this->user_id);
+        $user = User::findOrFail($this->user_id);
         $forUser = [
             'rating' => $this->rating,
             'comment' => $this->comment,
