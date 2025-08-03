@@ -61,7 +61,7 @@ class GuideService
 
     public function topRatedGuides()
     {
-        return GuideResource::collection(Guide::activeGuides()
+        return GuideResource::collection(Guide::ActiveGuides()
                                         ->guideWithRate()
                                         ->orderByDesc('rating')
                                         ->paginate(10));
@@ -69,7 +69,7 @@ class GuideService
 
     public function relatedGuides(Guide $guide)
     {
-        return GuideResource::collection(Guide::activeGuides()
+        return GuideResource::collection(Guide::ActiveGuides()
                                                 ->where('city_id', '=', $guide->city_id)
                                                 ->where('id', '!=', $guide->id)
                                                 ->guideWithRate()

@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Ramsey\Uuid\Guid\Guid;
+
+
 
 class Category extends Model
 {
@@ -44,7 +45,7 @@ class Category extends Model
 
     public function guides(): BelongsToMany
     {
-        return $this->belongsToMany(Guid::class)
+        return $this->belongsToMany(Guide::class)
             ->withTimestamps();
     }
 }
