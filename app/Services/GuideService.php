@@ -42,7 +42,8 @@ class GuideService
     public function update(Guide $guide, array $data)
     {
         $guide->update($data);
-        return $guide->fresh(['languages', 'categories', 'feedbacks']);
+        //->fresh(['languages', 'categories', 'feedbacks']);
+        return $guide;
 
     }
 

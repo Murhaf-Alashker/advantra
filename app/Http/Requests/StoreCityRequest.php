@@ -29,6 +29,7 @@ class StoreCityRequest extends FormRequest
             'description_ar'=>'string|max:10000',
             'status' => 'in:active,inactive',
             'language_id'=>'required|exists:languages,id',
+            'country_id'=>'required|exists:countries,id',
             'media' => ['required','array'],
             'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
 

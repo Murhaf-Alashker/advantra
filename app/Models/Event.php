@@ -24,7 +24,7 @@ class Event extends Model
         'slug',
         'description',
         'basic_cost',
-        'ticket_price',
+        'price',
         'status',
         'stars_count',
         'reviewer_count',

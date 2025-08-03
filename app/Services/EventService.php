@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Event;
 use App\Models\Guide;
 use App\Models\Scopes\ActiveScope;
+use Illuminate\Support\Str;
 
 
 class EventService{
@@ -20,8 +21,8 @@ class EventService{
 //
     public function show(Event $event){
         $event->load([
-            'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
-            'category'
+        //    'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
+            'category','city'
         ]);
         return new EventResource($event);
     }
@@ -34,7 +35,9 @@ class EventService{
     public function update(array $data, Event $event){
 //        $event->update($data);
 //        return new EventResource($event);
-
+         if($data['name']){
+             $event->slug = Str::slug($data['name']);
+         }
         $name_ar = $data['name_ar'] ?? null;
         $description_ar = $data['description_ar'] ?? null;
 
@@ -57,8 +60,8 @@ class EventService{
                 ['translation' => $description_ar]
             );
         }
-
-        return new EventResource($event->fresh(['translations']));
+        //->fresh(['translations']
+        return new EventResource($event);
     }
 
     public function destroy(Event $event){
