@@ -22,15 +22,15 @@ class CategoryService
 
     public function getAllCategoriesEvents()
     {
-        return CategoryResource::collection(Category::activeGuides()->with([
+        return CategoryResource::collection(Category::with([
             'events' => fn ($query) => $query->eventWithRate()->limit(5)
         ])->get());
     }
 
     public function getAllCategoriesGuides()
     {
-        return CategoryResource::collection(Category::activeGuides()->with([
-            'guides' => fn ($query) => $query->limit(5)
+        return CategoryResource::collection(Category::with([
+            'guides' => fn ($query) => $query->activeGuides()->limit(5)
         ])->get());
     }
 }
