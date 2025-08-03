@@ -22,7 +22,7 @@ class UpdateEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string|max:50,unique:events,name'.$this->event->id,
+            'name' => 'string|max:50|unique:events,name,'.$this->event->id,
             'description' => 'string|max:1000',
             'name_ar'=>'string|max:50',
             'description_ar'=>'string|max:10000',
@@ -30,7 +30,7 @@ class UpdateEventRequest extends FormRequest
             'status' => 'in:active,inactive',
             'tickets_limit' => 'numeric',
             'category_id' => 'exists:categories,id',
-            'City_id' => 'exists:cities,id',
+            'city_id' => 'exists:cities,id',
         ];
     }
 }

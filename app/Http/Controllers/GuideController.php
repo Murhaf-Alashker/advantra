@@ -83,7 +83,7 @@ class GuideController extends Controller
 
         $guide->updateMedia(GuideService::FILE_PATH);
 
-        return new GuideResource($guide);
+        return new GuideResource($guide->fresh(['languages', 'categories', 'feedbacks']));
 
     }
 

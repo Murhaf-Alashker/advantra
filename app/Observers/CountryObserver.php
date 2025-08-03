@@ -24,7 +24,7 @@ class CountryObserver
 
     public function updating(Country $country){
 
-        if($country->wasChanged('status')){
+        if($country->isDirty('status')){
             $country->cities()->update(['status' => $country->status]);
            foreach ($country->cities as $city){
                $city->events()->update(['status' => $city->status]);

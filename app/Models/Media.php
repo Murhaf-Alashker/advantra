@@ -17,7 +17,7 @@ class Media extends Model
         'path',
         'type'
     ];
-  //  public $path;
+
 
     protected function casts(): array
     {

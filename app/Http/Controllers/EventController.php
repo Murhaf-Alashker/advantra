@@ -33,10 +33,16 @@ class EventController extends Controller
     }
 
     public function store(StoreEventRequest $request){
+       // dd('store method reached');
         $validated = $request->validated();
+
         $validated['slug']=Str::slug($validated['name']);
         $eventData = collect($validated)->except('media','name_ar','description_ar')->all();
+
+
         $event =  $this->eventService->store($eventData);
+
+
 
         $event->storeMedia(EventService::FILE_PATH);
 
@@ -49,7 +55,8 @@ class EventController extends Controller
                 'translation' => $validated['description_ar'],
             ]
         ]);
-       return response()->json(new EventResource($event),201) ;
+      //  $event->load('city');
+      return response()->json(new EventResource($event),201) ;
     }
 
     public function update( UpdateEventRequest $request,Event $event){

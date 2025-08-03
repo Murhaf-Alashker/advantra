@@ -20,7 +20,7 @@ class EventResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = EventService::FILE_PATH . $this->id;
+        $path = EventService::FILE_PATH ;
         $media = $this->getMedia($path);
         $hasOffer = $this->hasOffer();
 

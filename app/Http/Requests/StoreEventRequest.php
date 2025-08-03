@@ -27,6 +27,7 @@ class StoreEventRequest extends FormRequest
             'name_ar' => 'required|string|max:50|unique:events,name',
             'description' => 'string|max:1000',
             'description_ar' => 'string|max:1000',
+            'basic_cost' => 'required|numeric',
             'price' => 'required|numeric',
             'status' => 'in:active,inactive',
             'tickets_limit' => 'numeric',

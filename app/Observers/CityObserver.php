@@ -24,7 +24,7 @@ class CityObserver
 
     public function updating(City $city): void
     {
-        if($city->wasChanged('status')){
+        if($city->isDirty('status')){
             $city->events()->update(['status' => $city->status]);
             $city->guides()->update(['status' => $city->status]);
         }

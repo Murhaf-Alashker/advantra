@@ -33,17 +33,21 @@ Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
-    //city api
-    Route::controller(CityController::class)->group(function () {
-        Route::post('/countries/cities', 'store')->name('createCity');
-        Route::post('/cities/{city}', 'update')->name('updateCity');
-    });
+    Route::post('/cities/events',[EventController::class,'store'])->name('createEvent');
+    Route::post('/countries/cities',[CityController::class,'store'] )->name('createCity');
     //event api
     Route::controller(EventController::class)->group(function () {
-        Route::post('/cities/events','store')->name('createEvent');
+
+
         Route::post('/events/{event}','update')->name('updateEvent');
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
     });
+    //city api
+    Route::controller(CityController::class)->group(function () {
+
+        Route::post('/cities/{city}', 'update')->name('updateCity');
+    });
+
     //country api
     Route::post('/countries/{country}', [CountryController::class,'update'])->name('updateCountry');
 
@@ -56,6 +60,12 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/guides/store','store')->name('createGuide');
         Route::post('/guides/{guide}','update')->name('updateGuide');
         Route::get('/guides/{guide}','destroy')->name('deleteGuide');
+    });
+
+    //group trip api
+    Route::controller(GroupTripController::class)->group(function () {
+    Route::post('/group_trip','store')->name('createGroupTrip');
+    Route::delete('/group_trips/{groupTrip}','destroy')->name('deleteGroupTrip');
     });
 });
 
@@ -96,8 +106,7 @@ Route::controller(EventController::class)->group(function () {
 
     Route::controller(GroupTripController::class)->prefix('/group_trip')->group(function () {
         Route::get('/','index')->name('getGroupTrips');
-        Route::get('/{groupTripId}','show')->name('showGroupTrip');
-        Route::post('/create_group_trip','store')->name('createGroupTrip');
-        Route::get('/{groupTripId}/delete','destroy')->name('deleteGroupTrip');
+        Route::get('/{groupTrip}','show')->name('showGroupTrip');
+
     });
 });
