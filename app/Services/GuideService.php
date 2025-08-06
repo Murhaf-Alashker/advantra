@@ -29,12 +29,6 @@ class GuideService
     public function show(Guide $guide)
     {
         $guide->guideWithRate()
-                ->with([
-                'city' ,
-                'languages',
-                'categories',
-                'feedbacks' => fn ($query) =>
-                $query->whereHas('user')])
             ->firstOrFail();
         return new GuideResource($guide);
     }

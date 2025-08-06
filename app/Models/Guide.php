@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\GuideScope;
 use App\Models\Scopes\WithMediaScope;
 use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,6 +47,11 @@ class Guide extends Model
             'created_at' => 'datetime:Y-m-d H:i:s',
             'updated_at' => 'datetime:Y-m-d H:i:s',
         ];
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new GuideScope());
     }
 
     public function city(): BelongsTo
