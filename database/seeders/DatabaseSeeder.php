@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
             TaskSeeder::class,
             SettingSeeder::class,
             MediaSeeder::class,
-            FeedbackSeeder::class
+            FeedbackSeeder::class,
+            OfferSeeder::class,
         ]);
     }
 }

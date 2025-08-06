@@ -36,7 +36,9 @@ class HomeController extends Controller
         $latestGroupTrips = $this->groupTripService->index();
         $topRatedGroupTrips = $this->groupTripService->topRatedGroupTrips();
         $eventsByCategory = $this->categoryService->getAllCategoriesEvents();
-        $guidesByCatrgory = $this->categoryService->getAllCategoriesGuides();
+        $guidesByCategory = $this->categoryService->getAllCategoriesGuides();
+        $eventWithOffer = $this->eventService->eventsWithOffer();
+        $groupTripsWithOffer = $this->groupTripService->groupTripsWithOffer();
         return response()->json(['latestGroupTrips' => $latestGroupTrips,
                                 'topRatedGroupTrips' => $topRatedGroupTrips,
                                 'topRatedEvents' => $topRatedEvents,
@@ -44,7 +46,9 @@ class HomeController extends Controller
                                 'citiesWithMostEvents' => $citiesWithMostEvents,
                                 'topRatedGuides' => $topRatedGuides,
                                 'eventsByCategory' => $eventsByCategory,
-                                'eventsByGuids' => $guidesByCatrgory],200);
+                                'guidesByCategory' => $guidesByCategory,
+                                'groupTripsWithOffer' => $groupTripsWithOffer,
+                                '$eventWithOffer' => $eventWithOffer]);
 
                         }
 }

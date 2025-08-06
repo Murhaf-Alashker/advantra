@@ -19,6 +19,7 @@ class EventFactory extends Factory
      */
     public function definition(): array
     {
+        $reviewer = rand(1 ,1000);
         $name = $this->faker->sentence(2);
         return [
             'name'=>$name,
@@ -26,8 +27,8 @@ class EventFactory extends Factory
             'description'=>$this->faker->realText(),
             'price'=>$this->faker->randomFloat(2,10,500),
             'status'=>'active',
-            'stars_count'=>0,
-            'reviewer_count'=>0,
+            'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),
+            'reviewer_count'=>$reviewer,
             'basic_cost'=>rand(0.00,100.00),
             'city_id' => City::inRandomOrder()->first()->id ?? City::factory(),
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory()

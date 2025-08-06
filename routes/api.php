@@ -41,6 +41,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
 
         Route::post('/events/{event}','update')->name('updateEvent');
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
+        Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
     });
     //city api
     Route::controller(CityController::class)->group(function () {
@@ -66,6 +67,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::controller(GroupTripController::class)->group(function () {
     Route::post('/group_trip','store')->name('createGroupTrip');
     Route::delete('/group_trips/{groupTrip}','destroy')->name('deleteGroupTrip');
+    Route::post('/group_trips/{groupTrip}/offer','makeOffer')->name('makeOfferForGroupTrip');
     });
 });
 

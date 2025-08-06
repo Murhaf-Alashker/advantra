@@ -3,11 +3,16 @@
 namespace App\Services;
 
 use App\Enums\Status;
+use App\Http\Resources\EventResource;
 use App\Http\Resources\GroupTripResource;
 use App\Libraries\FileManager;
 use App\Models\Event;
 use App\Models\GroupTrip;
+use App\Models\Offer;
 use App\Models\Scopes\ActiveScope;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class GroupTripService
 {
@@ -17,6 +22,7 @@ class GroupTripService
     {
         return GroupTripResource::collection(GroupTrip::where('status', Status::PENDING)
                                                         ->orWhere('status', Status::COMPLETED)
+                                                        ->withoutOffer()
                                                         ->latest()
                                                         ->groupTripWithRate()
                                                         ->paginate(10)
@@ -63,15 +69,33 @@ class GroupTripService
     public function topRatedGroupTrips()
     {
         return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)
-            ->groupTripWithRate()
-            ->orderByDesc('rating')
-            ->paginate(10));
+                                                        ->groupTripWithRate()
+                                                        ->orderByDesc('rating')
+                                                        ->paginate(10));
     }
 
     public function destroy(GroupTrip $groupTrip): void
     {
         $groupTrip->deleteMedia(self::FILE_PATH);
         $groupTrip->delete();
+    }
+
+    public function groupTripsWithOffer()
+    {
+        return GroupTripResource::collection(GroupTrip::where('status', '=', Status::PENDING)
+                                                        ->orWhere('status', '=', Status::COMPLETED)
+                                                        ->hasOffer()
+                                                        ->paginate(10)
+        );
+    }
+
+    public function makeOffer(array $data,GroupTrip $groupTrip)
+    {
+        return DB::transaction(function () use ($data, $groupTrip) {
+            return $groupTrip->offers()->create($data);
+        });
+
+
     }
 
 }
