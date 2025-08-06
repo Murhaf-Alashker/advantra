@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OfferRequest;
 use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateCityRequest;
@@ -10,6 +11,7 @@ use App\Http\Resources\EventResource;
 use App\Libraries\FileManager;
 use App\Models\City;
 use App\Models\Event;
+use App\Models\GroupTrip;
 use App\Models\Offer;
 use App\Services\EventService;
 use App\Services\MediaService;
@@ -77,6 +79,18 @@ class EventController extends Controller
 
     public function relatedGuides(Event $event){
        return $this->eventService->relatedGuides($event);
+    }
+
+    public function makeOffer(OfferRequest $request,Event $event)
+    {
+        if($event->hasAnyOffer()){
+            return response()->json(['message' => __('message.has_already_offer',['attribute' => __('message.attributes.event')])],400);
+        }
+        $offer = $this->eventService->makeOffer($request->validated(),$event);
+        if(!$offer){
+            return response()->json(['message' => __('message.something_wrong')], 400);
+        }
+        return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.offer')])],201);
     }
 
 }

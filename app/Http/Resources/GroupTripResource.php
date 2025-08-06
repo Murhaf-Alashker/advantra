@@ -23,13 +23,7 @@ class GroupTripResource extends JsonResource
         $path = GroupTripService::FILE_PATH;
         $media = $this->getMedia($path);
         $hasOffer = $this->hasOffer();
-
-        $local = App::getLocale();
-
-        if($local == 'ar'){
-            $this->name = $this->translate('name');
-            $this->description = $this->translate('description');
-        }
+        $locale = App::getLocale();
 
         $forUser = [
             'id' => $this->id,
@@ -39,7 +33,7 @@ class GroupTripResource extends JsonResource
             'ending_date' => $this->ending_date,
             'rate' => $this->rating ?? '0',
             'status' => $this->status,
-            'price' =>$hasOffer? $this->price - $this->offer()->first() : $this->price,
+            'price' => $hasOffer? $this->price *($this->offers()->first()->discount / 100) : $this->price,
             'tickets_count' => $this->tickets_count,
             'has offer' => $hasOffer,
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
@@ -52,6 +46,8 @@ class GroupTripResource extends JsonResource
         ];
 
         $moreInfo = [
+            'name_ar' => $this->translate('name'),
+            'description_ar' => $this->translate('description'),
             'stars_count' => $this->stars_count,
             'tickets_limit' => $this->tickets_limit,
             'basic_cost' => $this->basic_cost,
@@ -60,6 +56,10 @@ class GroupTripResource extends JsonResource
             'updated_at' => $this->updated_at,
         ];
         if(Auth::guard('api-user')->check()) {
+            if($locale == 'ar'){
+                $forUser['name'] = $this->translate('name');
+                $forUser['description'] = $this->translate('description');
+            }
             return $forUser;
         }
 
