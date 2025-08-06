@@ -22,6 +22,8 @@ return [
     'created_successfully' => 'تم انشاء attribute: بنجاح.',
     'updated_successfully' => 'تم تعديل attribute: بنجاح.',
     'unauthorized' => 'ليس لديك الصلاحية للقيام بهذا الاجراء',
+    'has_already_offer' => ':attribute لديه عرض مسبقا.',
+    'invalid_offer_date' => 'يجب ان ينتهي العرض قبل تاريخ بداية الرحلة.',
 //////////////////////////////////////////////////////////////
     'custom' => [
         'attribute-name' => [
@@ -34,5 +36,6 @@ return [
         'event'=> 'الحدث',
         'group_trip' => 'الرحلة الجماعية',
         'solo_trip' =>'الرحلة الفردية',
+        'offer' => 'عرض'
     ]
 ];

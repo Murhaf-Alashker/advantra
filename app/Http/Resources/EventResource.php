@@ -23,13 +23,8 @@ class EventResource extends JsonResource
         $path = EventService::FILE_PATH ;
         $media = $this->getMedia($path);
         $hasOffer = $this->hasOffer();
-
         $locale = App::getLocale();
 
-        if ($locale == 'ar') {
-            $this->name = $this->translate('name');
-            $this->description = $this->translate('description');
-        }
 
         $forUser = [
             'id' => $this->id,
@@ -37,7 +32,7 @@ class EventResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'rate' => $this->rating ?? '0',
-            'price' =>$hasOffer? $this->price - $this->offer()->first() : $this->price,
+            'price' => $hasOffer? $this->price *($this->offers()->first()->discount / 100) : $this->price,
             'status' => $this->status ,
             'reviewer_count' => $this->reviewer_count ,
             'has offer' => $this->hasOffer(),
@@ -56,12 +51,20 @@ class EventResource extends JsonResource
             'updated_at' => $this->updated_at,
 
         ];
-        if(Auth::guard('api-user')->check()) {
+        if(Auth::guard('api-user')->check()){
+            if($locale == 'ar'){
+                $forUser['name'] = $this->translate('name');
+                $forUser['description'] = $this->translate('description');
+            }
             return $forUser;
         }
 
         if(Auth::guard('api-admin')->check()) {
-            return array_merge($forUser, $moreInfo);
+            $allData = array_merge($forUser, $moreInfo);
+            if($hasOffer){
+                $allData['offers'] = OfferResource::collection($this->offers);
+            }
+            return $allData;
         }
 
         return [];

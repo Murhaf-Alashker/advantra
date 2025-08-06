@@ -5,8 +5,10 @@ use App\Http\Resources\EventResource;
 use App\Http\Resources\GuideResource;
 use App\Models\City;
 use App\Models\Event;
+use App\Models\GroupTrip;
 use App\Models\Guide;
 use App\Models\Scopes\ActiveScope;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 
@@ -15,6 +17,8 @@ class EventService{
 
     public function index(){
         return EventResource::collection(Event::eventWithRate()
+                                                ->activeEvents()
+                                                ->withoutOffer()
                                                 ->latest()
                                                 ->paginate(10));
     }
@@ -87,9 +91,28 @@ class EventService{
     public function topRatedEvents()
     {
         return EventResource::collection(Event::activeEvents()
+                                                ->withoutOffer()
                                                 ->eventWithRate()
                                                 ->orderByDesc('rating')
                                                 ->paginate(10));
+    }
+
+    public function eventsWithOffer()
+    {
+        return EventResource::collection(Event::activeEvents()
+                                                ->hasOffer()
+                                                ->eventWithRate()
+                                                ->paginate(10)
+        );
+    }
+
+    public function makeOffer(array $data,Event $event)
+    {
+        return DB::transaction(function () use ($data, $event) {
+            return $event->offers()->create($data);
+        });
+
+
     }
 
 }

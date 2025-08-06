@@ -18,9 +18,12 @@ return [
     'unauthorized_admin' => 'Sorry ,only admin can do this action.',
     'cannot_delete_guide_with_active_group' => 'You can not delete guide with because he is leading a group trip.',
     'cannot_delete_unfinished_group_trip' => 'You can not delete not finished group trip.',
-    'deleted_successfully' => 'attribute: deleted successfully.',
-    'created_successfully' => 'attribute: successfully created.',
+    'deleted_successfully' => ' :attribute deleted successfully.',
+    'created_successfully' => ' :attribute created successfully.',
+    'updated_successfully' => ':attribute updated successfully.',
     'unauthorized' => 'You are not authorized to do this action.',
+    'has_already_offer' => 'The :attribute have already offer.',
+    'invalid_offer_date' => 'the offer must end before the start date.',
 //////////////////////////////////////////////////////////////
     'custom' => [
         'attribute-name' => [
@@ -33,5 +36,6 @@ return [
         'event'=> 'event',
         'group_trip' => 'group trip',
         'solo_trip' =>'solo trip',
+        'offer' => 'offer'
     ]
 ];

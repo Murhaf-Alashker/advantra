@@ -18,10 +18,6 @@ class LanguageResource extends JsonResource
     {
         $locale = App::getLocale();
 
-        if ($locale == 'ar') {
-            $this->name = $this->translate('name');
-        }
-
         $forUser = [
           'id' => $this->id,
           'name' => $this->name
@@ -33,6 +29,9 @@ class LanguageResource extends JsonResource
         ];
 
         if(Auth::guard('api-user')->check()) {
+            if ($locale == 'ar') {
+                $forUser['name'] = $this->translate('name');
+            }
             return $forUser;
         }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\CheckOfferScope;
 use App\Models\Scopes\WithMediaScope;
 use App\Traits\MediaHandler;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -131,6 +132,11 @@ class Event extends Model
     public function hasOffer(): bool
     {
         return $this->offers()->exists();
+    }
+
+    public function hasAnyOffer(): bool
+    {
+        return $this->offers()->withoutGlobalScope(CheckOfferScope::class)->where('end_date', '>', Carbon::now())->exists();
     }
 
 }
