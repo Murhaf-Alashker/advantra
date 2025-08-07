@@ -24,6 +24,8 @@ class GroupTripResource extends JsonResource
         $media = $this->getMedia($path);
         $hasOffer = $this->hasOffer();
         $locale = App::getLocale();
+        $name_ar = $this->translate('name');
+        $description_ar = $this->translate('description');
 
         $forUser = [
             'id' => $this->id,
@@ -33,7 +35,7 @@ class GroupTripResource extends JsonResource
             'ending_date' => $this->ending_date,
             'rate' => $this->rating ?? '0',
             'status' => $this->status,
-            'price' => $hasOffer? $this->price *($this->offers()->first()->discount / 100) : $this->price,
+            'price' => $hasOffer? round($this->price * ((100 - $this->offers()->first()->discount) / 100)) : $this->price,
             'tickets_count' => $this->tickets_count,
             'has offer' => $hasOffer,
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
@@ -46,8 +48,8 @@ class GroupTripResource extends JsonResource
         ];
 
         $moreInfo = [
-            'name_ar' => $this->translate('name'),
-            'description_ar' => $this->translate('description'),
+            'name_ar' => $name_ar,
+            'description_ar' => $description_ar,
             'stars_count' => $this->stars_count,
             'tickets_limit' => $this->tickets_limit,
             'basic_cost' => $this->basic_cost,
@@ -57,14 +59,19 @@ class GroupTripResource extends JsonResource
         ];
         if(Auth::guard('api-user')->check()) {
             if($locale == 'ar'){
-                $forUser['name'] = $this->translate('name');
-                $forUser['description'] = $this->translate('description');
+                $forUser['name'] = $name_ar;
+                $forUser['description'] = $description_ar;
             }
             return $forUser;
         }
 
         if(Auth::guard('api-admin')->check()) {
-            return array_merge($forUser, $moreInfo);
+            $allData = array_merge($forUser, $moreInfo);
+            if($hasOffer){
+                $allData['main_price'] = $this->price;
+                $allData['offers'] = OfferResource::collection($this->offers);
+            }
+            return $allData;
         }
 
         return [];

@@ -17,6 +17,8 @@ class GuideFactory extends Factory
      */
     public function definition(): array
     {
+        $reviewer = rand(1 ,1000);
+
         return [
             'name'=>$this->faker->name(),
             'email'=>$this->faker->unique()->safeEmail(),
@@ -27,8 +29,8 @@ class GuideFactory extends Factory
             'price'=>$this->faker->randomFloat(2, 50.00, 999999.99),
             'const_salary'=>100.00,
             'extra_salary'=>0.00,
-            'stars_count'=>0,
-            'reviews_count'=>0,
+            'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),
+            'reviews_count'=>$reviewer,
             'city_id' => City::inRandomOrder()->first()->id ?? City::factory()
 
 

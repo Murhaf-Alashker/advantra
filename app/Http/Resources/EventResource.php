@@ -24,6 +24,8 @@ class EventResource extends JsonResource
         $media = $this->getMedia($path);
         $hasOffer = $this->hasOffer();
         $locale = App::getLocale();
+        $name_ar = $this->translate('name');
+        $description_ar = $this->translate('description');
 
 
         $forUser = [
@@ -32,7 +34,7 @@ class EventResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'rate' => $this->rating ?? '0',
-            'price' => $hasOffer? $this->price *($this->offers()->first()->discount / 100) : $this->price,
+            'price' => $hasOffer? round($this->price * ((100 - $this->offers()->first()->discount) / 100)) : $this->price,
             'status' => $this->status ,
             'reviewer_count' => $this->reviewer_count ,
             'has offer' => $this->hasOffer(),
@@ -44,6 +46,8 @@ class EventResource extends JsonResource
         ];
 
         $moreInfo = [
+            'name_ar' =>$name_ar,
+            'description_ar' =>$description_ar,
             'basic_cost' => $this->basic_cost ?? '0',
             'stars_count' => $this->stars_count ,
             'is_deleted' => $this->deleted_at != null,
@@ -53,8 +57,8 @@ class EventResource extends JsonResource
         ];
         if(Auth::guard('api-user')->check()){
             if($locale == 'ar'){
-                $forUser['name'] = $this->translate('name');
-                $forUser['description'] = $this->translate('description');
+                $forUser['name'] = $name_ar;
+                $forUser['description'] = $description_ar;
             }
             return $forUser;
         }
@@ -62,6 +66,7 @@ class EventResource extends JsonResource
         if(Auth::guard('api-admin')->check()) {
             $allData = array_merge($forUser, $moreInfo);
             if($hasOffer){
+                $allData['main_price'] = $this->price;
                 $allData['offers'] = OfferResource::collection($this->offers);
             }
             return $allData;
