@@ -17,7 +17,9 @@ class Task extends Model
         'status',
         'start_date',
         'end_date',
-        'guide_id'
+        'guide_id',
+        'taskable_id',
+        'taskable_type'
     ];
 
     protected function casts(): array
@@ -25,8 +27,8 @@ class Task extends Model
         return [
             'created_at' => 'datetime:Y-m-d H:i:s',
             'updated_at' => 'datetime:Y-m-d H:i:s',
-            'start_date' => 'date:Y-m-d H:i:s',
-            'end_date' => 'date:Y-m-d H:i:s',
+            'start_date' => 'datetime:Y-m-d H:i:s',
+            'end_date' => 'datetime:Y-m-d H:i:s',
         ];
     }
 

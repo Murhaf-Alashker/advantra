@@ -5,6 +5,7 @@ use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
@@ -103,10 +104,17 @@ Route::controller(EventController::class)->group(function () {
         Route::get('/{guide}','show')->name('showGuide');
         Route::get('/{guide}/relatedGuides','relatedGuides')->name('getRelatedGuides');
     });
-
+//group trip api
     Route::controller(GroupTripController::class)->prefix('/group_trip')->group(function () {
         Route::get('/','index')->name('getGroupTrips');
         Route::get('/{groupTrip}','show')->name('showGroupTrip');
+
+    });
+
+    //task api
+    Route::controller(TaskController::class)->group(function () {
+        Route::post('/guides/{guide}/tasks','store')->name('createTask');
+        Route::get('/guides/{guide}/tasks','getMonthlyTasks')->name('getMonthlyTasks');
 
     });
 });
