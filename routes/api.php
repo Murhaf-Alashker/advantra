@@ -44,6 +44,10 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
         Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
     });
+
+    Route::controller(AdminController::class)->group(function () {
+        Route::post('/business_info','businessInfo')->name('businessInfo');
+    });
     //city api
     Route::controller(CityController::class)->group(function () {
 

@@ -24,6 +24,7 @@ return [
     'unauthorized' => 'You are not authorized to do this action.',
     'has_already_offer' => 'The :attribute have already offer.',
     'invalid_offer_date' => 'the offer must end before the start date.',
+    'wrong_password' => 'Wrong password.',
 //////////////////////////////////////////////////////////////
     'custom' => [
         'attribute-name' => [
@@ -36,6 +37,7 @@ return [
         'event'=> 'event',
         'group_trip' => 'group trip',
         'solo_trip' =>'solo trip',
-        'offer' => 'offer'
+        'offer' => 'offer',
+        'info' => 'info',
     ]
 ];

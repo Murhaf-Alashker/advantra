@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->decimal('total_profit', 10, 2)->default(0.00);
             $table->decimal('total_income', 10, 2)->default(0.00);
-            $table->bigInteger('reserved_tickets')->default(0);
-            $table->bigInteger('total_group_trips')->default(0);
+            $table->bigInteger('events_reserved_tickets')->default(0);
+            $table->bigInteger('group_trip_reserved_tickets')->default(0);
             $table->timestamps();
         });
     }
