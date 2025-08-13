@@ -41,9 +41,11 @@ class MediaFactory extends Factory
             'solotrip' => 'soloTrips/',
 
         };
-        $sourcePath = base_path('resources/images/test.jpg');
+       $mediaType = [['type' => 'images' , 'name' => 'test.jpg'],['type' => 'videos' , 'name' => 'test.mp4']];
+       $randElement = $mediaType[array_rand($mediaType)];
+        $sourcePath = base_path('resources/'.$randElement['type'].'/'.$randElement['name']);
        $filename = 'test.jpg';
-       $path = 'uploads/'.$folder.$taskableInstance->id . '/';
+       $path = 'uploads/'.$folder.$taskableInstance->id . '/'.$randElement['type'].'/';
        $fullPath = $path . $filename;
         Storage::disk('public')->put($fullPath, file_get_contents($sourcePath));
 
@@ -52,7 +54,7 @@ class MediaFactory extends Factory
             'mediable_type' => $taskableTypes,
             'mediable_id' => $taskableInstance->id,
             'path' => $filename,
-            'type' => 'images'
+            'type' => $randElement['type'],
         ];
     }
 }

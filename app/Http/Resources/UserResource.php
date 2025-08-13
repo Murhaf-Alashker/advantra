@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $path = '';//UserService::FILE_PATH ;
+        $path = UserService::FILE_PATH ;
         $media = $this->getMedia($path);
 
         $forUser = [
@@ -40,6 +41,12 @@ class UserResource extends JsonResource
         }
 
         if(Auth::guard('api-admin')->check()) {
+            if(isset($this->events_reserved_tickets)){
+                $moreInfo['events_reserved_tickets'] = $this->events_reserved_tickets;
+            }
+            if(isset($this->group_trip_reserved_tickets) ){
+                $moreInfo['group_trip_reserved_tickets'] = $this->group_trip_reserved_tickets;
+            }
             return array_merge($forUser, $moreInfo);
         }
 

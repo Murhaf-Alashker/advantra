@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\CheckResetPasswordCodeRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\MobileGoogleAuthRequest;
@@ -194,6 +195,17 @@ class AuthController extends Controller
         $user->password = Hash::make($data['password']);
         $user->save();
         DB::table('password_reset_tokens')->where('email',$data['email'])->delete();
+        return response()->json(['message' => __('message.reset_password_successfully')], ResponseAlias::HTTP_OK);
+    }
+
+    public function resetPasswordUsingOldPassword(ChangePasswordRequest $request)
+    {
+        $user = Auth::guard('api-user')->user();
+        if(!$user || !Hash::check($request->old_password,$user->password)){
+            return response()->json(['message' => __('message.wrong_password')], 400);
+        }
+        $user->password = Hash::make($request->new_password);
+        $user->save();
         return response()->json(['message' => __('message.reset_password_successfully')], ResponseAlias::HTTP_OK);
     }
 
