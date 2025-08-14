@@ -30,6 +30,32 @@ class AdminController extends Controller
 
     public function businessInfo(Request $request)
     {
-        return $this ->adminService->businessPage($request->input('year') ?? Carbon::now()->year);
+        $request->validate([
+            'year' => ['date_format:Y','size:4','min:2020', 'max:' . carbon::now()->year],
+        ]);
+        return $this->adminService->businessPage($request->input('year') ?? Carbon::now()->year);
+    }
+
+    public function citiesDashboard(Request $request)
+    {
+        $request->validate([
+            'page' => ['nullable','min:1'],
+            'orderBy' => ['nullable','in:rate,visitor,name,revenue,events,guides'],
+            'q' => ['nullable','string','min:1','max:100'],
+        ]);
+        $paginator = $this->adminService->cityPage(
+            $request->input('page') ?? 1,
+                  $request->input('orderBy') ?? 'name',
+                  $request->input('q')
+        );
+        return response()->json([
+            'data' => $paginator->items(),
+            'current_page' => $paginator->currentPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'next_page_url' => $paginator->nextPageUrl(),
+            'prev_page_url' => $paginator->previousPageUrl(),
+        ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Mail\VerificationCodeMail;
@@ -37,6 +38,7 @@ Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::post('/cities/events',[EventController::class,'store'])->name('createEvent');
     Route::post('/countries/cities',[CityController::class,'store'] )->name('createCity');
+    Route::get('/users',[UserController::class,'index'])->name('users');
     //event api
     Route::controller(EventController::class)->group(function () {
         Route::post('/events/{event}','update')->name('updateEvent');
@@ -46,6 +48,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
 
     Route::controller(AdminController::class)->group(function () {
         Route::post('/business_info','businessInfo')->name('businessInfo');
+        Route::post('/cities','citiesDashboard')->name('citiesDashboard');
     });
     //city api
     Route::controller(CityController::class)->group(function () {
@@ -126,6 +129,12 @@ Route::controller(EventController::class)->group(function () {
         Route::post('/guides/{guide}/tasks','store')->name('createTask');
         Route::get('/guides/{guide}/tasks','getMonthlyTasks')->name('getMonthlyTasks');
 
+    });
+
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/users/get_info','getInfo')->name('getInfo');
+        Route::get('/users/{user}','show')->name('showUsers');
+        Route::post('/users/update','updateInfo')->name('updateInfo');
     });
 //feedback api
     Route::controller(FeedbackController::class)->group(function () {

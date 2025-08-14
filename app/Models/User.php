@@ -62,11 +62,6 @@ class User extends Authenticatable
         ];
     }
 
-    protected static function booted()
-    {
-       // static::addGlobalScope(new ActiveScope());
-        static::addGlobalScope(new WithMediaScope());
-    }
 
     public function contacts():HasMany
     {
@@ -120,22 +115,20 @@ class User extends Authenticatable
 
     public function allEvents()
     {
-        return Event::withoutGlobalScope(ActiveScope::class)
-                    ->withTrashed()
+        return Event::withTrashed()
                     ->distinct()->where(function ($query) {
-                        $query->whereHas('reservations', fn($q) => $q->where('user_id', $this->id))
-                            ->orWhereHas('soloTrips', fn($q) => $q->where('user_id', $this->id))
-                            ->orWhereHas('groupTrips.reservations', fn($q) =>
+                        $query->whereHas('reservations', function ($q){ $q->where('user_id', $this->id);})
+                            ->orWhereHas('soloTrips', function($q){$q->where('user_id', $this->id);})
+                            ->orWhereHas('groupTrips.reservations', function($q) {
                             $q->where('user_id', $this->id)
-                                ->where('reservable_type', GroupTrip::class)
+                                ->where('reservable_type', GroupTrip::class);}
                 );
-        });
+        })->get();
     }
 
     public function directEvents()
     {
-        return Event::withoutGlobalScope(ActiveScope::class)
-                    ->withTrashed()
+        return Event::withTrashed()
                     ->whereHas('reservations', fn ($q) =>
                         $q->where('user_id', $this->id)
                     );
@@ -144,8 +137,7 @@ class User extends Authenticatable
 
     protected function groupTripEvents()
     {
-        return Event::withoutGlobalScope(ActiveScope::class)
-                    ->withTrashed()
+        return Event::withTrashed()
                     ->whereHas('groupTrips', fn($query) =>
                                             $query->whereHas('reservations', fn($q) =>
                                                 $q->where('user_id', $this->id)
@@ -157,8 +149,7 @@ class User extends Authenticatable
 
     protected function soloTripEvents()
     {
-        return Event::withoutGlobalScope(ActiveScope::class)
-                    ->withTrashed()
+        return Event::withTrashed()
                     ->whereHas('soloTrips', fn ($q) =>
                         $q->where('user_id',$this->id)
                     );

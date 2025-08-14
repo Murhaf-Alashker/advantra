@@ -13,7 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::guard('api-admin')->check();
+        return Auth::guard('api-user')->check();
     }
 
     /**
@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required_with:password','string','min:3','max:20','unique:users,name','unique:unverified_users,name'],
+            'name' => ['string','min:3','max:20','unique:users,name','unique:unverified_users,name'],
             'media' => ['image','mimes:'.implode(',',MediaType::images()),'max:2048'],
         ];
     }
