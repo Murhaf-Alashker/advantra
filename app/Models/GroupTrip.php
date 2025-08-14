@@ -111,7 +111,7 @@ class GroupTrip extends Model
 
     public function scopeGroupTripWithRate($query)
     {
-        return $query->selectRaw('group_trips.*, ROUND(stars_count / NULLIF(reviews_count, 0), 1) as rating');
+        return $query->selectRaw('group_trips.*, ROUND(stars_count / NULLIF(reviewer_count, 0), 1) as rating');
     }
 
     public function scopeNotFinished($query)

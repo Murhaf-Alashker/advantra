@@ -40,6 +40,7 @@ class EventResource extends JsonResource
             'has offer' => $this->hasOffer(),
             'city' => $this->whenLoaded('city', fn () => new CityResource($this->city)),
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($this->category)),
+            'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
             'images' => $media['images'] ?? [],
             'videos' => $media['videos'] ?? [],
 

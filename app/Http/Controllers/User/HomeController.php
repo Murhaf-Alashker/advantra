@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\CategoryService;
 use App\Services\CityService;
 use App\Services\EventService;
@@ -51,4 +52,13 @@ class HomeController extends Controller
                                 '$eventWithOffer' => $eventWithOffer]);
 
                         }
+
+    public function updateStatus(Request $request,User $user)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+        $user->update(['status' => $validated['status']]);
+        return response()->json(['message' => 'status updated successfully']);
+    }
 }

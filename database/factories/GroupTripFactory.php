@@ -30,7 +30,7 @@ class GroupTripFactory extends Factory
             'tickets_count'=>$this->faker->numberBetween(100,1000),
             'tickets_limit' => $this->faker->numberBetween(10,100),
             'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),
-            'reviews_count'=>$reviewer,
+            'reviewer_count'=>$reviewer,
             'basic_cost'=>rand(50.00,100.00),
             'extra_cost' => rand(1.00,50.00),
             'guide_id' => Guide::inRandomOrder()->first()->id ?? Guide::factory()

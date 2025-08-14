@@ -33,7 +33,11 @@ class GroupTripService
     public function show(GroupTrip $groupTrip)
     {
         $groupTrip->load([
-            'feedbacks',
+            'feedbacks' => function ($feedbackQuery) {
+                $feedbackQuery->whereHas('user', function ($userQuery) {
+                    $userQuery->active();
+                });
+            },
             'events',
             'guide',
         ]);

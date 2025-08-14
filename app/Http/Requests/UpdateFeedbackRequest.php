@@ -2,19 +2,18 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\MediaType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreCityRequest extends FormRequest
+class UpdateFeedbackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        if(Auth::guard('api-admin')->check())
+        if(Auth::guard('api-user')->check())
         {
             return true;
         }
@@ -29,17 +28,8 @@ class StoreCityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|max:50|unique:cities,name',
-            'name_ar'=>'required|string|max:50|unique:cities,name',
-            'description'=>'string|max:10000',
-            'description_ar'=>'string|max:10000',
-            'status' => 'in:active,inactive',
-            'language_id'=>'required|exists:languages,id',
-            'country_id'=>'required|exists:countries,id',
-            'media' => ['required','array'],
-            'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
-
-
+            'rating' => 'nullable|numeric|min:0|max:5|regex:/^\d+(\.\d{1,2})?$/',
+            'comment' => 'nullable|string'
         ];
     }
 }

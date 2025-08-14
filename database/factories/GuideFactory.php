@@ -30,7 +30,7 @@ class GuideFactory extends Factory
             'const_salary'=>100.00,
             'extra_salary'=>0.00,
             'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),
-            'reviews_count'=>$reviewer,
+            'reviewer_count'=>$reviewer,
             'city_id' => City::inRandomOrder()->first()->id ?? City::factory()
 
 
