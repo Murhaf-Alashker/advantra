@@ -64,7 +64,7 @@ class User extends Authenticatable
 
     protected static function booted()
     {
-        static::addGlobalScope(new ActiveScope());
+       // static::addGlobalScope(new ActiveScope());
         static::addGlobalScope(new WithMediaScope());
     }
 
@@ -162,6 +162,11 @@ class User extends Authenticatable
                     ->whereHas('soloTrips', fn ($q) =>
                         $q->where('user_id',$this->id)
                     );
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 
 }

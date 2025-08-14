@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('const_salary', 8, 2)->default(0.00);
             $table->decimal('extra_salary', 8, 2)->default(0.00);
             $table->bigInteger('stars_count')->default(0.00);
-            $table->bigInteger('reviews_count')->default(0.00);
+            $table->bigInteger('reviewer_count')->default(0.00);
             $table->string('fcm_token')->nullable();
             $table->foreignIdFor(City::class)->constrained();
             $table->softDeletes();

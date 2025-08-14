@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Enums\MediaType;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreCityRequest extends FormRequest
 {
@@ -12,7 +14,11 @@ class StoreCityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        if(Auth::guard('api-admin')->check())
+        {
+            return true;
+        }
+        throw new AuthorizationException(__('message.unauthorized'),403);
     }
 
     /**

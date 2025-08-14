@@ -23,13 +23,21 @@ class EventService{
                                                 ->paginate(10));
     }
 //
-    public function show(Event $event){
+    public function show(Event $event)
+    {
         $event->load([
-        //    'city' => function ($query) {$query->withoutGlobalScopes(ActiveScope::class);},
-            'category','city'
+            'category',
+            'city',
+            'feedbacks' => function ($feedbackQuery) {
+                $feedbackQuery->whereHas('user', function ($userQuery) {
+                    $userQuery->active();
+                });
+            }
         ]);
+
         return new EventResource($event);
     }
+
 
     public function store(array $data){
        $event = Event::create($data);

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->bigInteger('tickets_count');
             $table->bigInteger('tickets_limit')->default(0);
             $table->bigInteger('stars_count')->default(0);
-            $table->bigInteger('reviews_count')->default(0);
+            $table->bigInteger('reviewer_count')->default(0);
             $table->foreignIdFor(Guide::class)->constrained();
             $table->timestamps();
         });

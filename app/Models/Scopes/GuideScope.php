@@ -17,7 +17,10 @@ class GuideScope implements Scope
             'city' ,
             'languages',
             'categories',
-            'feedbacks' => fn ($query) =>
-            $query->whereHas('user')]);
+            'feedbacks' => function ($feedbackQuery) {
+                $feedbackQuery->whereHas('user', function ($userQuery) {
+                    $userQuery->active();
+                });
+            }]);
     }
 }

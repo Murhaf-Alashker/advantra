@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
@@ -38,8 +39,6 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::post('/countries/cities',[CityController::class,'store'] )->name('createCity');
     //event api
     Route::controller(EventController::class)->group(function () {
-
-
         Route::post('/events/{event}','update')->name('updateEvent');
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
         Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
@@ -69,6 +68,11 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::post('/group_trip','store')->name('createGroupTrip');
     Route::delete('/group_trips/{groupTrip}','destroy')->name('deleteGroupTrip');
     Route::post('/group_trips/{groupTrip}/offer','makeOffer')->name('makeOfferForGroupTrip');
+    });
+
+    //user api
+    Route::controller(HomeController::class)->group(function () {
+        Route::post('/users/{user}','updateStatus')->name('updateStatus');
     });
 });
 
@@ -117,6 +121,14 @@ Route::controller(EventController::class)->group(function () {
     Route::controller(TaskController::class)->group(function () {
         Route::post('/guides/{guide}/tasks','store')->name('createTask');
         Route::get('/guides/{guide}/tasks','getMonthlyTasks')->name('getMonthlyTasks');
+
+    });
+//feedback api
+    Route::controller(FeedbackController::class)->group(function () {
+        Route::post('/feedback','store')->name('createFeedback');
+        Route::post('/feedback/{feedback}','update')->name('updateFeedback');
+        Route::delete('/feedback/{feedback}','destroy')->name('deleteFeedback');
+        Route::get('/feedback/{feedback}','deleteComment')->name('deleteComment');
 
     });
 });
