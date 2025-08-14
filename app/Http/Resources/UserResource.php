@@ -41,6 +41,10 @@ class UserResource extends JsonResource
         }
 
         if(Auth::guard('api-admin')->check()) {
+            $moreInfo['reserved_events'] = $this->allEvents();
+            $moreInfo['reserved_groups'] = $this->groupTrips();
+            $moreInfo['reserved_solo_tips'] = $this->soloTrips;
+
             if(isset($this->events_reserved_tickets)){
                 $moreInfo['events_reserved_tickets'] = $this->events_reserved_tickets;
             }
