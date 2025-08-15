@@ -42,7 +42,7 @@ class EventService{
 
     public function store(array $data){
        $event = Event::create($data);
-       return $event;
+       return $event->refresh();
     }
 
     public function update(array $data, Event $event){

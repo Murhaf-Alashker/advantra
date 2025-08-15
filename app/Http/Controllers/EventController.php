@@ -38,15 +38,15 @@ class EventController extends Controller
     public function store(StoreEventRequest $request){
        // dd('store method reached');
         $validated = $request->validated();
-        $isLimited = isset($validated['is_limited']);
+        $isLimited = $validated['is_limited'];
 
 
         $validated['slug']=Str::slug($validated['name']);
-        $eventData = collect($validated)->except('media','name_ar','description_ar')->all();
+        $eventData = collect($validated)->except('is_limited','media','name_ar','description_ar')->all();
         if($isLimited){
             $limited = collect($eventData)->only('tickets_count','tickets_limit','start_date','end_date')->all();
             $limited['remaining_tickets'] = $limited['tickets_count'];
-            $eventData = collect($eventData)->except('is_limited','tickets_count','tickets_limit','start_date','end_date')->all();
+            $eventData = collect($eventData)->except('tickets_count','tickets_limit','start_date','end_date')->all();
         }
         $event =  $this->eventService->store($eventData);
 
