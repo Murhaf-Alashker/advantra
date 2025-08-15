@@ -25,6 +25,8 @@ class UserService
     {
         $user = Auth::guard('api-user')->user();
         if($user){
+            $media = $user->getMedia(self::FILE_PATH);
+            $user->images = $media['images'] ?? [];
             $user->reserved_events = $user->allEvents();
             $user->reserved_groups = $user->groupTrips();
             $user->reserved_solo_tips = (clone $user)->soloTrips;
