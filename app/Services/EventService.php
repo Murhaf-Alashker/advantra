@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Guide;
+use App\Models\LimitedEvents;
 use App\Models\Scopes\ActiveScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -119,8 +120,12 @@ class EventService{
         return DB::transaction(function () use ($data, $event) {
             return $event->offers()->create($data);
         });
+    }
 
-
+    public function makeEventLimited(array $info , $eventId):void
+    {
+        $info['event_id'] = $eventId;
+        LimitedEvents::create($info);
     }
 
 }

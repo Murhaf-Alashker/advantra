@@ -34,13 +34,17 @@ class StoreEventRequest extends FormRequest
             'description' => 'string|max:1000',
             'description_ar' => 'string|max:1000',
             'basic_cost' => 'required|numeric',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|gt:basic_cost',
             'status' => 'in:active,inactive',
-            'tickets_limit' => 'numeric',
-            'category_id' => 'required|exists:categories,id',
-            'media' => ['required','array'],
-            'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
             'city_id' => 'required|exists:cities,id',
+            'category_id' => 'required|exists:categories,id',
+            'is_limited' =>'in:true,false',
+            'tickets_count' => ['required_with:is_limited','numeric','min:1'],
+            'tickets_limit' => ['required_with:is_limited','numeric','min:0','lt:tickets_count'],
+            'start_date' =>['required_with:is_limited','date','date_format:Y-m-d'],
+            'end_date' =>['required_with:is_limited','date','date_format:Y-m-d','after:start_date'],
+            'media' => ['required','array'],
+            'media.*' => ['required','file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];
     }
 }
