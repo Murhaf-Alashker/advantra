@@ -44,7 +44,7 @@ class GroupTripResource extends JsonResource
             'images' => $media['images'] ?? [],
             'videos' => $media['videos'] ?? [],
             'cities' => $this->cities(),
-            'reviews_count' => $this->reviews_count,
+            'reviewer_count' => $this->reviewer_count,
         ];
 
         $moreInfo = [

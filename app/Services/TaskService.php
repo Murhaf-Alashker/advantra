@@ -5,6 +5,8 @@ use App\Http\Resources\TaskResource;
 use App\Models\Guide;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\PersonalNotification;
+use App\Notifications\PublicNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;

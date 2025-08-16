@@ -10,6 +10,8 @@ use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Offer;
 use App\Models\Scopes\ActiveScope;
+use App\Models\User;
+use App\Notifications\PublicNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,7 +67,15 @@ class GroupTripService
         ]);
 
         $groupTrip->storeMedia(self::FILE_PATH);
-
+        $users = User::whereNotNull('fcm_token')->get();
+        // $users = User::all();
+        foreach ($users as $user) {
+            $user->notify(new PublicNotification(
+                'New Group Trip Is Here!',
+                'Come Join US In ' . $groupTrip->name,
+                ['id' => $groupTrip->id, 'type' => 'groupTrip'],
+                $user->fcm_token
+            ));}
         return $groupTrip->refresh();
 
     }

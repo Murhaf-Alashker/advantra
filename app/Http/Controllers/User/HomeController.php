@@ -53,12 +53,5 @@ class HomeController extends Controller
 
                         }
 
-    public function updateStatus(Request $request,User $user)
-    {
-        $validated = $request->validate([
-            'status' => 'required|in:active,inactive',
-        ]);
-        $user->update(['status' => $validated['status']]);
-        return response()->json(['message' => 'status updated successfully']);
-    }
+
 }

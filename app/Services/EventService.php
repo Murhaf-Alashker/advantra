@@ -9,6 +9,9 @@ use App\Models\GroupTrip;
 use App\Models\Guide;
 use App\Models\LimitedEvents;
 use App\Models\Scopes\ActiveScope;
+use App\Models\User;
+use App\Notifications\PersonalNotification;
+use App\Notifications\PublicNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -42,7 +45,18 @@ class EventService{
 
     public function store(array $data){
        $event = Event::create($data);
-       return $event->refresh();
+     //  $users = User::whereNotNull('fcm_token')->get();
+       $users = User::all();
+        foreach ($users as $user) {
+            $user->notify(new PublicNotification(
+                'New Event Is Here!',
+                'Try out our new event ' . $event->name,
+                ['id' => $event->id, 'type' => 'event'],
+                $user->fcm_token
+            ));
+        }
+
+        return $event->refresh();
     }
 
     public function update(array $data, Event $event){
