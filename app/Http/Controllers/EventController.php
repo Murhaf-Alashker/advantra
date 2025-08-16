@@ -12,6 +12,7 @@ use App\Libraries\FileManager;
 use App\Models\City;
 use App\Models\Event;
 use App\Models\GroupTrip;
+use App\Models\LimitedEvents;
 use App\Models\Offer;
 use App\Services\EventService;
 use App\Services\MediaService;
@@ -37,11 +38,16 @@ class EventController extends Controller
     public function store(StoreEventRequest $request){
        // dd('store method reached');
         $validated = $request->validated();
+        $isLimited = $validated['is_limited'];
+
 
         $validated['slug']=Str::slug($validated['name']);
-        $eventData = collect($validated)->except('media','name_ar','description_ar')->all();
-
-
+        $eventData = collect($validated)->except('is_limited','media','name_ar','description_ar')->all();
+        if($isLimited){
+            $limited = collect($eventData)->only('tickets_count','tickets_limit','start_date','end_date')->all();
+            $limited['remaining_tickets'] = $limited['tickets_count'];
+            $eventData = collect($eventData)->except('tickets_count','tickets_limit','start_date','end_date')->all();
+        }
         $event =  $this->eventService->store($eventData);
 
 
@@ -57,6 +63,9 @@ class EventController extends Controller
                 'translation' => $validated['description_ar'],
             ]
         ]);
+        if($isLimited){
+            $this->eventService->makeEventLimited($limited,$event->id);
+        }
       //  $event->load('city');
       return response()->json(new EventResource($event),201) ;
     }
@@ -92,5 +101,6 @@ class EventController extends Controller
         }
         return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.offer')])],201);
     }
+
 
 }
