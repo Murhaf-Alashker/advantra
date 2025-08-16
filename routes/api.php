@@ -22,6 +22,7 @@ use App\Http\Controllers\CityController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
 Route::post('/generateUnverifiedUser', [AuthController::class, 'sendVerificationCode'])->name('generateUnverifiedUser');
 Route::post('/resendVerificationCode', [AuthController::class, 'resendVerificationCode'])->name('resendVerificationCode');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
@@ -33,6 +34,7 @@ Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
 Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin');
+
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
@@ -78,7 +80,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     });
 
     //user api
-    Route::controller(HomeController::class)->group(function () {
+    Route::controller(  UserController::class)->group(function () {
         Route::post('/users/{user}','updateStatus')->name('updateStatus');
     });
 });
@@ -88,6 +90,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
         Route::post('/uploadImages', 'uploadImages')->name('uploadImages');
         Route::post('/deleteImages', 'deleteImages')->name('deleteImages');
     });
+    Route::post('/user/fcm_token',[AuthController::class,'updateFcmToken'])->name('updateFcmToken');
 });
 
 

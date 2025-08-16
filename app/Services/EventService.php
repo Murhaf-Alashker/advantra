@@ -8,6 +8,8 @@ use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Guide;
 use App\Models\Scopes\ActiveScope;
+use App\Models\User;
+use App\Notifications\DynamicNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -41,7 +43,7 @@ class EventService{
 
     public function store(array $data){
        $event = Event::create($data);
-       return $event;
+        return $event;
     }
 
     public function update(array $data, Event $event){
