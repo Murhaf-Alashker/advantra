@@ -5,6 +5,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
@@ -90,7 +91,9 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
         Route::post('/uploadImages', 'uploadImages')->name('uploadImages');
         Route::post('/deleteImages', 'deleteImages')->name('deleteImages');
     });
-    Route::post('/user/fcm_token',[AuthController::class,'updateFcmToken'])->name('updateFcmToken');
+    Route::post('/user/fcm_token',[NotificationController::class,'updateFcmToken'])->name('updateFcmToken');
+    Route::post('/notifications',[NotificationController::class,'getNotifications'])->name('getNotifications');
+    Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
 });
 
 

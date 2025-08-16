@@ -36,7 +36,7 @@ class GuideResource extends JsonResource
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'images' => $media['images'] ?? [],
             //'videos' => $media['videos'] ?? [],
-            'reviews_count' => $this->reviews_count,
+            'reviewer_count' => $this->reviewer_count,
         ];
 
         $moreInfo = [

@@ -5,10 +5,11 @@ namespace App\Notifications;
 use App\Channels\FcmChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 
-class DynamicNotification extends Notification
+class PublicNotification extends Notification
     implements ShouldQueue
 {
     use Queueable;
@@ -26,17 +27,10 @@ class DynamicNotification extends Notification
         $this->token = $token;
     }
 
-    public function via($notifiable)
-    {   Log::info('DynamicNotification via() called for user ' . $notifiable->id);
-        return ['database', FcmChannel::class];
-    }
-
-    public function toDatabase($notifiable)
+    public function via(object $notifiable): array
     {
-        return array_merge([
-            'title' => $this->title,
-            'body'  => $this->body,
-        ], $this->data);
+        Log::info('PublicNotification via() called for user ' . $notifiable->id);
+        return [FcmChannel::class];
     }
 
     public function toFcm($notifiable)
@@ -48,4 +42,7 @@ class DynamicNotification extends Notification
             'data'  => $this->data,
         ];
     }
+
+
+
 }

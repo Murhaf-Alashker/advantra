@@ -19,7 +19,7 @@ class FcmChannel
         Log::info('FcmChannel construct ' );
         $firebase = (new Factory)
             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
-          //  ->withServiceAccount(storage_path('app/json/adventra-f15ec-firebase-adminsdk-fbsvc-ffb1c18a52.json'));
+
 
         $this->messaging = $firebase->createMessaging();
     }

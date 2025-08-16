@@ -460,24 +460,5 @@ class AuthController extends Controller
         return $randomString;
     }
 
-    public function updateFcmToken(Request $request) {
-        $request->validate([
-            'token' => 'required|string',
-            'type'  => 'required|string|in:user,guide,admin'
-        ]);
-
-        $guard = $request->type;
-        $currentUser = Auth::guard('api-'.$guard)->user();
-
-        if (!$currentUser) {
-            return response()->json(['message' => 'User not authenticated.'], 401);
-        }
-
-        $currentUser->fcm_token = $request->token;
-        $currentUser->save();
-
-
-        return response()->json(['message' => 'FCM token updated successfully.']);
-    }
 
 }
