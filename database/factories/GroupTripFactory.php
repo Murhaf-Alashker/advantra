@@ -28,6 +28,7 @@ class GroupTripFactory extends Factory
             'status'=> $status,
             'price'=>$this->faker->randomFloat(2, 50.00, 99999999.99),
             'tickets_count'=>$this->faker->numberBetween(100,1000),
+            'remaining_tickets' => $this->faker->numberBetween(10,100),
             'tickets_limit' => $this->faker->numberBetween(10,100),
             'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),
             'reviewer_count'=>$reviewer,

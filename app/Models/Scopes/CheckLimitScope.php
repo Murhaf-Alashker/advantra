@@ -15,7 +15,6 @@ class CheckLimitScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         $builder->where('start_date', '<=', Carbon::now())
-                ->where('end_date', '>', Carbon::now())
-                ->where('remaining_tickets', '>', 0);
+                ->where('end_date', '>', Carbon::now());
     }
 }
