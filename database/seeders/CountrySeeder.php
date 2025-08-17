@@ -14,6 +14,12 @@ class CountrySeeder extends Seeder
      */
     public function run(): void
     {
-        Country::factory(5)->create();
+        $countries = \App\Enums\Country::values();
+        $info = [];
+        foreach ($countries as $country) {
+            $info[] = ['name'=>$country , 'status'=>'active'];
+        }
+        Country::insert($info);
+        //Country::factory(5)->create();
     }
 }

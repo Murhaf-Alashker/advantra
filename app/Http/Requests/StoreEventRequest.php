@@ -41,8 +41,8 @@ class StoreEventRequest extends FormRequest
             'is_limited' =>['required','boolean'],
             'tickets_count' => ['required_if:is_limited,1','numeric','min:1'],
             'tickets_limit' => ['required_if:is_limited,1','numeric','min:0','lt:tickets_count'],
-            'start_date' =>['required_if:is_limited,1','date','date_format:Y-m-d'],
-            'end_date' =>['required_if:is_limited,1','date','date_format:Y-m-d','after:start_date'],
+            'start_date' =>['required_if:is_limited,1','date','date_format:Y-m-d H:i:s'],
+            'end_date' =>['required_if:is_limited,1','date','date_format:Y-m-d H:i:s','after:start_date'],
             'media' => ['required','array'],
             'media.*' => ['required','file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];

@@ -5,6 +5,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
@@ -35,7 +36,8 @@ Route::post('/forgetPassword', [AuthController::class, 'requestResetPasswordCode
 Route::post('/resetPasswordUsingCode', [AuthController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/checkCode', [AuthController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
 Route::post('/admin/login', [AdminController::class, 'login'])->name('adminLogin');
-
+Route::get('/payment/callback',[PaypalController::class,'callback'])->name('payment.callBack');
+Route::get('/payment/cancel',[PaypalController::class,'cancel'])->name('payment.cancel');
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
@@ -87,6 +89,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
+    Route::post('/reset_password',[AuthController::class, 'resetPasswordUsingOldPassword'])->name('resetPassword');
     Route::prefix('/media')->controller(MediaController::class)->group(function () {
         Route::post('/uploadImages', 'uploadImages')->name('uploadImages');
         Route::post('/deleteImages', 'deleteImages')->name('deleteImages');
@@ -149,5 +152,9 @@ Route::controller(EventController::class)->group(function () {
         Route::delete('/feedback/{feedback}','destroy')->name('deleteFeedback');
         Route::get('/feedback/{feedback}','deleteComment')->name('deleteComment');
 
+    });
+
+    Route::controller(PaypalController::class)->group(function () {
+        Route::post('/payment/pay','pay')->name('payment');
     });
 });

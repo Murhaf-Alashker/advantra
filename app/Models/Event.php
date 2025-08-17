@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\CheckLimitScope;
 use App\Models\Scopes\CheckOfferScope;
 use App\Models\Scopes\WithMediaScope;
 use App\Traits\MediaHandler;
@@ -137,6 +138,16 @@ class Event extends Model
     public function hasAnyOffer(): bool
     {
         return $this->offers()->withoutGlobalScope(CheckOfferScope::class)->where('end_date', '>', Carbon::now())->exists();
+    }
+
+    public function isLimited(): bool
+    {
+        return $this->limitedEvents()->exists();
+    }
+
+    public function isEnded():bool
+    {
+        return $this->limitedEvents()->withoutGlobalScope(CheckLimitScope::class)->where('end_date', '<', Carbon::now())->exists();
     }
 
 }
