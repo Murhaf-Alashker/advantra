@@ -18,6 +18,7 @@ class FeedbackResource extends JsonResource
     {
         $user = User::findOrFail($this->user_id);
         $forUser = [
+            'id' => $this->id,
             'rating' => $this->rating,
             'comment' => $this->comment,
             'date' => $this->updated_at,
