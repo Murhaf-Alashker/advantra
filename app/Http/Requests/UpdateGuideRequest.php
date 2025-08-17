@@ -29,13 +29,12 @@ class UpdateGuideRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => ['nullable','string','min:10','max:255'],
-            'phone' => ['string','min:11','max:17','unique:guides,phone','regex:/^\+[1-9][0-9]{4,15}$/'],
+          //  'phone' => ['string','min:11','max:17','unique:guides,phone','regex:/^\+[1-9][0-9]{4,15}$/'],
             'languages' => ['array'],
-            'languages.*' => ['string', 'exists:languages,name'],
+            'languages.*' => ['exists:languages,id'],
             'categories' => ['array'],
-            'categories.*' => ['string', 'exists:categories,name'],
-            'media' => ['image','mimes:'.implode(',',MediaType::images()),'max:2048'],
+            'categories.*' => ['exists:categories,id'],
+            'city_id' =>'exists:cities,id' ,
             'card' => ['nullable', 'string', 'email'],
         ];
     }

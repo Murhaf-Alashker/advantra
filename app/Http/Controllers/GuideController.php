@@ -32,29 +32,34 @@ class GuideController extends Controller
 
     public function store(CreateGuideRequest $request)
     {
-        $guide = DB::transaction(function () use ($request) {
-
-            $validated = $request->validated();
-
-            $data =collect($validated)->except('languages','city','categories')->all();
-
-            $data['city_id'] = City::where('name',$validated['city'])->first()->id;
-
-            $guide = $this->guideService->store($data);
-
-            $languageIds = Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
-
-            $categoriesId =Category::whereIn('name', $validated['categories'])->pluck('id')->toArray();
-
-            $guide->languages()->sync($languageIds);
-
-            $guide->categories()->sync($categoriesId);
-
-            $guide->load(['languages','categories']);
-
-            return $guide;
-
-        });
+//        $guide = DB::transaction(function () use ($request) {
+//
+//            $validated = $request->validated();
+//
+//            $data =collect($validated)->except('languages','city','categories')->all();
+//
+//            $data['city_id'] = City::where('name',$validated['city'])->first()->id;
+//
+//            $guide = $this->guideService->store($data);
+//
+//            $languageIds = Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
+//
+//            $categoriesId =Category::whereIn('name', $validated['categories'])->pluck('id')->toArray();
+//
+//            $guide->languages()->sync($languageIds);
+//
+//            $guide->categories()->sync($categoriesId);
+//
+//            $guide->load(['languages','categories']);
+//
+//            return $guide;
+//
+//        });
+           $validated = $request->validated();
+           $guideData = collect($validated)->except('languages,categories')->all();
+           $guide = $this->guideService->store($guideData);
+           $guide->languages()->sync($validated['languages']);
+           $guide->categories()->sync($validated['categories']);
 
         return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.guide')]), 'guide ' => new GuideResource($guide)],201) ;
     }
@@ -69,21 +74,21 @@ class GuideController extends Controller
 
         if(isset($validated['languages']))
         {
-            $languageIds =Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
+          //  $languageIds =Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
 
-            $guide->languages()->sync($languageIds);
+            $guide->languages()->sync($validated['languages']);
         }
 
         if(isset($validated['categories']))
         {
-            $categoriesId =Category::whereIn('name', $validated['categories'])->pluck('id')->toArray();
+           // $categoriesId =Category::whereIn('name', $validated['categories'])->pluck('id')->toArray();
 
-            $guide->categories()->sync($categoriesId);
+            $guide->categories()->sync($validated['categories']);
         }
 
         $guide->updateMedia(GuideService::FILE_PATH);
 
-        return new GuideResource($guide->fresh(['languages', 'categories', 'feedbacks']));
+        return new GuideResource($guide->fresh(['languages', 'categories', 'feedbacks','city']));
 
     }
 
