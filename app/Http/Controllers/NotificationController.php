@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PersonalNotificationRequest;
+use App\Http\Requests\PublicNotificationRequest;
 use App\Services\NotificationService;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
@@ -104,6 +106,18 @@ class NotificationController extends Controller
         ]);
         return $this->notificationService->updateFcmToken($validated);
 
+    }
+
+    public function storePersonalNotification(PersonalNotificationRequest $request)
+    {
+        $validated = $request->validated();
+        return $this->notificationService->storePersonalNotification($validated);
+    }
+
+    public function storePublicNotification(PublicNotificationRequest $request)
+    {
+        $validated = $request->validated();
+        return $this->notificationService->storePublicNotification($validated);
     }
 
 }

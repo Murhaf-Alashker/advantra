@@ -115,4 +115,5 @@ class GuideController extends Controller
     {
         return $this->guideService->trashedGuides();
     }
+
 }

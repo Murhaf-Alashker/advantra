@@ -86,6 +86,10 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::controller(  UserController::class)->group(function () {
         Route::post('/users/{user}','updateStatus')->name('updateStatus');
     });
+
+    //notification api
+    Route::post('/personalNotification', [NotificationController::class, 'storePersonalNotification'])->name('creatPersonalNotification');
+    Route::post('/publicNotification', [NotificationController::class, 'storePublicNotification'])->name('creatPublicNotification');
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {

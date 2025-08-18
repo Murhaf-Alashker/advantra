@@ -24,7 +24,7 @@ class FeedbackService
         $modelClass = $models[$type];
         $model = $modelClass::findOrFail($data['id']);
 
-        if ($type === 'group_trip' && $model->status !== Status::FINISHED) {
+        if ($type === 'group_trip' && $model->status !== Status::FINISHED->value) {
             return response()->json([
                 'message' => 'You cannot submit feedback until the trip is finished.'
             ], 422);
