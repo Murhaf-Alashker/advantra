@@ -16,7 +16,7 @@ class PaypalController extends Controller
     public function pay(PayRequest $request)
     {
         $validated = $request->validated();
-        return $this->payPalService->sendPayment($validated['info']);
+        return $this->payPalService->pay($validated['info'],$validated['payment_type']);
     }
 
     public function callback(Request $request)

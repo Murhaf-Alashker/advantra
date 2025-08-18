@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             MediaSeeder::class,
             FeedbackSeeder::class,
             OfferSeeder::class,
+            BusinessInfoSeeder::class,
         ]);
     }
 }

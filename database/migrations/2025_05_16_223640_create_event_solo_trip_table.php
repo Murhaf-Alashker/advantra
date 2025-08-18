@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('event_solo_trip', function (Blueprint $table) {
             $table->id();
             $table->decimal('price','8' , '2');
+            $table->bigInteger('tickets_count');
             $table->foreignIdFor(Event::class)->constrained();
             $table->foreignIdFor(SoloTrip::class)->constrained();
             $table->timestamps();

@@ -29,6 +29,7 @@ class PayRequest extends FormRequest
             'info.*.id' => ['required', 'numeric'],
             'info.*.date' => ['required_if:info.*.type,guide', 'date'],
             'info.*.tickets_count' => ['required_unless:info.*.type,guide', 'numeric'],
+            'payment_type' => ['required', 'string','in:paypal,points'],
         ];
     }
 

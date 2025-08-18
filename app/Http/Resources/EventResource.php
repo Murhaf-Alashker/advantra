@@ -36,7 +36,7 @@ class EventResource extends JsonResource
             'rate' => $this->rating ?? '0',
             'price' => $hasOffer? round($this->price * ((100 - $this->offers()->first()->discount) / 100)) : $this->price,
             'status' => $this->status ,
-            'has offer' => $this->hasOffer(),
+            'has_offer' => $this->hasOffer(),
             'city' => $this->whenLoaded('city', fn () => new CityResource($this->city)),
             'category' => $this->whenLoaded('category', fn () => new CategoryResource($this->category)),
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),

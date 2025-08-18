@@ -37,7 +37,7 @@ class GroupTripResource extends JsonResource
             'status' => $this->status,
             'price' => $hasOffer? round($this->price * ((100 - $this->offers()->first()->discount) / 100)) : $this->price,
             'tickets_count' => $this->tickets_count,
-            'has offer' => $hasOffer,
+            'has_offer' => $hasOffer,
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
             'events' => EventResource::collection($this->whenLoaded('events')),
             'guide' => new GuideResource($this->guide),
