@@ -47,8 +47,8 @@ class EventService{
     public function store(array $data){
        $event = Event::create($data);
        if($event) {
-           //  $users = User::whereNotNull('fcm_token')->get();
-           $users = User::all();
+           $users = User::whereNotNull('fcm_token')->get();
+          // $users = User::all();
            foreach ($users as $user) {
                $user->notify(new PublicNotification(
                    'New Event Is Here!',
