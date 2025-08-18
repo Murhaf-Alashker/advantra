@@ -14,7 +14,8 @@ class BusinessInfo extends Model
         'total_profit',
         'total_income',
         'reserved_tickets',
-        'total_group_trips'
+        'total_group_trips',
+        'created_at'
     ];
 
     protected function casts(): array

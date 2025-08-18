@@ -24,6 +24,7 @@ return new class extends Migration
             $table->enum('status',Status::values())->default(Status::PENDING);
             $table->decimal('price',10,2);
             $table->bigInteger('tickets_count');
+            $table->bigInteger('remaining_tickets')->default(0);
             $table->bigInteger('tickets_limit')->default(0);
             $table->bigInteger('stars_count')->default(0);
             $table->bigInteger('reviewer_count')->default(0);

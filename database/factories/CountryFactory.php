@@ -18,6 +18,7 @@ class CountryFactory extends Factory
     public function definition(): array
     {
         $countryNames=country::values();
+
         return [
             'name'=>$this->faker->unique()->randomElement($countryNames),
             'status'=>'active'
