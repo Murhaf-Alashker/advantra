@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
 use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -41,9 +42,9 @@ class UserResource extends JsonResource
         }
 
         if(Auth::guard('api-admin')->check()) {
-            $moreInfo['reserved_events'] = $this->allEvents();
-            $moreInfo['reserved_groups'] = $this->groupTrips();
-            $moreInfo['reserved_solo_tips'] = $this->soloTrips;
+            $moreInfo['reserved_events'] = $this->allEvents(Carbon::now()->format('Y-m-d'));
+            $moreInfo['reserved_groups'] = $this->groupTrips(Carbon::now()->format('Y-m-d'));
+            $moreInfo['reserved_solo_tips'] = $this->soloTrips()->whereMonth('created_at', '=', Carbon::now()->month)->whereYear('created_at', '=', Carbon::now()->year)->get();
 
             if(isset($this->events_reserved_tickets)){
                 $moreInfo['events_reserved_tickets'] = $this->events_reserved_tickets;

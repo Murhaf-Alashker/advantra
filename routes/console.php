@@ -4,6 +4,7 @@ use App\Libraries\ScheduleClass;
 use App\Models\BusinessInfo;
 use App\Models\GroupTrip;
 use App\Models\LimitedEvents;
+use App\Models\TemporaryReservation;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -26,6 +27,7 @@ Schedule::call(function (){
         'created_at' => Carbon::now()->subMonth(),
     ]);
 })->monthlyOn(1, '00:00');
+
 Schedule::call(function (){
   $groups = GroupTrip::whereMonth('starting_date', Carbon::now()->month)
                     ->whereYear('starting_date', Carbon::now()->year)
@@ -41,4 +43,9 @@ Schedule::call(function (){
 // ارسل الرسالة هون للايفينت
     // متلا للايفينت المحدود
 })->dailyAt('00:00');
+
+Schedule::call(function (){
+    $expire = Carbon::now()->subMinutes(5);
+    TemporaryReservation::where('created_at', '<', $expire)->delete();
+})->everyFiveMinutes();
 
