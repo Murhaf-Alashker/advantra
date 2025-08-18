@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\PersonalNotification;
 use App\Notifications\PublicNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 
@@ -45,17 +46,18 @@ class EventService{
 
     public function store(array $data){
        $event = Event::create($data);
-     //  $users = User::whereNotNull('fcm_token')->get();
-       $users = User::all();
-        foreach ($users as $user) {
-            $user->notify(new PublicNotification(
-                'New Event Is Here!',
-                'Try out our new event ' . $event->name,
-                ['id' => $event->id, 'type' => 'event'],
-                $user->fcm_token
-            ));
-        }
-
+       if($event) {
+           //  $users = User::whereNotNull('fcm_token')->get();
+           $users = User::all();
+           foreach ($users as $user) {
+               $user->notify(new PublicNotification(
+                   'New Event Is Here!',
+                   'Try out our new event ' . $event->name,
+                   ['id' => $event->id, 'type' => 'event'],
+                   $user->fcm_token
+               ));
+           }
+       }
         return $event->refresh();
     }
 
@@ -131,9 +133,15 @@ class EventService{
 
     public function makeOffer(array $data,Event $event)
     {
-        return DB::transaction(function () use ($data, $event) {
+        $offer = DB::transaction(function () use ($data, $event) {
             return $event->offers()->create($data);
         });
+        if($offer){
+            $users = User::whereNotNull('fcm_token')->get();
+            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the event'.$event->name, ['type' => 'event','id' => $event->id]));
+
+        }
+        return $offer;
     }
 
     public function makeEventLimited(array $info , $eventId):void

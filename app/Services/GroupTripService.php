@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Notifications\PublicNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 
 class GroupTripService
@@ -67,15 +68,18 @@ class GroupTripService
         ]);
 
         $groupTrip->storeMedia(self::FILE_PATH);
-        $users = User::whereNotNull('fcm_token')->get();
-        // $users = User::all();
-        foreach ($users as $user) {
-            $user->notify(new PublicNotification(
-                'New Group Trip Is Here!',
-                'Come Join US In ' . $groupTrip->name,
-                ['id' => $groupTrip->id, 'type' => 'groupTrip'],
-                $user->fcm_token
-            ));}
+        if($groupTrip) {
+            $users = User::whereNotNull('fcm_token')->get();
+            // $users = User::all();
+            foreach ($users as $user) {
+                $user->notify(new PublicNotification(
+                    'New Group Trip Is Here!',
+                    'Come Join US In ' . $groupTrip->name,
+                    ['id' => $groupTrip->id, 'type' => 'groupTrip'],
+                    $user->fcm_token
+                ));
+            }
+        }
         return $groupTrip->refresh();
 
     }
@@ -105,11 +109,14 @@ class GroupTripService
 
     public function makeOffer(array $data,GroupTrip $groupTrip)
     {
-        return DB::transaction(function () use ($data, $groupTrip) {
-            return $groupTrip->offers()->create($data);
+        $offer = DB::transaction(function () use ($data, $groupTrip) {
+            return  $groupTrip->offers()->create($data);
         });
-
-
+        if($offer) {
+            $users = User::whereNotNull('fcm_token')->get();
+            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the group trip'.$groupTrip->name, ['type' => 'groupTrip','id' => $groupTrip->id]));
+        }
+        return $offer;
     }
 
 }
