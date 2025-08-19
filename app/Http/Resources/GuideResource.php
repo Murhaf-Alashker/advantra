@@ -49,12 +49,31 @@ class GuideResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+
+        $forGuide = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'description' => $this->description,
+            'price' => $this->price,
+            'rate' => $this->rating ?? '0',
+            'languages' => LanguageResource::collection($this->whenLoaded('languages')),
+            'city' => $this->whenLoaded('city', fn() => new CityResource($this->city)),
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'images' => $media['images'] ?? [],
+           // 'this monty salary'  =>$this->const_salary ,
+           // 'this month extra salary' => $this->extra_salary
+        ];
         if(Auth::guard('api-user')->check()) {
             return $forUser;
         }
 
         if(Auth::guard('api-admin')->check()) {
             return array_merge($forUser, $moreInfo);
+        }
+
+        if(Auth::guard('api-guide')->check()) {
+            return $forGuide;
         }
 
         return [];

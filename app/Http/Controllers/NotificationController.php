@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PersonalNotificationRequest;
 use App\Http\Requests\PublicNotificationRequest;
+use App\Notifications\PersonalNotification;
 use App\Services\NotificationService;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
@@ -120,4 +121,9 @@ class NotificationController extends Controller
         return $this->notificationService->storePublicNotification($validated);
     }
 
+    public function testNotification(){
+        $user = Auth::guard('api-user')->user();
+        $user->notify(new PersonalNotification('test title' , 'test body' , ['type' => 'event', 'id' => '1']));
+
+    }
 }

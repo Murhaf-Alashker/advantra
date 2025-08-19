@@ -35,7 +35,7 @@ class UpdateGuideRequest extends FormRequest
             'categories' => ['array'],
             'categories.*' => ['exists:categories,id'],
             'city_id' =>'exists:cities,id' ,
-            'card' => ['nullable', 'string', 'email'],
+           // 'card' => ['nullable', 'string', 'email'],
         ];
     }
 }

@@ -40,7 +40,7 @@ class CityResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
-        if(Auth::guard('api-user')->check()) {
+        if(Auth::guard('api-user')->check() || Auth::guard('api-guide')->check()) {
             if ($locale == 'ar') {
                 $forUser['name'] = $this->translate('name');
                 $forUser['description'] = $this->translate('description');

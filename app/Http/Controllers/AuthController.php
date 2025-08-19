@@ -106,8 +106,11 @@ class AuthController extends Controller
     }
 
     public function logout()
-    {
-        auth()->guard('api-user')->user()->currentAccessToken()->delete();
+    {   $user = auth()->guard('api-user')->user();
+        $user->fcm_token = null;
+        $user->save();
+        $user->currentAccessToken()->delete();
+
 
         return response()->json(['message' => __('message.logout_successfully')], ResponseAlias::HTTP_OK);
     }
