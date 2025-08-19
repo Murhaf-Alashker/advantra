@@ -7,6 +7,7 @@ use App\Libraries\FileManager;
 use App\Models\Admin;
 use App\Models\City;
 use App\Models\Media;
+use App\Rules\ValidPoints;
 use App\Services\AdminService;
 use App\Services\CityService;
 use Carbon\Carbon;
@@ -77,5 +78,19 @@ class AdminController extends Controller
             'next_page_url' => $paginator->nextPageUrl(),
             'prev_page_url' => $paginator->previousPageUrl(),
         ]);
+    }
+
+    public function getCitiesAndCategoriesAndLanguageIds()
+    {
+        return $this->adminService->getCitiesAndCategoriesAndLanguageIds();
+    }
+
+    public function sendGift(Request $request)
+    {
+        $data = $request->validate([
+            'user_id' => ['required','integer','exists:users,id'],
+            'points' => ['required','integer',new ValidPoints],
+        ]);
+        return $this->adminService->sendGift($data);
     }
 }

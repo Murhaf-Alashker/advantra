@@ -4,19 +4,18 @@ namespace App\Services;
 
 use App\Http\Resources\UserResource;
 use App\Libraries\ScheduleClass;
+use App\Mail\SendGiftMail;
 use App\Models\BusinessInfo;
+use App\Models\Category;
 use App\Models\City;
-use App\Models\Event;
-use App\Models\GroupTrip;
-use App\Models\Guide;
-use App\Models\Reservation;
+use App\Models\Language;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use phpseclib3\Math\PrimeField\Integer;
-use function Laravel\Prompts\select;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 
 class AdminService
@@ -42,12 +41,19 @@ class AdminService
     public function getBusinessInfo (string $year):array
     {
         $data = [];
-        $infos = BusinessInfo::whereYear('created_at', $year)->orderBy('created_at')->get();
+        $infos = BusinessInfo::whereYear('created_at', $year)
+            ->orWhere(function ($query) use ($year) {
+                $query->whereYear('created_at', $year - 1)->whereMonth('created_at', 12);
+            })
+            ->orderBy('created_at','DESC')->get();
         foreach ($infos as $info) {
             $info->total_expenses = $info->total_income - $info->total_profit;
-            $data[$year.'/'.Carbon::parse($info->created_at)->format('M')] = $info;
+            $info->month_name = Carbon::parse($info->created_at)->year.'/'.Carbon::parse($info->created_at)->format('M');
+            $data[] = $info;
         }
-        $data[$year.'/'.Carbon::now()->format('M')] = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
+        $info = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
+        $info->month_name = $year.'/'.Carbon::now()->format('M');
+        $num = array_unshift($data,$info);
         return ['businessInfo' => $data];
     }
 
@@ -61,20 +67,26 @@ class AdminService
     private function topReservedUsersByType($type)
     {
         $name = ScheduleClass::modelToTable($type);
-        return UserResource::collection(User::withSum([
+        $users = User::withSum([
             'reservations as group_trip_reserved_tickets' => function ($query) {
                 $query->where('reservable_type', '=', 'App\Models\GroupTrip')
-                ->whereMonth('created_at', '=', Carbon::now()->month)
-                ->whereYear('created_at', '=', Carbon::now()->year);
+                    ->whereMonth('created_at', '=', Carbon::now()->subMonth()->month)
+                    ->whereYear('created_at', '=', Carbon::now()->year);
             }
         ],'tickets_count')->withSum([
             'reservations as events_reserved_tickets' => function ($query) {
                 $query->where('reservable_type', '=', 'App\Models\Event')
-                    ->whereMonth('created_at', '=', Carbon::now()->month)
+                    ->whereMonth('created_at', '=', Carbon::now()->subMonth()->month)
                     ->whereYear('created_at', '=', Carbon::now()->year);
             }
         ],'tickets_count')
-            ->orderBy($name,'DESC')->limit(5)->get());
+            ->orderBy($name,'DESC')->limit(5)->get();
+
+        foreach ($users as $user){
+            $user ->gifted_points = $this->getUserGifts($user->id);
+        }
+        return UserResource::collection($users);
+
     }
 
     public function businessPage(string $year):array
@@ -194,6 +206,80 @@ class AdminService
         ');
         return $result[0]->rating ?? 0;
 
+    }
+
+    public function getCitiesAndCategoriesAndLanguageIds():JsonResponse
+    {
+        $cities = [];
+        $categories = [];
+        $languages = [];
+        $cities = City::select('id','name')->get();
+        $categories = Category::select('id','name')->get();
+        $languages = Language::select('id','name')->get();
+        return response()->json([
+            'cities' => $cities,
+            'categories' => $categories,
+            'languages' => $languages,
+        ]);
+    }
+
+    public function sendGift(array $data):JsonResponse
+    {
+        $user = User::findOrFail($data['user_id']);
+        $success = $this->checkGift($data['user_id'],$data['points']);
+        if(!$success){
+            return response()->json([
+                'message' => 'the user has already received a gift'
+            ]);
+        }
+        $points = $data['points'];
+        $user->increment('points', $points);
+        Mail::to($user->email)->send(new SendGiftMail($user->name, $points));
+        return response()->json([
+            'message' => 'Gift sent!',
+        ]);
+    }
+
+    private function checkGift($id,$points):bool
+    {
+        $month = Carbon::now()->subMonth();
+        $date = $month->year.'/'.$month->month;
+        $disk = Storage::disk('public');
+        $content = $disk->exists('gifts.json') ? $disk->get('gifts.json') : $this->storeGiftsJsonFile();
+        $data = json_decode($content, true);
+        if(!isset($data[$date])) {
+            $data[$date]['users'] = [];
+            $data[$date]['gifts'] = [];
+        }
+        if (in_array($id, $data[$date]['users'])) {
+            return false;
+        }
+        $data[$date]['users'][] = $id;
+        $data[$date]['gifts'][]= [$id =>$points];
+        Storage::disk('public')->put('gifts.json',json_encode($data));
+        return true;
+    }
+
+    private function storeGiftsJsonFile():string
+    {
+        Storage::disk('public')->put('gifts.json','{}');
+        return '{}';
+    }
+
+    private function getUserGifts($id)
+    {
+        $month = Carbon::now()->subMonth();
+        $date = $month->year.'/'.$month->month;
+        $data = json_decode(Storage::disk('public')->get('gifts.json'), true);
+        if (in_array($id, $data[$date]['users'])) {
+            $gifts = $data[$date]['gifts'];
+            foreach ($gifts as $gift){
+                if(isset($gift[$id])){
+                    return $gift[$id];
+                }
+            }
+        }
+        return 0;
     }
 
     public function comparingSQL()

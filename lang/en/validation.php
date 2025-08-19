@@ -163,7 +163,7 @@ return [
     'url' => 'The :attribute field must be a valid URL.',
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
-
+    'valid_points' => 'The :attribute value is invalid. It must be one of: 10, 20, ... up to 1000.',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
