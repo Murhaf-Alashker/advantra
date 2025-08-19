@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone')->unique();
             $table->text('description')->nullable();
-            $table->string('card')->unique()->nullable();
+          //  $table->string('card')->unique()->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->decimal('price', 8, 2)->default(0.00);
             $table->decimal('const_salary', 8, 2)->default(0.00);

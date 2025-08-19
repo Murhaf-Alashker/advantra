@@ -26,7 +26,7 @@ class GuideFactory extends Factory
             'password'=>Hash::make('guidePassword'),
             'phone'=>$this->faker->phoneNumber(),
             'description'=>$this->faker->text(),
-            'card'=>$this->faker->unique()->numerify('##########'),
+            //'card'=>$this->faker->unique()->numerify('##########'),
             'status'=>'active',
             'price'=>$this->faker->randomFloat(2, 50.00, 999999.99),
             'const_salary'=>100.00,

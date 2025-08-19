@@ -41,6 +41,7 @@ Route::get('/payment/cancel',[PaypalController::class,'cancel'])->name('payment.
 Route::post('/guide/login',[GuideController::class, 'login'])->name('GuideLogin');
 Route::get('/guide/logout',[GuideController::class, 'logOut'])->middleware('auth:api-guide')->name('GuideLogOut');
 
+
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::post('/cities/events',[EventController::class,'store'])->name('createEvent');
@@ -103,6 +104,8 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
     Route::post('/user/fcm_token',[NotificationController::class,'updateFcmToken'])->name('updateFcmToken');
     Route::post('/notifications',[NotificationController::class,'getNotifications'])->name('getNotifications');
     Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
+    Route::get('/notification/test',[NotificationController::class,'testNotification'])->name('testNotification');
+
 
 });
 
@@ -164,4 +167,9 @@ Route::controller(EventController::class)->group(function () {
     Route::controller(PaypalController::class)->group(function () {
         Route::post('/payment/pay','pay')->name('payment');
     });
+});
+
+Route::middleware('auth:api-guide')->group(function () {
+    Route::get('/guide/profile',[GuideController::class,'getProfile'])->name('getProfile');
+    Route::post('/guide/profile',[GuideController::class,'updateProfile'])->name('updateProfile');
 });

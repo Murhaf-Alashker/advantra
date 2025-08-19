@@ -16,8 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use SebastianBergmann\CodeCoverage\Report\Xml\Report;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Guide extends Model
+class Guide extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\GuideFactory> */
     use HasFactory,Notifiable,SoftDeletes,HasApiTokens,MediaHandler;

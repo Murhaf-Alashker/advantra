@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateGuideRequest;
 use App\Http\Requests\LogInGuideRequest;
+use App\Http\Requests\UpdateGuideProfileRequest;
 use App\Http\Requests\UpdateGuideRequest;
+use App\Http\Resources\CityResource;
 use App\Http\Resources\GuideResource;
+use App\Http\Resources\LanguageResource;
 use App\Mail\GuideWelcomeMail;
 use App\Models\Category;
 use App\Models\City;
@@ -155,5 +158,33 @@ class GuideController extends Controller
         return response()->json(['message' => __('message.logout_successfully')]);
     }
 
+   public function getProfile()
+   {
 
+       $guide = Guide::with(['languages','city','categories'])
+           ->guideWithRate()
+           ->findOrFail(Auth::guard('api-guide')->id());
+       return new GuideResource($guide);
+
+   }
+
+   public function updateProfile(UpdateGuideProfileRequest $request){
+        $validated = $request->validated();
+       $guide = Guide::with(['languages','city','categories'])
+           ->guideWithRate()
+           ->findOrFail(Auth::guard('api-guide')->id());
+       $guideDate = collect($validated)->except('media','languages','categories')->all();
+       $guide->update($guideDate);
+       if(isset($validated['languages'])){
+           $guide->languages()->sync($validated['languages']);
+       }
+       if(isset($validated['categories'])){
+           $guide->categories()->sync($validated['categories']);
+       }
+       if(isset($validated['media'])){
+           $guide->updateMedia(GuideService::FILE_PATH);
+       }
+       return new GuideResource($guide);
+
+   }
 }
