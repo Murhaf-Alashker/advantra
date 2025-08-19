@@ -83,7 +83,7 @@ class AdminService
             ->orderBy($name,'DESC')->limit(5)->get();
 
         foreach ($users as $user){
-            $user ->gifted_points = $this->getUserGifts($user->id);
+            $user->gifted_points = $this->getUserGifts($user->id);
         }
         return UserResource::collection($users);
 
@@ -230,7 +230,7 @@ class AdminService
         if(!$success){
             return response()->json([
                 'message' => 'the user has already received a gift'
-            ]);
+            ],400);
         }
         $points = $data['points'];
         $user->increment('points', $points);
@@ -242,22 +242,21 @@ class AdminService
 
     private function checkGift($id,$points):bool
     {
+        $success = false;
         $month = Carbon::now()->subMonth();
         $date = $month->year.'/'.$month->month;
         $disk = Storage::disk('public');
         $content = $disk->exists('gifts.json') ? $disk->get('gifts.json') : $this->storeGiftsJsonFile();
         $data = json_decode($content, true);
         if(!isset($data[$date])) {
-            $data[$date]['users'] = [];
-            $data[$date]['gifts'] = [];
+            $data[$date] = [];
         }
-        if (in_array($id, $data[$date]['users'])) {
-            return false;
+        if (!in_array($id, array_keys($data[$date]))) {
+            $data[$date][$id]=  $points;
+            $success = true;
         }
-        $data[$date]['users'][] = $id;
-        $data[$date]['gifts'][]= [$id =>$points];
         Storage::disk('public')->put('gifts.json',json_encode($data));
-        return true;
+        return $success;
     }
 
     private function storeGiftsJsonFile():string
@@ -266,20 +265,15 @@ class AdminService
         return '{}';
     }
 
-    private function getUserGifts($id)
+    private function getUserGifts($id):string
     {
         $month = Carbon::now()->subMonth();
         $date = $month->year.'/'.$month->month;
         $data = json_decode(Storage::disk('public')->get('gifts.json'), true);
-        if (in_array($id, $data[$date]['users'])) {
-            $gifts = $data[$date]['gifts'];
-            foreach ($gifts as $gift){
-                if(isset($gift[$id])){
-                    return $gift[$id];
-                }
-            }
+        if (in_array($id, array_keys($data[$date]))) {
+            return $data[$date][$id];
         }
-        return 0;
+        return "0";
     }
 
     public function comparingSQL()
@@ -389,3 +383,7 @@ class AdminService
     }
 
 }
+
+
+
+
