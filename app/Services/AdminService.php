@@ -86,7 +86,7 @@ class AdminService
             $user->gifted_points = $this->getUserGifts($user->id);
         }
         return UserResource::collection($users);
-
+//
     }
 
     public function businessPage(string $year):array
