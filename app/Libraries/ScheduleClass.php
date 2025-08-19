@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use App\Enums\Status;
+use App\Models\GroupTrip;
 use App\Models\Reservation;
 
 class ScheduleClass
@@ -20,8 +22,14 @@ class ScheduleClass
                 $data[$type]+= $reservation->tickets_count;
             }
         }
+        $groups = GroupTrip::where('status','=', Status::FINISHED)
+                           ->where('extra_cost','>',0)
+                           ->whereMonth('updated_at', $month)
+                           ->whereYear('updated_at', $year)->get();
+        foreach ($groups as $group) {
+            $data['total_expenses'] += $group->extra_cost;
+        }
         $data['total_profit'] = $data['total_income'] - $data['total_expenses'];
-
         return (object) $data;
     }
 

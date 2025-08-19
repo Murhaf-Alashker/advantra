@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use phpseclib3\Math\PrimeField\Integer;
+use function Laravel\Prompts\select;
 
 
 class AdminService
@@ -47,7 +48,6 @@ class AdminService
             $data[$year.'/'.Carbon::parse($info->created_at)->format('M')] = $info;
         }
         $data[$year.'/'.Carbon::now()->format('M')] = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
-        ksort($data);
         return ['businessInfo' => $data];
     }
 
@@ -61,11 +61,20 @@ class AdminService
     private function topReservedUsersByType($type)
     {
         $name = ScheduleClass::modelToTable($type);
-        return UserResource::collection(User::withCount([
-            'reservations as '.$name => function ($query) use ($type) {
-                $query->where('reservable_type', '=', $type);
+        return UserResource::collection(User::withSum([
+            'reservations as group_trip_reserved_tickets' => function ($query) {
+                $query->where('reservable_type', '=', 'App\Models\GroupTrip')
+                ->whereMonth('created_at', '=', Carbon::now()->month)
+                ->whereYear('created_at', '=', Carbon::now()->year);
             }
-        ])->orderBy($name)->limit(5)->get());
+        ],'tickets_count')->withSum([
+            'reservations as events_reserved_tickets' => function ($query) {
+                $query->where('reservable_type', '=', 'App\Models\Event')
+                    ->whereMonth('created_at', '=', Carbon::now()->month)
+                    ->whereYear('created_at', '=', Carbon::now()->year);
+            }
+        ],'tickets_count')
+            ->orderBy($name,'DESC')->limit(5)->get());
     }
 
     public function businessPage(string $year):array
@@ -85,8 +94,9 @@ class AdminService
         $total = DB::selectOne('SELECT COUNT(*) as total FROM cities')->total;
         $offset = ($page - 1) * $perPage;
         $sql = $this->getInfoUsingRawSQL();
-        $sql = str_replace(':order', $this->getOrderType($orderBy), $sql);
-        $cities = DB::select($sql, [$search, $search, $search, $perPage, $offset]);
+        $orderType = $orderBy == 'name' ? $this->getOrderType($orderBy) : $this->getOrderType($orderBy)." DESC";
+        $sql = str_replace(':order', $orderType, $sql);
+        $cities = DB::select($sql, [ $search, $search, $perPage, $offset]);
         return new LengthAwarePaginator(
             $cities,
             $total,
@@ -150,7 +160,6 @@ class AdminService
                         END
                     ) AS monthly_visitors,
 
-
                     COALESCE(
                         ROUND(
                             SUM(e.stars_count) / NULLIF(SUM(e.reviewer_count), 0),
@@ -164,11 +173,27 @@ class AdminService
                             events e ON e.city_id = c.id
                         LEFT JOIN
                             reservations r ON r.reservable_id = e.id AND r.reservable_type = 'App\\\Models\\\Event'
-                    WHERE (? IS NULL OR c.name LIKE CONCAT('%', ?, '%') OR c.description LIKE CONCAT('%', ?, '%'))
+                    WHERE (? IS NULL OR c.name LIKE CONCAT('%', ?, '%'))
                     GROUP BY c.id,c.name
-                    ORDER BY :order DESC
+                    ORDER BY :order
                     LIMIT ?
                     OFFSET ?";
+    }
+
+    public function totalRate()
+    {
+        $result = DB::select('
+        SELECT
+       COALESCE(
+                ROUND(
+                    SUM(stars_count) / NULLIF(SUM(reviewer_count), 0),
+                    1),
+            0) AS rating
+        FROM events
+
+        ');
+        return $result[0]->rating ?? 0;
+
     }
 
     public function comparingSQL()

@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\WithMediaScope;
 use App\Traits\MediaHandler;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -105,28 +106,45 @@ class User extends Authenticatable
 
 
 
-    public function groupTrips()
+    public function groupTrips($date = null)
     {
-        return GroupTrip::whereHas('reservations', function ($query) {
-            $query->where('user_id',$this->id)
-                ->where('reservable_type',GroupTrip::class);
+        return GroupTrip::whereHas('reservations', function ($query) use ($date) {
+            if(!$date){
+                $query->where('user_id',$this->id);
+            }
+            else {
+                $query->where('user_id', $this->id)
+                      ->whereMonth('created_at', '=', Carbon::parse($date)->month)
+                      ->whereYear('created_at', '=', Carbon::parse($date)->year);
+            }
         })->get();
     }
 
-    public function allEvents()
+    public function allEvents($date = null)
     {
+        $dateFilter = function ($query, $table) use ($date) {
+            $query->where('user_id', $this->id);
+
+            if ($date) {
+                $month = Carbon::parse($date)->month;
+                $year  = Carbon::parse($date)->year;
+
+                $query->whereMonth("$table.created_at", $month)
+                    ->whereYear("$table.created_at", $year);
+            }
+        };
+
         return Event::withTrashed()
-                    ->distinct()->where(function ($query) {
-                        $query->whereHas('reservations', function ($q){ $q->where('user_id', $this->id);})
-                            ->orWhereHas('soloTrips', function($q){$q->where('user_id', $this->id);})
-                            ->orWhereHas('groupTrips.reservations', function($q) {
-                            $q->where('user_id', $this->id)
-                                ->where('reservable_type', GroupTrip::class);}
-                );
-        })->get();
+            ->distinct()
+            ->where(function ($query) use ($dateFilter) {
+                $query->whereHas('reservations', fn($q) => $dateFilter($q, 'reservations'))
+                    ->orWhereHas('soloTrips', fn($q) => $dateFilter($q, 'solo_trips'))
+                    ->orWhereHas('groupTrips.reservations', fn($q) => $dateFilter($q, 'reservations'));
+            })
+            ->get();
     }
 
-    public function directEvents()
+    public function directEvents($date = null)
     {
         return Event::withTrashed()
                     ->whereHas('reservations', fn ($q) =>
@@ -135,7 +153,7 @@ class User extends Authenticatable
 
     }
 
-    protected function groupTripEvents()
+    protected function groupTripEvents($date = null)
     {
         return Event::withTrashed()
                     ->whereHas('groupTrips', fn($query) =>
@@ -147,7 +165,7 @@ class User extends Authenticatable
     }
 
 
-    protected function soloTripEvents()
+    protected function soloTripEvents($date = null)
     {
         return Event::withTrashed()
                     ->whereHas('soloTrips', fn ($q) =>

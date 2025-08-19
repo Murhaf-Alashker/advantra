@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminLoginRequest;
+use App\Libraries\FileManager;
 use App\Models\Admin;
+use App\Models\City;
+use App\Models\Media;
 use App\Services\AdminService;
+use App\Services\CityService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -48,8 +52,24 @@ class AdminController extends Controller
                   $request->input('orderBy') ?? 'name',
                   $request->input('q')
         );
+        $data = $paginator->items();
+        foreach ($data as &$item) {
+            $item->country = City::where('id','=',$item->id)->first()->country->name;
+            $item->images = [];
+            $item->videos = [];
+            $allmedia = Media::where('mediable_type','=','App\Models\City')
+                            ->where('mediable_id','=',$item->id)
+                            ->get();
+            foreach ($allmedia as $media) {
+             $path = CityService::FILE_PATH.$item->id.'/'.$media->type.'/';
+             $url = FileManager::upload($path,$media->path);
+                $item->{$media->type}[] = ['id' => $media->id,'url'=>$url[0]];
+            }
+
+        }
         return response()->json([
             'data' => $paginator->items(),
+            'avg_rate' => $this->adminService->totalRate(),
             'current_page' => $paginator->currentPage(),
             'per_page' => $paginator->perPage(),
             'total' => $paginator->total(),
