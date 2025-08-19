@@ -45,6 +45,7 @@ class UserResource extends JsonResource
             $moreInfo['reserved_events'] = $this->allEvents(Carbon::now()->format('Y-m-d'));
             $moreInfo['reserved_groups'] = $this->groupTrips(Carbon::now()->format('Y-m-d'));
             $moreInfo['reserved_solo_tips'] = $this->soloTrips()->whereMonth('created_at', '=', Carbon::now()->month)->whereYear('created_at', '=', Carbon::now()->year)->get();
+            $moreInfo['gifted_points'] = $this->gifted_points ?? 0;
 
             if(isset($this->events_reserved_tickets)){
                 $moreInfo['events_reserved_tickets'] = $this->events_reserved_tickets;
@@ -52,6 +53,7 @@ class UserResource extends JsonResource
             if(isset($this->group_trip_reserved_tickets) ){
                 $moreInfo['group_trip_reserved_tickets'] = $this->group_trip_reserved_tickets;
             }
+
             return array_merge($forUser, $moreInfo);
         }
 

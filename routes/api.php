@@ -44,23 +44,24 @@ Route::get('/guide/logout',[GuideController::class, 'logOut'])->middleware('auth
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
-    Route::post('/cities/events',[EventController::class,'store'])->name('createEvent');
-    Route::post('/countries/cities',[CityController::class,'store'] )->name('createCity');
-    Route::get('/users',[UserController::class,'index'])->name('users');
     //event api
     Route::controller(EventController::class)->group(function () {
         Route::post('/events/{event}','update')->name('updateEvent');
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
+        Route::post('/cities/events','store')->name('createEvent');
         Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
     });
 
     Route::controller(AdminController::class)->group(function () {
         Route::post('/business_info','businessInfo')->name('businessInfo');
         Route::post('/cities','citiesDashboard')->name('citiesDashboard');
+        Route::post('/users/send_gift','sendGift')->name('sendGift');
+        Route::get('/required_ids/','getCitiesAndCategoriesAndLanguageIds')->name('getIds');
     });
     //city api
     Route::controller(CityController::class)->group(function () {
 
+        Route::post('/countries/cities','store')->name('createCity');
         Route::post('/cities/{city}', 'update')->name('updateCity');
     });
 
@@ -88,6 +89,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //user api
     Route::controller(  UserController::class)->group(function () {
         Route::post('/users/{user}','updateStatus')->name('updateStatus');
+        Route::get('/users','index')->name('users');
     });
 
     //notification api
