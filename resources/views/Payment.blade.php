@@ -10,20 +10,39 @@
 
 @php
     $styles = [
-        'success' => ['color' => 'text-green-600', 'title' => 'إتمت عملية الدفع بنجاح',],
-        'cancel'  => ['color' => 'text-yellow-600', 'title' => 'تم إلغاء عملية الدفع', 'msg' => 'لقد قمت بإلغاء عملية الدفع. يمكنك المحاولة مرة أخرى لاحقاً.'],
-        'error'   => ['color' => 'text-red-600', 'title' => 'فشلت عملية الدفع', 'msg' => 'حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى لاحقاً.'],
+        'success' => [
+            'color' => 'text-green-600',
+            'btn'   => 'bg-green-600 hover:bg-green-700',
+            'title' => 'إتمت عملية الدفع بنجاح',
+        ],
+        'cancel'  => [
+            'color' => 'text-yellow-600',
+            'btn'   => 'bg-yellow-600 hover:bg-yellow-700',
+            'title' => 'تم إلغاء عملية الدفع',
+            'msg'   => 'لقد قمت بإلغاء عملية الدفع. يمكنك المحاولة مرة أخرى لاحقاً.',
+        ],
+        'error'   => [
+            'color' => 'text-red-600',
+            'btn'   => 'bg-red-600 hover:bg-red-700',
+            'title' => 'فشلت عملية الدفع',
+            'msg'   => 'حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى لاحقاً.',
+        ],
     ];
     $status = $status ?? 'success'; // القيمة الافتراضية نجاح
 @endphp
 
-<div class="bg-white shadow-lg rounded-2xl p-12 text-center max-w-2xl">
-    <h2 class="{{ $styles[$status]['color'] }} text-3xl font-extrabold mb-6">
+<div class="bg-white shadow-lg rounded-2xl p-16 text-center max-w-2xl w-full">
+    <h2 class="{{ $styles[$status]['color'] }} text-4xl font-extrabold mb-8">
         {{ $styles[$status]['title'] }}
     </h2>
-    <p class="text-gray-700 text-xl">
+    <p class="text-gray-700 text-2xl mb-10">
         {{ $message }}
     </p>
+
+    <a href="http://localhost:5173/home"
+       class="px-8 py-4 text-lg text-white font-bold rounded-xl transition-all duration-300 {{ $styles[$status]['btn'] }} shadow-md">
+        العودة ل Adventra
+    </a>
 </div>
 
 </body>

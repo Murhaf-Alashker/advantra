@@ -28,7 +28,7 @@ class GuideFactory extends Factory
             'description'=>$this->faker->text(),
             //'card'=>$this->faker->unique()->numerify('##########'),
             'status'=>'active',
-            'price'=>$this->faker->randomFloat(2, 50.00, 999999.99),
+            'price'=>$this->faker->randomFloat(2, 50, 500),
             'const_salary'=>100.00,
             'extra_salary'=>0.00,
             'stars_count'=>$reviewer * $this->faker->randomFloat(1,1,5),

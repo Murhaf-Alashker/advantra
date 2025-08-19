@@ -26,7 +26,7 @@ class GroupTripFactory extends Factory
             'starting_date' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d H:i:s'),
             'ending_date' => fake()->dateTimeBetween('+1 month', '+2 months')->format('Y-m-d H:i:s'),
             'status'=> $status,
-            'price'=>$this->faker->randomFloat(2, 50.00, 99999999.99),
+            'price'=>$this->faker->randomFloat(2, 50, 500),
             'tickets_count'=>$this->faker->numberBetween(100,1000),
             'remaining_tickets' => $this->faker->numberBetween(10,100),
             'tickets_limit' => $this->faker->numberBetween(10,100),

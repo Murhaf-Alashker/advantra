@@ -92,7 +92,7 @@ class PayPalService
 
                 $response = $this->buildRequest("POST", "/v2/checkout/orders/$token/capture");
                 if(!$response['success'] || ($response['data']['status'] ?? null) !== "COMPLETED"){
-                    throw new Exception($response['message'],500);
+                    throw new Exception($response['data']['message'],500);
                 }
 
                 $eventsIds = $this->reserve($token);
