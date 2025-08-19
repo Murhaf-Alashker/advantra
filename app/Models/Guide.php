@@ -25,6 +25,7 @@ class Guide extends Model
     protected $fillable = [
         'name',
         'email',
+        'password',
         'phone',
         'description',
         'status',

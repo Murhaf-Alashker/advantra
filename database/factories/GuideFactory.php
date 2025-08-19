@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Guide>
@@ -22,6 +23,7 @@ class GuideFactory extends Factory
         return [
             'name'=>$this->faker->name(),
             'email'=>$this->faker->unique()->safeEmail(),
+            'password'=>Hash::make('guidePassword'),
             'phone'=>$this->faker->phoneNumber(),
             'description'=>$this->faker->text(),
             'card'=>$this->faker->unique()->numerify('##########'),

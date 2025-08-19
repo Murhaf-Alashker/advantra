@@ -16,10 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('password');
             $table->string('phone')->unique();
             $table->text('description')->nullable();
             $table->string('card')->unique()->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('inactive');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->decimal('price', 8, 2)->default(0.00);
             $table->decimal('const_salary', 8, 2)->default(0.00);
             $table->decimal('extra_salary', 8, 2)->default(0.00);
