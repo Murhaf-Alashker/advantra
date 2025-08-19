@@ -138,7 +138,6 @@ class User extends Authenticatable
             ->distinct()
             ->where(function ($query) use ($dateFilter) {
                 $query->whereHas('reservations', fn($q) => $dateFilter($q, 'reservations'))
-                    ->orWhereHas('soloTrips', fn($q) => $dateFilter($q, 'solo_trips'))
                     ->orWhereHas('groupTrips.reservations', fn($q) => $dateFilter($q, 'reservations'));
             })
             ->get();

@@ -10,6 +10,8 @@ use App\Models\SoloTrip;
 use App\Models\TemporaryReservation;
 use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +35,7 @@ class PayPalService
         $this->base_url = env('PAYPAL_BASE_URL');
     }
 
-    public function pay(array $allData,string $type)
+    public function pay(array $allData,string $type):JsonResponse
     {
         if($type == 'points'){
             return $this->payUsingPoints($allData);
@@ -41,7 +43,7 @@ class PayPalService
         return $this->sendPayment($allData);
     }
 
-    public function sendPayment(array $allData)
+    public function sendPayment(array $allData):JsonResponse
     {
         try {
             $this->checkIds($allData);
@@ -79,36 +81,42 @@ class PayPalService
 
     }
 
-    public function callBack(Request $request)
+    public function callBack(Request $request):mixed
     {
-        try {
-            $token = $request->query('token');
-            if (!$token) {
-                throw new Exception("Token not provided");
-            }
+        return DB::transaction(function () use ($request) {;
+            try {
+                $token = $request->query('token');
+                if (!$token) {
+                    throw new Exception("Token not provided");
+                }
 
-            $response = $this->buildRequest("POST", "/v2/checkout/orders/$token/capture");
-            if(!$response['success'] || ($response['data']['status'] ?? null) !== "COMPLETED"){
-                throw new Exception($token);
-            }
+                $response = $this->buildRequest("POST", "/v2/checkout/orders/$token/capture");
+                if(!$response['success'] || ($response['data']['status'] ?? null) !== "COMPLETED"){
+                    throw new Exception($response['message'],500);
+                }
 
-            $eventsIds = $this->reserve($token);
-            if(sizeof($eventsIds['events']) > 1){
-                $this->createSoloTrip($eventsIds);
+                $eventsIds = $this->reserve($token);
+                if(sizeof($eventsIds['events']) > 1){
+                    $this->createSoloTrip($eventsIds);
+                }
+                //رسالة لليوزر انو تم الحجز بنجاح
+                return view('payment',['status' => 'success','message' => 'afkihfsfbf']);
+            } catch (Exception $e) {
+                $currentMessage = $e->getMessage();
+                TemporaryReservation::where('order_id', $token)->delete();
+                if ($e->getCode() == 400) {
+
+                    $refund = $this->refund($response['data']['purchase_units'][0]['payments']['captures'][0]['id'] ?? null, $response['data']['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? null);
+
+                if (!$refund) {
+                    return view('payment', ['status' => 'cancel', 'message' => $currentMessage]);
+                    //رسالة للادمن قث
+                }
             }
-            //رسالة لليوزر انو تم الحجز بنجاح
-            return view('payment',['status' => 'success','message' => 'afkihfsfbf']);
-        } catch (Exception $e) {
-            $currentToken = $e->getMessage();
-            TemporaryReservation::where('order_id', $token)->delete();
-            $refund = $this->refund($response['data']['purchase_units'][0]['payments']['captures'][0]['id'] ?? null,$response['data']['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? null);
-            if(!$refund){
-                return view('payment',['status' => 'cancel','message' => __('messages.something_went_wrong')]);
-               //رسالة للادمن قث
+                return view('payment',['status' => 'error','message' => $currentMessage]);
+                //رسالة لليوزر انو صار خطا و رجعو المصاري
             }
-            return view('payment',['status' => 'error','message' => __('messages.something_went_wrong')]);
-            //رسالة لليوزر انو صار خطا و رجعو المصاري
-        }
+        });
 
     }
 
@@ -143,7 +151,7 @@ class PayPalService
         return true;
     }
 
-    public function payUsingPoints(array $allData)
+    public function payUsingPoints(array $allData):JsonResponse
     {
         if(sizeof($allData) > 1){
             return response()->json([
@@ -252,7 +260,7 @@ class PayPalService
         return $this->access_token;
     }
 
-    private function getType($type)
+    private function getType($type):Builder
     {
         return match ($type) {
             'guide' => Guide::query(),
@@ -375,7 +383,7 @@ class PayPalService
     {
         return DB::transaction(function () use ($token) {
 
-            $reservingItems = TemporaryReservation::where('order_id', $token)->get();
+            $reservingItems = TemporaryReservation::where('order_id', $token)->get() ?? [];
 
             $info = [
                 'user_id' => null,
@@ -424,7 +432,7 @@ class PayPalService
                 ->first();
             if($hasTask)
             {
-                throw new Exception($token);
+                throw new Exception($token,400);
             }
             $start_date = Carbon::parse($item->task_date)->startOfDay();
             $end_date = Carbon::parse($item->task_date)->endOfDay();
@@ -438,7 +446,7 @@ class PayPalService
         }
         elseif ($model instanceof GroupTrip){
             if($model->remaining_tickets < $item->tickets_count){
-                throw new Exception($token);
+                throw new Exception($token,400);
             }
             $price = $model->hasOffer()
                 ? round($model->price * ((100 - $model->offers()->first()->discount) / 100))
@@ -450,18 +458,20 @@ class PayPalService
                 'expire_date' => $model->ending_date,
                 'user_id' => $item->user_id,
             ]);
-            $model->remaining_tickets = $model->remaining_tickets - $item->tickets_count;
-            $model->save();
+            $model->decrement('remaining_tickets',$item->tickets_count);
+//            $model->remaining_tickets = $model->remaining_tickets - $item->tickets_count;
+//            $model->save();
             return $price;
         }
         else{
             if($model->isLimited()) {
                 $limit = $model->limitedEvents()->lockForUpdate()->first();
                 if ($limit->remaining_tickets < $item->tickets_count) {
-                    throw new Exception($token);
+                    throw new Exception($token,400);
                 }
-                $limit->remaining_tickets = $limit->remaining_tickets - $item->tickets_count;
-                $limit->save();
+                $limit->decrement('remaining_tickets',$item->tickets_count);
+//                $limit->remaining_tickets = $limit->remaining_tickets - $item->tickets_count;
+//                $limit->save();
             }
             $price = $model->hasOffer()
                 ? round($model->price * ((100 - $model->offers()->first()->discount) / 100))
