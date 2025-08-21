@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('taskable');
             $table->enum('status',Status::taskValues())->default(Status::PENDING);
+            $table->decimal('price', 10, 2)->default(0.00);
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->foreignIdFor(Guide::class)->constrained();

@@ -7,35 +7,29 @@ use App\Models\City;
 class SearchBuilder
 {
     protected SearchClass $search;
-    public function __construct()
+    public function __construct(SearchClass $searchClass)
     {
-        $this->search = new SearchClass();
+        $this->search = $searchClass;
     }
-
-    public function whereType(string $type = 'all'): SearchBuilder
+    public function setContains(string $contains = null): SearchBuilder
     {
-        $this->search->setType($type);
+        $this->search->setContains($contains);
         return $this;
     }
 
-    public function whereContain(string $q): SearchBuilder
+    public function setPrice(string $minPrice = null,string $maxPrice = null): SearchBuilder
     {
-        $this->search->setContains($q);
+        $this->search->setPrice($minPrice,$maxPrice);
         return $this;
     }
 
-    public function withRange(string|null $min, string|null $max): SearchBuilder
+    public function setOrderBy(string $orderBy = null): SearchBuilder
     {
-        $range = null;
-
-        if($min && $max){
-            $range = ['min' => $min, 'max' => $max];
-        }
-        $this->search->setRange($range);
+        $this->search->setOrderBy($orderBy);
         return $this;
     }
 
-    public function search(): array
+    public function search()
     {
         return $this->search->search();
     }

@@ -26,21 +26,58 @@ class SearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'string', 'in:event,city,guide,group_trip,all'],
-            'search' => ['required', 'string', 'min:1', 'max:255', 'regex:/\S/'],
-            'min' => ['sometimes','nullable','required_with:max', 'numeric', 'between:0,1000'],
-            'max' => ['sometimes','nullable','required_with:min', 'numeric', 'between:0,1000'],
+            'types' => ['required', 'array'],
+            'types.*' => ['required', 'string', 'in:event,city,guide,group_trip'],
+            'categories' => ['array','min:1'],
+            'categories.*' => ['required','integer', 'exists:categories,id'],
+            'languages' => ['array','min:1'],
+            'languages.*' => ['required', 'integer', 'exists:languages,id'],
+            'countries' => ['array','min:1'],
+            'countries.*' => ['required', 'integer', 'exists:countries,id'],
+            'cities' => ['array','min:1'],
+            'cities.*' => ['required', 'integer', 'exists:cities,id'],
+            'with_offer' =>['boolean'],
+            'contains' => ['string', 'min:1', 'max:255', 'regex:/\S/'],
+            'minPrice' => ['required_with:max', 'numeric','lt:maxPrice', 'between:0,1000'],
+            'maxPrice' => ['required_with:min', 'numeric', 'between:0,1000'],
+            'orderBy' => ['string', 'min:2', 'max:255','in:id,name,price,created_at'],
         ];
     }
 
     public function validated($key = null, $default = null): array
     {
         $validated = [];
-        $validated['type'] = $this->type;
-        $validated['search'] = $this->search;
-        if(!$this->has('min') || !$this->has('max') || !$this->max || !$this->min) {
-            $validated['min'] = null;
-            $validated['max'] = null;
+        if ($this->filled('types')) {
+            $types = $this->input('types');
+            $validated['types'] = array_map(fn($t) => $t === 'group_trip' ? 'groupTrip' : $t, $types);
+        }
+
+        if ($this->filled('categories')) {
+            $validated['categories'] = $this->input('categories');
+        }
+        if ($this->filled('languages')) {
+            $validated['languages'] = $this->input('languages');
+        }
+        if ($this->filled('countries')) {
+            $validated['countries'] = $this->input('countries');
+        }
+        if ($this->filled('cities')) {
+            $validated['cities'] = $this->input('cities');
+        }
+        if ($this->filled('only_offer')) {
+            $validated['with_offer'] = $this->input('only_offer');
+        }
+        if ($this->filled('contains')) {
+            $validated['contains'] = $this->input('contains');
+        }
+        if ($this->filled('minPrice')) {
+            $validated['minPrice'] = $this->input('minPrice');
+        }
+        if ($this->filled('maxPrice')) {
+            $validated['maxPrice'] = $this->input('maxPrice');
+        }
+        if ($this->filled('orderBy')) {
+            $validated['orderBy'] = $this->input('orderBy');
         }
         return $validated;
     }
