@@ -20,4 +20,9 @@ enum Status: string
         return array_map(fn($case) => $case->value, array_filter(self::cases(), fn($case) => $case !== self::COMPLETED));
     }
 
+    public static function userValues(): array
+    {
+        return array_map(fn($case) => $case->value, array_filter(self::cases(), fn($case) => $case !== self::IN_PROGRESS && $case !== self::CANCELED));
+    }
+
 }

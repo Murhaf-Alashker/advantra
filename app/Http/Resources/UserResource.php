@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Libraries\FileManager;
+use App\Models\Guide;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ class UserResource extends JsonResource
             $moreInfo['reserved_events'] = $this->allEvents(Carbon::now()->format('Y-m-d'));
             $moreInfo['reserved_groups'] = $this->groupTrips(Carbon::now()->format('Y-m-d'));
             $moreInfo['reserved_solo_tips'] = $this->soloTrips()->whereMonth('created_at', '=', Carbon::now()->month)->whereYear('created_at', '=', Carbon::now()->year)->get();
+            //$moreInfo['reserved_guides'] = GuideResource::collection(Guide::whereHas('tasks', function ($query) {$query->where('taskable_type','=','App\Models\User')->where('taskable_id','=',$this->id);})->limit(1)->get());
             $moreInfo['gifted_points'] = $this->gifted_points ?? 0;
 
             if(isset($this->events_reserved_tickets)){

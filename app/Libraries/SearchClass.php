@@ -6,20 +6,19 @@ use App\Models\City;
 use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Guide;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use function Laravel\Prompts\search;
 
 class SearchClass
 {
-    protected $models = [
-        'city' => City::class,
-        'event' => Event::class,
-        'guide' => Guide::class,
-        'group_trip' => GroupTrip::class,
-    ];
-    protected string $type;
-    protected array|null $range = null;
     protected string $contains = '';
+
+    protected ?string $minPrice = null;
+    protected ?string $maxPrice = null;
+    protected string $orderBy = 'created_at ';
+
+    protected string $status = 'active';
     /**
      * Create a new class instance.
      */
@@ -27,60 +26,45 @@ class SearchClass
     {
     }
 
-    public function setType($type): void
+    public function setContains(string $contains = null): void
     {
-        $this->type = $type;
-    }
-
-    public function setRange(array|null $range = null): void
-    {
-        if($this->type !== 'city')
-        $this->range = $range;
-    }
-
-    public function setContains(string $contains): void
-    {
-        $key = strip_tags($contains);
-        $key = preg_replace('/\s+/', ' ', $key);
-        $key = trim($key);
-        $this->contains = $key;
-    }
-
-    public function search(): array
-    {
-        $result = [];
-
-
-        if($this->type === 'all'){
-            foreach($this->models as $key => $model) {
-            $result[$key] = $this->searchForType($key,$model);
-            }
+        if($contains !== null) {
+            $key = strip_tags($contains);
+            $key = preg_replace('/\s+/', ' ', $key);
+            $key = trim($key);
+            $this->contains = $key;
         }
-        else if (array_key_exists($this->type, $this->models)){
-            $result[$this->type] = $this->searchForType($this->type,$this->models[$this->type]);
-        }
-        return $result;
     }
 
-    private function searchForType($key,$model)
+    public function setPrice(string $minPrice = null,string $maxPrice = null): void
     {
-        $query = (new $model)->newQuery();
-        if(App::getLocale() === 'en') {
-            $query->whereAny(['name', 'description'], 'like', '%' . $this->contains . '%');
+        if($minPrice !== null) {
+            $this->minPrice = $minPrice;
         }
+        if($maxPrice !== null) {
+            $this->maxPrice = $maxPrice;
+        }
+    }
+    public function setOrderBy(string $orderBy = null): void
+    {
+        if($orderBy !== null) {
+            $this->orderBy = $orderBy;
+        }
+    }
 
-        elseif (App::getLocale() === 'ar'){
-            $query->whereHas('translations', function ($query) use ($key) {
-                $query->whereIn('key', [$key.'name', $key.'description'])
-                    ->where('translation', 'like', '%' . $this->contains . '%');
+    protected function prepare(Builder $model):Builder
+    {
+        $model->orderBy($this->orderBy, 'DESC');
+        $model = $this->minPrice ? $model->where('price', '>=', $this->minPrice) : $model ;
+        $model = $this->maxPrice ? $model->where('price', '<=', $this->maxPrice) : $model ;
+        if (strlen($this->contains ?? '') > 0) {
+            $model->where(function ($q) {
+                $q->where('name', 'like', '%'.$this->contains.'%')
+                    ->orWhere('description', 'like', '%'.$this->contains.'%');
             });
         }
+        return $model;
 
-        if($this->type !== 'city' && $this->range)
-        {
-            $query->where('price' , '>=' , $this->range['min'])->where('price' , '<=' , $this->range['max']);
-        }
 
-        return $query->latest()->limit(10)->get();
     }
 }

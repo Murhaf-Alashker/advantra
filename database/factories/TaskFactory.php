@@ -29,6 +29,7 @@ class TaskFactory extends Factory
             'taskable_type' => $taskableTypes,
             'taskable_id' => $taskableInstance->id,
             'status' => Status::PENDING,
+            'price' =>rand(10,100),
             'start_date' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d H:i:s'),
             'end_date' => fake()->dateTimeBetween('+1 month', '+2 months')->format('Y-m-d H:i:s'),
             'guide_id' => Guide::inRandomOrder()->first()->id ?? Guide::factory()
