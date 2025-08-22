@@ -44,7 +44,7 @@ class SearchRequest extends FormRequest
             'maxPrice' => ['required_with:min', 'numeric', 'between:0,1000'],
             'orderBy' => ['string', 'min:2', 'max:255','in:id,name,price,created_at,rating,starting_date,ending_date'],
             'order_type' =>['string', 'in:ASC,DESC'],
-            'status' => ['boolean', 'in:active,inactive,' . implode(',', Status::values())],
+            'status' => ['string', 'in:active,inactive,' . implode(',', Status::values())],
         ];
     }
 
