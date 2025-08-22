@@ -109,6 +109,11 @@ class Guide extends Authenticatable
         return $this->hasMany(Report::class);
     }
 
+    public function daysOff(): HasMany
+    {
+        return $this->hasMany(DaysOff::class);
+    }
+
     public function scopeActiveGuides($query)
     {
         return $query->where('status', '=', 'active');

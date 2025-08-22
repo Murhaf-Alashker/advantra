@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Guide;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,13 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-           // $table->id();
-            $table->string('type');
-            $table->morphs('notifiable');
-            $table->text('data');
-            $table->timestamp('read_at')->nullable();
+        Schema::create('days_offs', function (Blueprint $table) {
+            $table->id();
+            $table->date('date');
+            $table->foreignIdFor(Guide::class)->constrained();
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('days_offs');
     }
 };

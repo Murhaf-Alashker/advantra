@@ -18,7 +18,12 @@ class TaskController extends Controller
        return $this->TaskService->store($validated,$guide);
     }
 
-    public function getMonthlyTasks(Request $request,Guide $guide){
-        return $this->TaskService->getMonthlyTasks($request,$guide);
+    public function getMonthlyTasks(){
+        return $this->TaskService->getMonthlyTasks();
+    }
+
+    public function getReservedDays(Guide $guide)
+    {
+     return $this->TaskService->getReservedDays($guide);
     }
 }

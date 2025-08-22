@@ -37,22 +37,57 @@ class TaskService{
        'task' => new TaskResource($task)],201);
     }
 
-    public function getMonthlyTasks(Request $request,Guide $guide){
+    public function getMonthlyTasks(){
+        $id = Auth::guard('api-guide')->id();
+        $guide = Guide::findOrFail($id);
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         $tasks = $guide->tasks()
                        ->whereMonth('start_date', $currentMonth)
-                       ->whereYear('start_date', $currentYear)->get();
-        if($request->query('mode') === 'availability'){
-            return response()->json([
-                'reserved'=> $tasks->map(function($task){
-                    return [
-                        'start_date' => $task->start_date,
-                        'end_date' => $task->end_date,
-                    ];
-                })
-            ]);
-        }
-        return response()->json([TaskResource::collection($tasks),200]);
+                       ->whereYear('start_date', $currentYear)
+                       ->get();
+
+        $daysOff = $guide->daysOff()
+                         ->whereMonth('date', $currentMonth)
+                         ->whereYear('date', $currentYear)
+                         ->get();
+
+        return response()->json([
+             'const_salary' =>$guide->const_salary,
+             'extra_salary' => $guide->extra_salary,
+             'Tasks' => TaskResource::collection($tasks),
+             'daysOff' => $daysOff,200]);
+    }
+
+    public function getReservedDays(Guide $guide)
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $tasks = $guide->tasks()
+            ->whereMonth('start_date', $currentMonth)
+            ->whereYear('start_date', $currentYear)
+            ->get();
+
+        $daysOff = $guide->daysOff()
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->get();
+
+        $reservedTasks = $tasks->map(function($task){
+            return [
+               'start_date' => $task->start_date,
+               'end_date' => $task->end_date,
+            ];
+        });
+
+        $reservedDaysOff = $daysOff->map(function($dayOff){
+            return  ['date' => $dayOff->date];
+        });
+
+        return response()->json([
+            'reservedTasks' => $reservedTasks,
+            'reservedDaysOff' => $reservedDaysOff
+        ]);
     }
 }
