@@ -29,6 +29,12 @@ class SearchBuilder
         return $this;
     }
 
+    public function setOrderType(string $orderType = null): SearchBuilder
+    {
+        $this->search->setOrderType($orderType);
+        return $this;
+    }
+
     public function search()
     {
         return $this->search->search();

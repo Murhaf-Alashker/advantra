@@ -72,7 +72,8 @@ class SearchController extends Controller
         $builder = $this->getBuilder($type);
         return $builder->setContains($data['contains'] ?? '')
                        ->setPrice($data['minPrice'] ?? null,$data['maxPrice'] ?? null)
-                       ->setOrderBy($data['orderBy'] ?? 'created_at');
+                       ->setOrderBy($data['orderBy'] ?? 'created_at')
+                       ->setOrderType($data['order_type'] ?? 'DESC');
     }
 
     private function getBuilder($type)

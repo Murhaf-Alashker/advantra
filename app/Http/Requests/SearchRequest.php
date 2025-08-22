@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MediaType;
+use App\Enums\Status;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +42,9 @@ class SearchRequest extends FormRequest
             'contains' => ['string', 'min:1', 'max:255', 'regex:/\S/'],
             'minPrice' => ['required_with:max', 'numeric','lt:maxPrice', 'between:0,1000'],
             'maxPrice' => ['required_with:min', 'numeric', 'between:0,1000'],
-            'orderBy' => ['string', 'min:2', 'max:255','in:id,name,price,created_at'],
+            'orderBy' => ['string', 'min:2', 'max:255','in:id,name,price,created_at,rating,starting_date,ending_date'],
+            'order_type' =>['string', 'in:ASC,DESC'],
+            'status' => ['boolean', 'in:active,inactive,' . implode(',', Status::values())],
         ];
     }
 
@@ -78,6 +82,12 @@ class SearchRequest extends FormRequest
         }
         if ($this->filled('orderBy')) {
             $validated['orderBy'] = $this->input('orderBy');
+        }
+        if ($this->filled('order_type')) {
+            $validated['order_type'] = $this->input('order_type');
+        }
+        if ($this->filled('status')) {
+            $validated['status'] = $this->input('status');
         }
         return $validated;
     }
