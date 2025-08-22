@@ -19,6 +19,7 @@ class SearchClass
     protected string $orderBy = 'created_at ';
 
     protected string $status = 'active';
+    protected string $order_type = 'DESC';
     /**
      * Create a new class instance.
      */
@@ -52,9 +53,15 @@ class SearchClass
         }
     }
 
+    public function setOrderType(string $orderType = null): void
+    {
+        if($orderType !== null) {
+            $this->order_type = $orderType;
+        }
+    }
+
     protected function prepare(Builder $model):Builder
     {
-        $model->orderBy($this->orderBy, 'DESC');
         $model = $this->minPrice ? $model->where('price', '>=', $this->minPrice) : $model ;
         $model = $this->maxPrice ? $model->where('price', '<=', $this->maxPrice) : $model ;
         if (strlen($this->contains ?? '') > 0) {

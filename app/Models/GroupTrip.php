@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 
 class GroupTrip extends Model
@@ -132,5 +133,19 @@ class GroupTrip extends Model
     public function hasOffer(): bool
     {
         return $this->offers()->exists();
+    }
+
+    public function revenue()
+    {
+        $result = DB::select('
+        SELECT
+            SUM(
+                r.ticket_price * r.tickets_count
+            ) AS revenue
+        FROM reservations r
+        WHERE r.reservable_type = "App\\\Models\\\GroupTrip"
+        AND r.reservable_id = ?
+        ',[$this->id]);
+        return $result[0]->revenue ?? 0;
     }
 }

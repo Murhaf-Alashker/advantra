@@ -18,6 +18,7 @@ class GuideSearchClass extends SearchClass
     protected array $cities = [];
     protected array $categories = [];
     protected array $languages = [];
+    protected array $ignore_order = ['starting_date','ending_date'];
     public function __construct()
     {
         parent::__construct();
@@ -50,12 +51,22 @@ class GuideSearchClass extends SearchClass
     public function search()
     {
         $guides = $this->prepare(Guide::query());
+        $guides = $this->checkOrderType($guides);
         return GuideResource::collection($guides->where('status', $this->status)
                                               ->whereIn('city_id', $this->cities)
                                               ->whereHas('languages', function ($query) {$query->whereIn('languages.id', $this->languages);})
                                               ->whereHas('categories', function ($query) {$query->whereIn('categories.id', $this->categories);})
                                               ->get()
         );
+    }
+
+    public function checkOrderType(Builder $query) :Builder
+    {
+        $guide = $query->guideWithRate();
+        if(!in_array($this->orderBy, $this->ignore_order)){
+            $guide = $guide->orderBy($this->orderBy,$this->order_type);
+        }
+        return $guide;
     }
 
 

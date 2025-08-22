@@ -6,13 +6,9 @@ use App\Enums\Status;
 use App\Http\Requests\CreateGroupTripRequest;
 use App\Http\Requests\OfferRequest;
 use App\Http\Resources\GroupTripResource;
-use App\Libraries\FileManager;
-use App\Models\Event;
 use App\Models\GroupTrip;
-use App\Models\Scopes\ActiveScope;
 use App\Services\GroupTripService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GroupTripController extends Controller
@@ -55,12 +51,11 @@ class GroupTripController extends Controller
 
     public function makeOffer(OfferRequest $request,GroupTrip $groupTrip)
     {
-        if($groupTrip->hasOffer()){
-            return response()->json(['message' => __('message.has_already_offer',['attribute' => 'message.attributes.group_trip'])],400);
-        }
-
         if(Carbon::parse($groupTrip->starting_date)->lessThan($request->end_date)){
             return response()->json(['message' => __('message.invalid_offer_date')],400);
+        }
+        if($groupTrip->hasOffer()){
+            return response()->json(['message' => __('message.has_already_offer',['attribute' => 'message.attributes.group_trip'])],400);
         }
         $offer = $this->groupTripService->makeOffer($request->validated(),$groupTrip);
         if(!$offer){
