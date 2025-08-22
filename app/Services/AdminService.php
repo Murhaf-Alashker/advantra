@@ -8,6 +8,7 @@ use App\Mail\SendGiftMail;
 use App\Models\BusinessInfo;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Country;
 use App\Models\Language;
 use App\Models\User;
 use Carbon\Carbon;
@@ -210,16 +211,15 @@ class AdminService
 
     public function getCitiesAndCategoriesAndLanguageIds():JsonResponse
     {
-        $cities = [];
-        $categories = [];
-        $languages = [];
         $cities = City::select('id','name')->get();
         $categories = Category::select('id','name')->get();
         $languages = Language::select('id','name')->get();
+        $countries = Country::select('id','name')->get();
         return response()->json([
             'cities' => $cities,
             'categories' => $categories,
             'languages' => $languages,
+            'countries' => $countries,
         ]);
     }
 

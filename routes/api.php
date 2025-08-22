@@ -40,7 +40,7 @@ Route::get('/payment/callback',[PaypalController::class,'callback'])->name('paym
 Route::get('/payment/cancel',[PaypalController::class,'cancel'])->name('payment.cancel');
 Route::post('/guide/login',[GuideController::class, 'login'])->name('GuideLogin');
 Route::get('/guide/logout',[GuideController::class, 'logOut'])->middleware('auth:api-guide')->name('GuideLogOut');
-
+Route::get('/required_ids/',[AdminController::class,'getCitiesAndCategoriesAndLanguageIds'])->name('getIds');
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
@@ -56,7 +56,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/business_info','businessInfo')->name('businessInfo');
         Route::post('/cities','citiesDashboard')->name('citiesDashboard');
         Route::post('/users/send_gift','sendGift')->name('sendGift');
-        Route::get('/required_ids/','getCitiesAndCategoriesAndLanguageIds')->name('getIds');
+
     });
     //city api
     Route::controller(CityController::class)->group(function () {
