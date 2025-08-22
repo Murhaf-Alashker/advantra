@@ -62,24 +62,25 @@ class CityService{
 
    public function getEvents(City $city)
    {
-        return EventResource::collection($city->events()
-                                              ->where('status', '=', 'active')
-                                              ->paginate(5));
+               return EventResource::collection($city->events()
+                    ->where('status', '=', 'active')
+                    ->with('category')
+                    ->get());
+
    }
 
    public function getGuides(City $city)
    {
-      return GuideResource::collection($city->guides()
-                                            ->where('status', '=', 'active')
-                                            ->with('languages')
-                                            ->paginate(5)
-                                           );
+           return GuideResource::collection($city->guides()
+               ->where('status', '=', 'active')
+               ->with('languages')
+               ->get());
    }
 
    public function citiesWithMostEvents(){
         $cities = City::withCount('events')
                         ->orderBy('events_count','desc')
-                        ->paginate(10);
+                        ->get();
         return CityResource::collection($cities);
    }
 }

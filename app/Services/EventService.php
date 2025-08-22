@@ -25,7 +25,7 @@ class EventService{
                                                 ->activeEvents()
                                                 ->withoutOffer()
                                                 ->latest()
-                                                ->paginate(10));
+                                                ->get());
     }
 //
     public function show(Event $event)
@@ -98,18 +98,22 @@ class EventService{
     }
 
     public function relatedEvents(Event $event){
-        return EventResource::collection(Event::activeEvents()
-                                              ->where('city_id',$event->city_id)
-                                              ->where('id','!=',$event->id)
-                                              ->eventWithRate()
-                                              ->paginate(10));
+
+            return EventResource::collection(Event::activeEvents()
+                ->where('city_id', $event->city_id)
+                ->where('id', '!=', $event->id)
+                ->with('category')
+                ->eventWithRate()
+                ->get());
     }
 
     public function relatedGuides(Event $event){
-        return GuideResource::collection(Guide::activeGuides()
-                                               ->where('city_id',$event->city_id)
-                                               ->guideWithRate()
-                                               ->paginate(5));
+
+            return GuideResource::collection(Guide::activeGuides()
+                ->where('city_id', $event->city_id)
+                ->with('languages')
+                ->guideWithRate()
+                ->get());
 
     }
 
@@ -119,7 +123,7 @@ class EventService{
                                                 ->withoutOffer()
                                                 ->eventWithRate()
                                                 ->orderByDesc('rating')
-                                                ->paginate(10));
+                                                ->get());
     }
 
     public function eventsWithOffer()
@@ -127,7 +131,7 @@ class EventService{
         return EventResource::collection(Event::activeEvents()
                                                 ->hasOffer()
                                                 ->eventWithRate()
-                                                ->paginate(10)
+                                                ->get()
         );
     }
 
@@ -138,7 +142,7 @@ class EventService{
         });
         if($offer){
             $users = User::whereNotNull('fcm_token')->get();
-            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the event'.$event->name, ['type' => 'event','id' => $event->id]));
+            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the event'.$event->name, ['type' => 'eventWithOffer','id' => $offer->id]));
 
         }
         return $offer;

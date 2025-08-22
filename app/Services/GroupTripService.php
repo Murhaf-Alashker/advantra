@@ -28,7 +28,7 @@ class GroupTripService
                                                         ->withoutOffer()
                                                         ->latest()
                                                         ->groupTripWithRate()
-                                                        ->paginate(10)
+                                                        ->get()
 
         );
     }
@@ -89,7 +89,7 @@ class GroupTripService
         return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)
                                                         ->groupTripWithRate()
                                                         ->orderByDesc('rating')
-                                                        ->paginate(10));
+                                                        ->get());
     }
 
     public function destroy(GroupTrip $groupTrip): void
@@ -103,7 +103,7 @@ class GroupTripService
         return GroupTripResource::collection(GroupTrip::where('status', '=', Status::PENDING)
                                                         ->orWhere('status', '=', Status::COMPLETED)
                                                         ->hasOffer()
-                                                        ->paginate(10)
+                                                        ->get()
         );
     }
 
@@ -114,7 +114,7 @@ class GroupTripService
         });
         if($offer) {
             $users = User::whereNotNull('fcm_token')->get();
-            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the group trip'.$groupTrip->name, ['type' => 'groupTrip','id' => $groupTrip->id]));
+            Notification::send($users, new PublicNotification('Check Out Our New Offer!', 'we made a'.$offer->discount.'% discount for the group trip'.$groupTrip->name, ['type' => 'groupTripWithOffer','id' => $offer->id]));
         }
         return $offer;
     }

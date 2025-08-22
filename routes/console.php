@@ -3,6 +3,7 @@
 use App\Libraries\ScheduleClass;
 use App\Models\BusinessInfo;
 use App\Models\GroupTrip;
+use App\Models\Guide;
 use App\Models\LimitedEvents;
 use App\Models\TemporaryReservation;
 use Illuminate\Foundation\Inspiring;
@@ -49,3 +50,6 @@ Schedule::call(function (){
     TemporaryReservation::where('created_at', '<', $expire)->delete();
 })->everyFiveMinutes();
 
+Schedule::call(function (){
+    $guides = Guide::ActiveGuides()->update(['extra_salary' => 0.00]);
+})->monthlyOn(1, '00:00');

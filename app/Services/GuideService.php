@@ -58,7 +58,7 @@ class GuideService
         return GuideResource::collection(Guide::ActiveGuides()
                                         ->guideWithRate()
                                         ->orderByDesc('rating')
-                                        ->paginate(10));
+                                        ->get());
     }
 
     public function relatedGuides(Guide $guide)
@@ -67,7 +67,7 @@ class GuideService
                                                 ->where('city_id', '=', $guide->city_id)
                                                 ->where('id', '!=', $guide->id)
                                                 ->guideWithRate()
-                                                ->paginate(10));
+                                                ->get());
     }
 
     public function trashedGuides()

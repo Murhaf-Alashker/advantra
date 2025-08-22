@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\DaysOffController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
@@ -108,7 +110,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
     Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
     Route::get('/notification/test',[NotificationController::class,'testNotification'])->name('testNotification');
 
-
+    Route::get('/guides/{guide}/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 });
 
 
@@ -148,7 +150,8 @@ Route::controller(EventController::class)->group(function () {
     //task api
     Route::controller(TaskController::class)->group(function () {
         Route::post('/guides/{guide}/tasks','store')->name('createTask');
-        Route::get('/guides/{guide}/tasks','getMonthlyTasks')->name('getMonthlyTasks');
+        Route::get('/guides/{guide}/reservedDays','getReservedDays')->name('getReservedDay');
+
 
     });
 
@@ -169,9 +172,13 @@ Route::controller(EventController::class)->group(function () {
     Route::controller(PaypalController::class)->group(function () {
         Route::post('/payment/pay','pay')->name('payment');
     });
+
+    Route::post('/contactUs',[ContactUsController::class,'store'])->name('CreatContactUs');
 });
 
 Route::middleware('auth:api-guide')->group(function () {
     Route::get('/guide/profile',[GuideController::class,'getProfile'])->name('getProfile');
     Route::post('/guide/profile',[GuideController::class,'updateProfile'])->name('updateProfile');
+    Route::post('guides/guide/daysOff',[DaysOffController::class,'store'])->name('createDaysOff');
+    Route::get('/guides/guide/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 });
