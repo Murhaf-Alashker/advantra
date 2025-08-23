@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Event extends Model
 {
@@ -128,6 +129,14 @@ class Event extends Model
     public function scopeWhereIsNotLimited($query)
     {
         return $query->whereDoesntHave('limitedEvents');
+    }
+
+    public function scopeGetByType($query)
+    {
+        if(Auth::guard('api-admin')->check()){
+            return $query->limit(7)->get();
+        }
+        return $query->get();
     }
 
     public function hasOffer(): bool

@@ -15,8 +15,6 @@ use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
-use App\Mail\VerificationCodeMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\EventController;
@@ -58,6 +56,8 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/business_info','businessInfo')->name('businessInfo');
         Route::post('/cities','citiesDashboard')->name('citiesDashboard');
         Route::post('/users/send_gift','sendGift')->name('sendGift');
+        Route::get('/events_and_groups','eventsAndGroups')->name('eventsAndGroups');
+        Route::post('/guides','guides')->name('guides');
 
     });
     //city api

@@ -33,6 +33,7 @@ class GroupTrip extends Model
         'status',
         'price',
         'tickets_count',
+        'remaining_tickets',
         'tickets_limit',
         'stars_count',
         'reviews_count',
@@ -79,7 +80,7 @@ class GroupTrip extends Model
 
     public function translate($column)
     {
-        return $this->translations()->where('key', '=', 'groupTrip.' . $column)
+        return $this->translations()->where('key', '=', 'group_trip.' . $column)
             ->value('translation');
     }
 

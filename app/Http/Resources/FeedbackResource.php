@@ -27,6 +27,7 @@ class FeedbackResource extends JsonResource
 
         $moreInfo = [
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
         if(Auth::guard('api-user')->check()) {
             return $forUser;

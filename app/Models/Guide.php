@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use SebastianBergmann\CodeCoverage\Report\Xml\Report;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -122,5 +123,19 @@ class Guide extends Authenticatable
     public function scopeGuideWithRate($query)
     {
         return $query->selectRaw('guides.*, ROUND(stars_count / NULLIF(reviewer_count, 0), 1) as rating');
+    }
+
+    public function scopeGuideWithCurrentMonthRate($query)
+    {
+        return $query->withAvg([
+            'feedbacks as monthly_rating' => function ($q) {
+                return $q->where('feedbackable_type', '=', 'App\Models\Guide')
+                    ->whereColumn('feedbackable_id', '=' , 'guides.id')
+                    ->where(function ($q1) {
+                        $q1->whereMonth('updated_at', '=', Carbon::now()->month)
+                            ->whereYear('updated_at', '=', Carbon::now()->year);
+                    });
+            }
+        ], 'rating');
     }
 }
