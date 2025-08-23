@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\Status;
+use App\Http\Resources\EventResource;
+use App\Http\Resources\GroupTripResource;
+use App\Http\Resources\GuideResource;
 use App\Http\Resources\UserResource;
 use App\Libraries\ScheduleClass;
 use App\Mail\SendGiftMail;
@@ -9,6 +13,9 @@ use App\Models\BusinessInfo;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Event;
+use App\Models\GroupTrip;
+use App\Models\Guide;
 use App\Models\Language;
 use App\Models\User;
 use Carbon\Carbon;
@@ -52,9 +59,11 @@ class AdminService
             $info->month_name = Carbon::parse($info->created_at)->year.'/'.Carbon::parse($info->created_at)->format('M');
             $data[] = $info;
         }
-        $info = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
-        $info->month_name = $year.'/'.Carbon::now()->format('M');
-        $num = array_unshift($data,$info);
+        if($year == Carbon::now()->year) {
+            $info = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
+            $info->month_name = $year . '/' . Carbon::now()->format('M');
+            $num = array_unshift($data, $info);
+        }
         return ['businessInfo' => $data];
     }
 
@@ -274,6 +283,99 @@ class AdminService
             return $data[$date][$id];
         }
         return "0";
+    }
+
+    public function eventsAndGroupsPage()
+    {
+        $upcomingGroupTrips = GroupTripResource::collection(GroupTrip::where('status' , '=' , Status::PENDING->value)
+                                                                       ->orWhere('status' , '=' , Status::COMPLETED->value)
+                                                                       ->groupTripWithRate()
+                                                                       ->orderBy('starting_date','DESC')
+                                                                       ->limit(5)
+                                                                       ->get());
+
+        $recentGroupTrips = GroupTripResource::collection(GroupTrip::where('status' , '=' , Status::FINISHED->value)
+                                                                     ->groupTripWithRate()
+                                                                     ->orderBy('ending_date','ACS')
+                                                                     ->limit(5)
+                                                                     ->get());
+
+        $events = EventResource::collection(Event::eventWithRate()->orderBy('rating','DESC')->limit(5)->get());
+
+        $eventsCount = Event::where('status' , '=' , 'active')->count();
+
+        $groupsCount = GroupTrip::where('status' , '!=' , Status::FINISHED->value)->count();
+
+        $totalRevenue = $this->getEventRevenue() + $this->getGroupsRevenue();
+
+        $monthlyRate = $this->getRate();
+
+        return response()->json([
+            'upcomingGroupTrips' => $upcomingGroupTrips,
+            'recentGroupTrips' => $recentGroupTrips,
+            'events' => $events,
+            'eventsCount' => $eventsCount,
+            'groupsCount' => $groupsCount,
+            'totalRevenue' => $totalRevenue,
+            'monthlyRate' => $monthlyRate,
+
+        ]);
+
+
+    }
+
+    public function getEventRevenue()
+    {
+        $eventRevenue = DB::select('
+        SELECT
+            COALESCE(SUM(
+        r.tickets_count * (r.ticket_price - r.basic_cost)
+        ),0) AS eventRevenue
+        FROM events e
+        LEFT JOIN reservations r ON r.reservable_id = e.id AND r.reservable_type = "App\\\Models\\\Event"
+                WHERE MONTH(r.created_at) = MONTH(CURRENT_DATE()) AND YEAR(r.created_at) = YEAR(CURRENT_DATE())
+        ');
+
+        return $eventRevenue[0]->eventRevenue ?? 0;
+    }
+
+    public function getGroupsRevenue()
+    {
+        $groupsRevenue = DB::select('
+        SELECT
+        COALESCE(
+        SUM(r.tickets_count * (r.ticket_price - r.basic_cost))
+        , 0)
+            - COALESCE(SUM(g.extra_cost), 0) AS groupsRevenue
+        FROM group_trips g
+        LEFT JOIN reservations r ON r.reservable_id = g.id AND r.reservable_type = "App\\\Models\\\GroupTrip"
+        WHERE MONTH(r.created_at) = MONTH(CURRENT_DATE()) AND YEAR(r.created_at) = YEAR(CURRENT_DATE())
+        ');
+        return $groupsRevenue[0]->groupsRevenue ?? 0;
+    }
+
+    public function getRate()
+    {
+        $rate = DB::select('
+        SELECT
+        COALESCE(
+                        ROUND(
+                            SUM(f.rating) / NULLIF(COUNT(f.id), 0),
+                            1),
+                    0) AS total_rating
+        FROM feedback f
+        WHERE MONTH(f.updated_at) = MONTH(CURRENT_DATE()) AND YEAR(f.updated_at) = YEAR(CURRENT_DATE())
+        AND (f.feedbackable_type = "App\\\Models\\\Event" OR f.feedbackable_type = "App\\\Models\\\GroupTrip")
+        ');
+        return $rate[0]->total_rating ?? 0;
+    }
+
+    public function guideForAdmin(string $orderType, int $perPage)
+    {
+        return GuideResource::collection(Guide::guideWithRate()
+            ->guideWithCurrentMonthRate()
+            ->orderBy('monthly_rating',$orderType)->paginate($perPage)
+        );
     }
 
     public function comparingSQL()

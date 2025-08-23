@@ -13,6 +13,7 @@ use App\Models\Scopes\ActiveScope;
 use App\Models\User;
 use App\Notifications\PublicNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -49,6 +50,8 @@ class GroupTripService
 
     public function store(array $validated)
     {
+        $validated['remaining_tickets'] = $validated['tickets_count'];
+
         $data = collect($validated)->except('media','events','name_ar','description_ar')->all();
 
         $groupTrip = GroupTrip::create($data);
@@ -66,7 +69,6 @@ class GroupTripService
                 'translation' => $validated['description_ar'],
             ]
         ]);
-
         $groupTrip->storeMedia(self::FILE_PATH);
         if($groupTrip) {
             $users = User::whereNotNull('fcm_token')->get();
@@ -86,10 +88,11 @@ class GroupTripService
 
     public function topRatedGroupTrips()
     {
-        return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)
-                                                        ->groupTripWithRate()
-                                                        ->orderByDesc('rating')
-                                                        ->get());
+        $groups = GroupTrip::where('status', Status::FINISHED)
+            ->groupTripWithRate()
+            ->orderByDesc('rating');
+        $groups = Auth::guard('api-admin')->check() ? $groups->limit(7)->get() : $groups->get();
+        return GroupTripResource::collection($groups);
     }
 
     public function destroy(GroupTrip $groupTrip): void

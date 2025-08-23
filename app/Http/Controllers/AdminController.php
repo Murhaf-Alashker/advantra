@@ -36,7 +36,7 @@ class AdminController extends Controller
     public function businessInfo(Request $request)
     {
         $request->validate([
-            'year' => ['date_format:Y','size:4','min:2020', 'max:' . carbon::now()->year],
+            'year' => ['integer','min:2020', 'max:' . carbon::now()->year],
         ]);
         return $this->adminService->businessPage($request->input('year') ?? Carbon::now()->year);
     }
@@ -92,5 +92,19 @@ class AdminController extends Controller
             'points' => ['required','integer',new ValidPoints],
         ]);
         return $this->adminService->sendGift($data);
+    }
+
+    public function eventsAndGroups()
+    {
+        return $this->adminService->eventsAndGroupsPage();
+    }
+
+    public function guides(Request $request)
+    {
+        $request->validate([
+            'order_type' => ['nullable','in:ASC,DESC'],
+            'per_page' => ['nullable','integer','min:1','max:100'],
+        ]);
+        return $this->adminService->guideForAdmin($request->input('order_type') ?? 'DESC',$request->input('per_page') ?? 20);
     }
 }

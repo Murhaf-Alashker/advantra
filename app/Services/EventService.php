@@ -123,7 +123,7 @@ class EventService{
                                                 ->withoutOffer()
                                                 ->eventWithRate()
                                                 ->orderByDesc('rating')
-                                                ->get());
+                                                ->getByType());
     }
 
     public function eventsWithOffer()

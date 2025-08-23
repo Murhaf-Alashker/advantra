@@ -69,6 +69,9 @@ class GuideResource extends JsonResource
         }
 
         if(Auth::guard('api-admin')->check()) {
+
+            $moreInfo['monthly_rating'] = number_format($this->monthly_rating ?? 0,1,'.');
+
             return array_merge($forUser, $moreInfo);
         }
 
