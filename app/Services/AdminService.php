@@ -296,9 +296,11 @@ class AdminService
 
         $recentGroupTrips = GroupTripResource::collection(GroupTrip::where('status' , '=' , Status::FINISHED->value)
                                                                      ->groupTripWithRate()
-                                                                     ->orderBy('ending_date','ACS')
+                                                                     ->orderBy('ending_date','ASC')
                                                                      ->limit(5)
                                                                      ->get());
+
+        $topRated = (new GroupTripService)->topRatedGroupTrips();
 
         $events = EventResource::collection(Event::eventWithRate()->orderBy('rating','DESC')->limit(5)->get());
 
@@ -311,13 +313,15 @@ class AdminService
         $monthlyRate = $this->getRate();
 
         return response()->json([
-            'upcomingGroupTrips' => $upcomingGroupTrips,
             'recentGroupTrips' => $recentGroupTrips,
+            'upcomingGroupTrips' => $upcomingGroupTrips,
+            'topRatedGroupTrips' => $topRated,
             'events' => $events,
             'eventsCount' => $eventsCount,
             'groupsCount' => $groupsCount,
             'totalRevenue' => $totalRevenue,
             'monthlyRate' => $monthlyRate,
+
 
         ]);
 
