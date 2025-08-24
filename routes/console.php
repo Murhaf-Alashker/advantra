@@ -30,19 +30,21 @@ Schedule::call(function (){
 })->monthlyOn(1, '00:00');
 
 Schedule::call(function (){
-  $groups = GroupTrip::whereMonth('starting_date', Carbon::now()->month)
-                    ->whereYear('starting_date', Carbon::now()->year)
-                    ->whereDay('starting_date', Carbon::now()->addDays(2))
-                    ->where('remaining_tickets','>','tickets_limit')->pluck('id')
+  $groups = GroupTrip::whereDate('starting_date', Carbon::now()->addDays(2))
+                    ->whereColumn('remaining_tickets','>','tickets_limit')->pluck('id')
                     ->toArray();
 
-  $limitedEvents = LimitedEvents::whereMonth('start_date', Carbon::now()->month)
-          ->whereYear('start_date', Carbon::now()->year)
-          ->whereDay('start_date', Carbon::now()->addDays(2))
+  $limitedEvents = LimitedEvents::whereDate('start_date', Carbon::now()->addDays(2))
+          ->whereColumn('remaining_tickets','>','tickets_limit')
           ->pluck('event_id')
           ->toArray();
-// ارسل الرسالة هون للايفينت
-    // متلا للايفينت المحدود
+  $admin = \App\Models\Admin::first();
+  if(!empty($groups)){
+      $admin->notify(new \App\Notifications\PersonalNotification('upcoming group trips','this group trips is 2 days away from starting',$groups,$admin->fcmToken));
+  }
+    if(!empty($limitedEvents)){
+        $admin->notify(new \App\Notifications\PersonalNotification('upcoming event','this group trips is 2 days away from starting',$limitedEvents,$admin->fcmToken));
+    }
 })->dailyAt('00:00');
 
 Schedule::call(function (){
@@ -53,3 +55,13 @@ Schedule::call(function (){
 Schedule::call(function (){
     $guides = Guide::ActiveGuides()->update(['extra_salary' => 0.00]);
 })->monthlyOn(1, '00:00');
+
+Schedule::call(function (){
+    GroupTrip::where('status','<=',\App\Enums\Status::PENDING->value)
+        ->whereDate('starting_date', '<=', Carbon::now())
+        ->update(['status' => \App\Enums\Status::IN_PROGRESS->value]);
+
+    LimitedEvents::where('status','=','active')
+        ->whereDate('start_date','<=',Carbon::now())
+        ->update(['status' => 'inactive']);
+})->hourly();
