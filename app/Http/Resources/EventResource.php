@@ -26,6 +26,8 @@ class EventResource extends JsonResource
         $locale = App::getLocale();
         $name_ar = $this->translate('name');
         $description_ar = $this->translate('description');
+        $isLimited = $this->isLimited();
+        $limit = $this->limitedEvents()->first() ?? null;
 
 
         $forUser = [
@@ -42,7 +44,7 @@ class EventResource extends JsonResource
             'feedbacks' => FeedbackResource::collection($this->whenLoaded('feedbacks')),
             'images' => $media['images'] ?? [],
             'videos' => $media['videos'] ?? [],
-
+            'is_limited' => $isLimited,
         ];
 
         $moreInfo = [
@@ -56,6 +58,13 @@ class EventResource extends JsonResource
             'updated_at' => $this->updated_at,
 
         ];
+        if($this->isLimited()){
+            $forUser ['tickets_count'] = $limit->tickets_count;
+            $forUser['remaining_tickets'] = $limit->remaining_tickets;
+            $forUser['starting_date'] = $limit->start_date;
+            $forUser['ending_date'] = $limit->end_date;
+            $moreInfo ['tickets_limit'] = $limit->tickets_limit;
+        }
         if(Auth::guard('api-user')->check()){
             if($locale == 'ar'){
                 $forUser['name'] = $name_ar;
@@ -70,6 +79,7 @@ class EventResource extends JsonResource
                 $allData['main_price'] = $this->price;
                 $allData['offers'] = OfferResource::collection($this->offers);
             }
+            $allData['category'] = $this->category->name;
             return $allData;
         }
 
