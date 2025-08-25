@@ -29,7 +29,7 @@ class GroupTripService
                                                         ->withoutOffer()
                                                         ->latest()
                                                         ->groupTripWithRate()
-                                                        ->get()
+                                                        ->limit(10)
 
         );
     }
@@ -69,6 +69,7 @@ class GroupTripService
                 'translation' => $validated['description_ar'],
             ]
         ]);
+
         $groupTrip->storeMedia(self::FILE_PATH);
         if($groupTrip) {
             $users = User::whereNotNull('fcm_token')->get();
@@ -88,11 +89,10 @@ class GroupTripService
 
     public function topRatedGroupTrips()
     {
-        $groups = GroupTrip::where('status', Status::FINISHED)
-            ->groupTripWithRate()
-            ->orderByDesc('rating');
-        $groups = Auth::guard('api-admin')->check() ? $groups->limit(7)->get() : $groups->get();
-        return GroupTripResource::collection($groups);
+        return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)
+                                                        ->groupTripWithRate()
+                                                        ->orderByDesc('rating')
+                                                        ->limit(10));
     }
 
     public function destroy(GroupTrip $groupTrip): void
@@ -106,7 +106,7 @@ class GroupTripService
         return GroupTripResource::collection(GroupTrip::where('status', '=', Status::PENDING)
                                                         ->orWhere('status', '=', Status::COMPLETED)
                                                         ->hasOffer()
-                                                        ->get()
+                                                        ->limit(10)
         );
     }
 

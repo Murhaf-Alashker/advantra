@@ -110,7 +110,6 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
     Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
     Route::get('/notification/test',[NotificationController::class,'testNotification'])->name('testNotification');
 
-    Route::get('/guides/{guide}/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 });
 
 
