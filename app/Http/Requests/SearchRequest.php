@@ -29,7 +29,7 @@ class SearchRequest extends FormRequest
     {
         return [
             'types' => ['required', 'array'],
-            'types.*' => ['required', 'string', 'in:event,city,guide,group_trip'],
+            'types.*' => ['required', 'string', 'in:event,city,guide,group_trip,user'],
             'categories' => ['array','min:1'],
             'categories.*' => ['required','integer', 'exists:categories,id'],
             'languages' => ['array','min:1'],

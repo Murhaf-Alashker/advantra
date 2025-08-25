@@ -45,7 +45,7 @@ Schedule::call(function (){
     if(!empty($limitedEvents)){
         $admin->notify(new \App\Notifications\PersonalNotification('upcoming event','this group trips is 2 days away from starting',$limitedEvents,$admin->fcmToken));
     }
-})->dailyAt('00:00');
+})->everyMinute();
 
 Schedule::call(function (){
     $expire = Carbon::now()->subMinutes(5);
@@ -57,11 +57,17 @@ Schedule::call(function (){
 })->monthlyOn(1, '00:00');
 
 Schedule::call(function (){
-    GroupTrip::where('status','<=',\App\Enums\Status::PENDING->value)
-        ->whereDate('starting_date', '<=', Carbon::now())
+    $groups = GroupTrip::where('status','<=',\App\Enums\Status::PENDING->value)
+        ->whereDate('starting_date', '<=', Carbon::now()->format('Y-m-d H:i:s'))
         ->update(['status' => \App\Enums\Status::IN_PROGRESS->value]);
 
-    LimitedEvents::where('status','=','active')
-        ->whereDate('start_date','<=',Carbon::now())
+    $eventIds = LimitedEvents::whereDate('start_date', '<', Carbon::now())->get();
+
+        \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json',$eventIds);
+
+
+    \App\Models\Event::whereIn('id', $eventIds)
         ->update(['status' => 'inactive']);
-})->hourly();
+
+
+})->everyMinute();

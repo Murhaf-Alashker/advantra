@@ -2,11 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class OfferRequest extends FormRequest
+class MakeEventLimitedRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +23,10 @@ class OfferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'discount' => ['required', 'numeric', 'min:1', 'max:90'],
-            'start_date' => ['required', 'date', 'before_or_equal:end_date','after_or_equal:'.Carbon::now()],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date','after_or_equal:'.Carbon::now()],
+            'tickets_count' => ['required','numeric','min:1'],
+            'tickets_limit' => ['required','numeric','min:0','lt:tickets_count'],
+            'start_date' =>['required','date','date_format:Y-m-d H:i:s'],
+            'end_date' =>['required','date','date_format:Y-m-d H:i:s','after:start_date'],
         ];
     }
 }
