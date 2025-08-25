@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CheckResetPasswordCodeRequest;
 use App\Http\Requests\CreateGuideRequest;
+use App\Http\Requests\GuideCheckResetPasswordCodeRequest;
+use App\Http\Requests\GuideResetPasswordRequest;
 use App\Http\Requests\LogInGuideRequest;
+use App\Http\Requests\resetPasswordRequest;
 use App\Http\Requests\UpdateGuideProfileRequest;
 use App\Http\Requests\UpdateGuideRequest;
 use App\Http\Resources\CityResource;
@@ -15,13 +19,19 @@ use App\Models\City;
 use App\Models\Guide;
 use App\Models\Language;
 use App\Models\Scopes\ActiveScope;
+use App\Models\User;
 use App\Services\GuideService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
+use App\Mail\VerificationCodeMail;
 
 class GuideController extends Controller
 {
@@ -169,4 +179,126 @@ class GuideController extends Controller
        return new GuideResource($guide);
 
    }
+
+    public function requestResetPasswordCode(Request $request)
+    {
+        if($request->email)
+        {
+            $validated = $request->validate([
+                'email' => ['required','string','max:30','min:15','email','exists:guides,email'],
+            ]);
+            $email = $validated['email'];
+            $guide = Guide::where('email' , $email)->first();
+        }
+        else
+        {
+            $guide=Auth::guard('api-guide')->user();
+            $email = $guide->email;
+        }
+        $requestAble = $this->requestAble($email);
+
+        if(!$requestAble)
+        {
+            return response()->json(['message' => __('message.rate_limit_exceeded')], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
+        }
+        try{
+            $exist = DB::table('password_reset_tokens')->where('email' , $email)->first();
+            $code = (string) rand(100000, 999999);
+
+            DB::transaction(function () use ($email,$code,$exist){
+                if($exist){
+                    DB::table('password_reset_tokens')
+                        ->where('email' , $email)
+                        ->update([
+                            'code' => $code,
+                            'expired_at' => Carbon::now()->addMinutes(5)->format('Y-m-d H:i:s'),
+                        ]);
+                }
+                else{
+                    DB::table('password_reset_tokens')->insert([
+                        'email' => $email,
+                        'code' => $code,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'expired_at' => Carbon::now()->addMinutes(5)->format('Y-m-d H:i:s'),
+                    ]);}
+            });
+
+            $this->sendVerificationCodeMail($code, $guide->name, $guide->email);
+
+            return response()->json(['message' => __('message.send_verify_code')], ResponseAlias::HTTP_OK);
+        }
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    public function checkResetPasswordCode(GuideCheckResetPasswordCodeRequest $request)
+    {
+        $data = $request->validated();
+        $info = DB::table('password_reset_tokens')->where('email',$data['email'])->first();
+        if($info && $info->code == $data['code']){
+            if(Carbon::parse($info->expired_at)->lessThan(Carbon::now())){
+                return response()->json(['message' => __('message.expired_code'), 'data' => false],ResponseAlias::HTTP_GONE);
+            }
+            return response()->json(true, ResponseAlias::HTTP_OK);
+        }
+        return response()->json(false, ResponseAlias::HTTP_BAD_REQUEST);
+    }
+
+    public function resetPasswordUsingCode(GuideResetPasswordRequest $request)
+    {
+        $data = $request->validated();
+        $info = DB::table('password_reset_tokens')->where('email',$data['email'])->first();
+        if(!$info){
+            return response()->json(['message' => __('message.invalid_email')], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+        if($info->code != $data['code']){
+            return response()->json(['message' => __('message.invalid_code')], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+        if (Carbon::parse($info->expired_at)->lessThan(Carbon::now())) {
+            return response()->json(['message' => __('message.expired_code')], ResponseAlias::HTTP_GONE);
+        }
+        $guide = Guide::where('email',$data['email'])->first();
+        $guide->password = Hash::make($data['password']);
+        $guide->save();
+        DB::table('password_reset_tokens')->where('email',$data['email'])->delete();
+        return response()->json(['message' => __('message.reset_password_successfully')], ResponseAlias::HTTP_OK);
+    }
+
+    private function requestAble(string $email):bool
+    {
+        try {
+            $key = "verify_code_to:{$email}";
+            Cache::forget($key);
+            $requestCount = Cache::get($key) ?? 0;
+
+            if ($requestCount >= 5) {
+                return false;
+            }
+
+            if ($requestCount == 0) {
+                Cache::put($key, 0, now()->addDays(1));
+            }
+
+            Cache::increment($key);
+
+            return true;
+        }
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function sendVerificationCodeMail(string $verifyCode, string $name, string $email):void
+    {
+        try {
+            Mail::to($email)->queue(new VerificationCodeMail($verifyCode, $name));
+        }
+
+        catch (\Exception $e) {
+            throw new \Exception(__('message.something_wrong'),ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }
