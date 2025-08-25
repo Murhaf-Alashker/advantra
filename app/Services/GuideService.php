@@ -58,7 +58,7 @@ class GuideService
         return GuideResource::collection(Guide::ActiveGuides()
                                         ->guideWithRate()
                                         ->orderByDesc('rating')
-                                        ->get());
+                                        ->limit(10));
     }
 
     public function relatedGuides(Guide $guide)

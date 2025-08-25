@@ -82,27 +82,9 @@ class GuideController extends Controller
     {
         $validated = $request->validated();
 
-        $data =collect($validated)->except('media','languages','categories')->all();
+        $guide =  $this->guideService->update($guide,$validated);
 
-        $guide = $this->guideService->update($guide, $data);
-
-        if(isset($validated['languages']))
-        {
-          //  $languageIds =Language::whereIn('name', $validated['languages'])->pluck('id')->toArray();
-
-            $guide->languages()->sync($validated['languages']);
-        }
-
-        if(isset($validated['categories']))
-        {
-           // $categoriesId =Category::whereIn('name', $validated['categories'])->pluck('id')->toArray();
-
-            $guide->categories()->sync($validated['categories']);
-        }
-
-        $guide->updateMedia(GuideService::FILE_PATH);
-
-        return new GuideResource($guide->fresh(['languages', 'categories', 'feedbacks','city']));
+        return new GuideResource($guide->fresh(['languages', 'categories', 'feedbacks','city',]));
 
     }
 

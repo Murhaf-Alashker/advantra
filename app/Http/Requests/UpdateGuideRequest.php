@@ -30,12 +30,16 @@ class UpdateGuideRequest extends FormRequest
     {
         return [
           //  'phone' => ['string','min:11','max:17','unique:guides,phone','regex:/^\+[1-9][0-9]{4,15}$/'],
-            'languages' => ['array'],
-            'languages.*' => ['exists:languages,id'],
-            'categories' => ['array'],
-            'categories.*' => ['exists:categories,id'],
-            'city_id' =>'exists:cities,id' ,
+//            'languages' => ['array'],
+//            'languages.*' => ['exists:languages,id'],
+//            'categories' => ['array'],
+//            'categories.*' => ['exists:categories,id'],
+//            'city_id' =>'exists:cities,id' ,
            // 'card' => ['nullable', 'string', 'email'],
+            'email' => 'email',
+            'const_salary' => 'numeric',
+            'status' => 'nullable|in:active,inactive',
+            'city_id' =>'nullable|exists:cities,id'
         ];
     }
 }

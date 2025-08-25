@@ -25,7 +25,7 @@ class EventService{
                                                 ->activeEvents()
                                                 ->withoutOffer()
                                                 ->latest()
-                                                ->get());
+                                                ->limit(10));
     }
 //
     public function show(Event $event)
@@ -123,7 +123,8 @@ class EventService{
                                                 ->withoutOffer()
                                                 ->eventWithRate()
                                                 ->orderByDesc('rating')
-                                                ->getByType());
+                                                ->getByType()
+                                                ->limit(10));
     }
 
     public function eventsWithOffer()
@@ -131,7 +132,7 @@ class EventService{
         return EventResource::collection(Event::activeEvents()
                                                 ->hasOffer()
                                                 ->eventWithRate()
-                                                ->get()
+                                                ->limit(10)
         );
     }
 
