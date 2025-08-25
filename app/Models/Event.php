@@ -136,7 +136,7 @@ class Event extends Model
         if(Auth::guard('api-admin')->check()){
             return $query->limit(7)->get();
         }
-        return $query->get();
+        return $query->limit(10)->get();
     }
 
     public function hasOffer(): bool

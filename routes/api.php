@@ -50,6 +50,8 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::delete('/events/{event}','destroy')->name('deleteEvent');
         Route::post('/cities/events','store')->name('createEvent');
         Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
+        Route::post('/events/{event}/offer/update','updateOffer')->name('updateOfferForEvent');
+        Route::delete('/events/{event}/offer/delete','deleteOffer')->name('deleteOfferForEvent');
     });
 
     Route::controller(AdminController::class)->group(function () {
@@ -58,6 +60,8 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/users/send_gift','sendGift')->name('sendGift');
         Route::get('/events_and_groups','eventsAndGroups')->name('eventsAndGroups');
         Route::post('/guides','guides')->name('guides');
+        Route::post('/users/{user}/change_status','changeUserStatus')->name('changeUserStatus');
+        Route::post('/event/{event}/change_status','changeEventStatus')->name('changeEventStatus');
 
     });
     //city api
@@ -86,11 +90,12 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     Route::post('/group_trip','store')->name('createGroupTrip');
     Route::delete('/group_trips/{groupTrip}','destroy')->name('deleteGroupTrip');
     Route::post('/group_trips/{groupTrip}/offer','makeOffer')->name('makeOfferForGroupTrip');
+    Route::post('/group_trips/{groupTrip}/offer/update','updateOffer')->name('updateOfferForGroupTrip');
+    Route::delete('/group_trips/{groupTrip}/offer/delete','deleteOffer')->name('deleteOfferForGroupTrip');
     });
 
     //user api
     Route::controller(  UserController::class)->group(function () {
-        Route::post('/users/{user}','updateStatus')->name('updateStatus');
         Route::get('/users','index')->name('users');
     });
 
@@ -131,7 +136,7 @@ Route::controller(EventController::class)->group(function () {
     Route::get('/events','index')->name('getEvents');
     Route::get('/events/{event}','show')->name('getEvent');
     Route::get('/events/{event}/relatedEvents','relatedEvents')->name('getRelatedEvents');
-    Route::get('/events/{event}/relatedGuides','relatedGuides')->name('getRelatedGuides');
+    Route::get('/events/{event}/relatedGuides','relatedGuides')->name(',getRelatedGuidesFromEvent');
 });
 //guide api
     Route::controller(GuideController::class)->prefix('/guides')->group(function () {

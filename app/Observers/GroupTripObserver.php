@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\Status;
 use App\Models\GroupTrip;
 use App\Models\Guide;
+use Illuminate\Support\Carbon;
 
 class GroupTripObserver
 {
@@ -13,9 +14,11 @@ class GroupTripObserver
      */
     public function created(GroupTrip $groupTrip): void
     {
+        $start = Carbon::parse($groupTrip->starting_date)->startOfDay();
+        $end = Carbon::parse($groupTrip->ending_date)->endOfDay();
         $groupTrip->tasks()->create([
-            'start_date' => $groupTrip->starting_date,
-            'end_date' => $groupTrip->ending_date,
+            'start_date' => $start,
+            'end_date' => $end,
             'guide_id' => $groupTrip->guide_id,
         ]);
     }
@@ -29,12 +32,12 @@ class GroupTripObserver
 
             if($groupTrip->tickets_count == 0)
             {
-                $groupTrip->update(['status' => Status::COMPLETED]);
+                $groupTrip->update(['status' => Status::COMPLETED->value]);
             }
 
-            else if($groupTrip->status == Status::COMPLETED)
+            else if($groupTrip->status === Status::COMPLETED->value)
             {
-                $groupTrip->update(['status' => Status::PENDING]);
+                $groupTrip->update(['status' => Status::PENDING->value]);
             }
         }
 

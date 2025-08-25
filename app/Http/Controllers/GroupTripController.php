@@ -6,9 +6,12 @@ use App\Enums\Status;
 use App\Http\Requests\CreateGroupTripRequest;
 use App\Http\Requests\OfferRequest;
 use App\Http\Resources\GroupTripResource;
+use App\Models\Event;
 use App\Models\GroupTrip;
+use App\Models\Task;
 use App\Services\GroupTripService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class GroupTripController extends Controller
@@ -30,8 +33,12 @@ class GroupTripController extends Controller
         return $this->groupTripService->show($groupTrip);
     }
 
-    public function store(CreateGroupTripRequest $request)
+    public function store(CreateGroupTripRequest $request):JsonResponse
     {
+        $tasksCount = Task::where('start_date', '<=',$request->input('ending_date'))->where('end_date', '>=',$request->input('starting_date'))->where('guide_id', $request->input('guide_id'))->count();
+        if($tasksCount > 0){
+            return response()->json(['the guide is busy in this date']);
+        }
         $groupTrip = DB::transaction(function () use ($request) {
 
             return $this->groupTripService->store($request->validated());
@@ -62,5 +69,26 @@ class GroupTripController extends Controller
             return response()->json(['message' => __('message.something_wrong')], 400);
         }
         return response()->json(['message' => __('message.created_successfully',['attribute' => 'message.attributes.offer'])],201);
+    }
+
+    public function updateOffer(OfferRequest $request,GroupTrip $groupTrip):JsonResponse
+    {
+        if(!$groupTrip->hasOffer()){
+            return response()->json('no offer to update',400);
+        }
+
+        $validated = $request->validated();
+
+        $groupTrip->offers()->update($validated);
+        return response()->json('the offer is updated successfully');
+    }
+
+    public function deleteOffer(GroupTrip $groupTrip):JsonResponse
+    {
+        if(!$groupTrip->hasOffer()){
+            return response()->json('no offer to delete',400);
+        }
+        $groupTrip->offers()->delete();
+        return response()->json('the offer is updated successfully');
     }
 }

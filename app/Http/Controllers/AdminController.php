@@ -6,11 +6,14 @@ use App\Http\Requests\AdminLoginRequest;
 use App\Libraries\FileManager;
 use App\Models\Admin;
 use App\Models\City;
+use App\Models\Event;
 use App\Models\Media;
+use App\Models\User;
 use App\Rules\ValidPoints;
 use App\Services\AdminService;
 use App\Services\CityService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -106,5 +109,23 @@ class AdminController extends Controller
             'per_page' => ['nullable','integer','min:1','max:100'],
         ]);
         return $this->adminService->guideForAdmin($request->input('order_type') ?? 'DESC',$request->input('per_page') ?? 20);
+    }
+
+    public function changeUserStatus(Request $request,User $user): JsonResponse
+    {
+        $request->validate([
+            'action' => ['required','string','in:active,inactive'],
+        ]);
+
+        return $this->adminService->changeStatus($user,$request->input('action'));
+    }
+
+    public function changeEventStatus(Request $request,Event $event): JsonResponse
+    {
+        $request->validate([
+            'action' => ['required','string','in:active,inactive'],
+        ]);
+
+        return $this->adminService->changeStatus($event,$request->input('action'));
     }
 }

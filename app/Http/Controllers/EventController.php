@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MakeEventLimitedRequest;
 use App\Http\Requests\OfferRequest;
 use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\StoreEventRequest;
@@ -17,6 +18,7 @@ use App\Models\Offer;
 use App\Services\EventService;
 use App\Services\MediaService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -90,7 +92,7 @@ class EventController extends Controller
        return $this->eventService->relatedGuides($event);
     }
 
-    public function makeOffer(OfferRequest $request,Event $event)
+    public function makeOffer(OfferRequest $request,Event $event):JsonResponse
     {
         if($event->hasAnyOffer()){
             return response()->json(['message' => __('message.has_already_offer',['attribute' => __('message.attributes.event')])],400);
@@ -102,5 +104,34 @@ class EventController extends Controller
         return response()->json(['message' => __('message.created_successfully',['attribute' => __('message.attributes.offer')])],201);
     }
 
+    public function makeEventLimited(MakeEventLimitedRequest $request,Event $event):JsonResponse
+    {
+        $validated = $request->validated();
+        if($event->isLimited()){
+            return response()->json('the event is limited');
+        }
+        $this->eventService->makeEventLimited($validated,$event->id);
+        return response()->json('the is made as limited successfully');
+    }
 
+    public function updateOffer(OfferRequest $request,Event $event):JsonResponse
+    {
+        if(!$event->hasAnyOffer()){
+            return response()->json('no offer to update',400);
+        }
+
+        $validated = $request->validated();
+
+        $event->offers()->update($validated);
+        return response()->json('the offer is updated successfully');
+    }
+
+    public function deleteOffer(Event $event):JsonResponse
+    {
+        if(!$event->hasAnyOffer()){
+            return response()->json('no offer to delete',400);
+        }
+        $event->offers()->delete();
+        return response()->json('the offer is updated successfully',204);
+    }
 }
