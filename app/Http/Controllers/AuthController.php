@@ -319,7 +319,7 @@ class AuthController extends Controller
     private function sendVerificationCodeMail(string $verifyCode, string $name, string $email):void
     {
         try {
-            Mail::to($email)->send(new VerificationCodeMail($verifyCode, $name));
+            Mail::to($email)->queue(new VerificationCodeMail($verifyCode, $name));
         }
 
         catch (\Exception $e) {

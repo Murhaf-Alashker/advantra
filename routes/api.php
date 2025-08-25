@@ -180,4 +180,8 @@ Route::middleware('auth:api-guide')->group(function () {
     Route::post('/guide/profile',[GuideController::class,'updateProfile'])->name('updateProfile');
     Route::post('guides/guide/daysOff',[DaysOffController::class,'store'])->name('createDaysOff');
     Route::get('/guides/guide/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
+
 });
+Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
+Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
+Route::post('/guide/checkCode', [GuideController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
