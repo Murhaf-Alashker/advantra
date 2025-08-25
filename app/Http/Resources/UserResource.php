@@ -27,10 +27,11 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $media['images'] ?? [],
+            'email' => $this->email,
         ];
 
         $moreInfo = [
-            'email' => $this->email,
+
             'email_verified_at' => $this->email_verified_at,
             'status' => $this->status,
             'points' => $this->points,
@@ -38,7 +39,7 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
-        if(Auth::guard('api-user')->check()) {
+        if(Auth::guard('api-user')->check()||Auth::guard('api-guide')->check()) {
             return $forUser;
         }
 
