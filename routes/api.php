@@ -188,5 +188,5 @@ Route::post('/guide/checkCode', [GuideController::class, 'checkResetPasswordCode
 
 Route::middleware('auth:api-guide,api-user')->group(function () {
     Route::get('/users/{user}',[UserController::class,'show'])->name('showUsers');
-    Route::get('/{groupTrip}','show')->name('showGroupTrip');
+    Route::get('/group_trip/{groupTrip}',[GroupTripController::class,'show'])->name('showGroupTrip');
 });
