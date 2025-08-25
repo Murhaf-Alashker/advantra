@@ -142,7 +142,7 @@ Route::controller(EventController::class)->group(function () {
 //group trip api
     Route::controller(GroupTripController::class)->prefix('/group_trip')->group(function () {
         Route::get('/','index')->name('getGroupTrips');
-        Route::get('/{groupTrip}','show')->name('showGroupTrip');
+
 
     });
 
@@ -156,7 +156,7 @@ Route::controller(EventController::class)->group(function () {
 
     Route::controller(UserController::class)->group(function () {
         Route::get('/users/get_info','getInfo')->name('getInfo');
-        Route::get('/users/{user}','show')->name('showUsers');
+
         Route::post('/users/update','updateInfo')->name('updateInfo');
     });
 //feedback api
@@ -185,3 +185,8 @@ Route::middleware('auth:api-guide')->group(function () {
 Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
 Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
 Route::post('/guide/checkCode', [GuideController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
+
+Route::middleware('auth:api-guide,api-user')->group(function () {
+    Route::get('/users/{user}',[UserController::class,'show'])->name('showUsers');
+    Route::get('/{groupTrip}','show')->name('showGroupTrip');
+});
