@@ -11,6 +11,8 @@ use App\Libraries\GroupTripSearchBuilder;
 use App\Libraries\GroupTripSearchClass;
 use App\Libraries\GuideSearchBuilder;
 use App\Libraries\GuideSearchClass;
+use App\Libraries\UserSearchBuilder;
+use App\Libraries\UserSearchClass;
 
 class SearchController extends Controller
 {
@@ -67,6 +69,13 @@ class SearchController extends Controller
                       ->search();
     }
 
+    private function userSearch(array $data)
+    {
+        $user = $this->build($data,'user');
+        return $user->setStatus($data['status'] ?? 'active')
+                    ->search();
+    }
+
     private function build(array $data,string $type)
     {
         $builder = $this->getBuilder($type);
@@ -83,6 +92,7 @@ class SearchController extends Controller
             'city' => new CitySearchBuilder(new CitySearchClass()),
             'guide' => new GuideSearchBuilder(new GuideSearchClass()),
             'groupTrip' => new GroupTripSearchBuilder(new GroupTripSearchClass()),
+            'user' => new UserSearchBuilder(new UserSearchClass()),
         };
     }
 }

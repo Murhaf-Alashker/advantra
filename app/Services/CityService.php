@@ -80,7 +80,7 @@ class CityService{
    public function citiesWithMostEvents(){
         $cities = City::withCount('events')
                         ->orderBy('events_count','desc')
-                        ->limit(10);
+                        ->limit(10)->get();
         return CityResource::collection($cities);
    }
 }

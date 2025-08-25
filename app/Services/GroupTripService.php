@@ -92,7 +92,8 @@ class GroupTripService
         return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)
                                                         ->groupTripWithRate()
                                                         ->orderByDesc('rating')
-                                                        ->limit(10));
+                                                        ->limit(10)
+                                                        ->get());
     }
 
     public function destroy(GroupTrip $groupTrip): void
@@ -106,7 +107,7 @@ class GroupTripService
         return GroupTripResource::collection(GroupTrip::where('status', '=', Status::PENDING)
                                                         ->orWhere('status', '=', Status::COMPLETED)
                                                         ->hasOffer()
-                                                        ->limit(10)
+                                                        ->limit(10)->get()
         );
     }
 

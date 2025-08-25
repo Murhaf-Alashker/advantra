@@ -24,6 +24,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class AdminService
@@ -380,6 +381,15 @@ class AdminService
             ->guideWithCurrentMonthRate()
             ->orderBy('monthly_rating',$orderType)->paginate($perPage)
         );
+    }
+
+    public function changeStatus($model , string $status):JsonResponse
+    {
+        $model->update([
+            'status' => $status,
+        ]);
+
+        return response()->json(['message' => 'user updated successfully'],200);
     }
 
     public function comparingSQL()
