@@ -29,7 +29,7 @@ class GroupTripService
                                                         ->withoutOffer()
                                                         ->latest()
                                                         ->groupTripWithRate()
-                                                        ->limit(10)
+                                                        ->limit(10)->get()
 
         );
     }
