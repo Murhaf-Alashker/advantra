@@ -21,7 +21,9 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+
             'name' => 'required|string|unique:categories,name',
+         
             'name_ar' => 'required|string',
         ]);
         $categoryData = collect($validated)->except('name_ar')->all();
@@ -36,7 +38,10 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = request()->validate([
+
             'name' => 'nullable|string,unique:categories,name',
+
+           
             'name_ar' => 'nullable|string',
         ]);
         $categoryData = collect($validated)->except('name_ar')->all();
