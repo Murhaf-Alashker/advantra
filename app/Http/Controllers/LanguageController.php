@@ -34,7 +34,7 @@ class LanguageController extends Controller
     public function update(Request $request, Language $language)
     {
         $validated = request()->validate([
-            'name' => 'nullable|string',
+            'name' => 'nullable|string|unique:languages,name',
             'name_ar' => 'nullable|string',
         ]);
         $languageData = collect($validated)->except('name_ar')->all();
