@@ -29,7 +29,7 @@ class GroupTripService
                                                         ->withoutOffer()
                                                         ->latest()
                                                         ->groupTripWithRate()
-                                                        ->limit(10)->get()
+                                                        ->paginate(10)
 
         );
     }
@@ -123,4 +123,13 @@ class GroupTripService
         return $offer;
     }
 
+    public function latestGroupTrips()
+    {
+        return GroupTripResource::collection(GroupTrip::where('status', Status::PENDING)
+            ->orWhere('status', Status::COMPLETED)
+            ->withoutOffer()
+            ->latest()
+            ->groupTripWithRate()
+            ->limit(10)->get());
+    }
 }

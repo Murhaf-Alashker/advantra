@@ -31,10 +31,10 @@ class HomeController extends Controller
     public function index()
     {
         $topRatedEvents = $this->eventService->topRatedEvents();
-        $latestEvents = $this->eventService->index();
+        $latestEvents = $this->eventService->latestEvents();
         $citiesWithMostEvents =$this->cityService->citiesWithMostEvents();
         $topRatedGuides = $this->guideService->topRatedGuides();
-        $latestGroupTrips = $this->groupTripService->index();
+        $latestGroupTrips = $this->groupTripService->latestGroupTrips();
         $topRatedGroupTrips = $this->groupTripService->topRatedGroupTrips();
         $eventsByCategory = $this->categoryService->getAllCategoriesEvents();
         $guidesByCategory = $this->categoryService->getAllCategoriesGuides();

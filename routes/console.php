@@ -10,6 +10,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -61,13 +62,14 @@ Schedule::call(function (){
         ->whereDate('starting_date', '<=', Carbon::now()->format('Y-m-d H:i:s'))
         ->update(['status' => \App\Enums\Status::IN_PROGRESS->value]);
 
-    $eventIds = LimitedEvents::whereDate('start_date', '<', Carbon::now())->get();
+    $eventIds = LimitedEvents::where('start_date', '<', Carbon::now()->format('Y-m-d H:i:s'))->pluck('event_id')->toArray();
 
-        \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json',$eventIds);
+     //   \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json',$eventIds);
+   // Log::info('Found event IDs: ', $eventIds);
 
 
-    \App\Models\Event::whereIn('id', $eventIds)
+     \App\Models\Event::whereIn('id', $eventIds)
         ->update(['status' => 'inactive']);
+  //  Log::info('Count to update: ' . $query->count());
 
-
-})->everyMinute();
+})->everyFiveMinutes();

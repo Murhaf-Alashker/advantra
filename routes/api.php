@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\DaysOffController;
 use App\Http\Controllers\FeedbackController;
@@ -115,6 +116,8 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
     Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
     Route::get('/notification/test',[NotificationController::class,'testNotification'])->name('testNotification');
 
+    Route::get('/languages',[LanguageController::class,'index']);
+    Route::get('/categories',[CategoryController::class,'index']);
 });
 
 
