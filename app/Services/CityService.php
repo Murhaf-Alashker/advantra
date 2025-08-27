@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\Event;
 use App\Http\Resources\EventResource;
 use App\Models\Scopes\ActiveScope;
+use Illuminate\Support\Facades\Auth;
 
 class CityService{
 
@@ -35,7 +36,7 @@ class CityService{
    {
        $name_ar = $data['name_ar'] ?? null;
        $description_ar = $data['description_ar'] ?? null;
-       $old_media = $data['old_media'] ?? null;
+       $old_media = empty($data['old_media'] ?? []) ? null : $data['old_media'];
 
 
        unset($data['name_ar'], $data['description_ar'], $data['old_media'],$data['media']);
@@ -65,8 +66,8 @@ class CityService{
 
    public function getEvents(City $city)
    {
-               return EventResource::collection($city->events()
-                    ->where('status', '=', 'active')
+       $events = Auth::guard('api-user')->check() ? $city->events()->where('status', '=', 'active') : $city->events();
+               return EventResource::collection($events
                     ->with('category')
                     ->get());
 
@@ -74,8 +75,8 @@ class CityService{
 
    public function getGuides(City $city)
    {
-           return GuideResource::collection($city->guides()
-               ->where('status', '=', 'active')
+       $guides =  Auth::guard('api-user')->check() ? $city->guides()->where('status', '=', 'active') : $city->guides();
+           return GuideResource::collection($guides
                ->with('languages')
                ->get());
    }
