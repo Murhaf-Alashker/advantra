@@ -114,7 +114,7 @@ class Guide extends Authenticatable
 
     public function reports(): HasMany
     {
-        return $this->hasMany(Report::class);
+        return $this->hasMany(ReportsLog::class);
     }
 
     public function daysOff(): HasMany

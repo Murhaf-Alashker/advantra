@@ -59,6 +59,7 @@ class GroupTripResource extends JsonResource
             'extra_cost' => $this->extra_cost,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'pdf' => $media['pdf'] ?? [],
         ];
         if(Auth::guard('api-user')->check()||Auth::guard('api-guide')->check()) {
             if($locale == 'ar'){

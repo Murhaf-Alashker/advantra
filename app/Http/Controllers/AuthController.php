@@ -90,7 +90,7 @@ class AuthController extends Controller
     {
         $user = User::where('email',$request->email)->first() ?? User::onlyTrashed()->where('email',$request->email)->first();
         if(!$user || !Hash::check( $request->password , $user->password )){
-            return response()->json(['message' => __('message.wrong_email_or_password')]);
+            return response()->json(['message' => __('message.wrong_email_or_password')],400);
         }
 
         if($user->trashed()){

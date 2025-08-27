@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('reports_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('file_path');
+            $table->string('media');
             $table->foreignIdFor(Guide::class)->constrained();
             $table->foreignIdFor(GroupTrip::class)->constrained();
             $table->timestamps();

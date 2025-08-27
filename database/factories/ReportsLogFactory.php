@@ -19,7 +19,7 @@ class ReportsLogFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_path' => $this->faker->filePath(),
+            'media' => $this->faker->filePath(),
             'guide_id' => Guide::inRandomOrder()->first()->id ?? Guide::factory(),
             'group_trip_id' => GroupTrip::inRandomOrder()->first()->id ?? GroupTrip::factory()
         ];
