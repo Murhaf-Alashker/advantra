@@ -85,7 +85,7 @@ trait MediaHandler
     {
         if($ids){
            $ids = is_array($ids)? $ids : [$ids];
-           $idsToDelete = $this->media()->whereNOTIn('id', $ids)->pluck('id')->toArray();
+           $idsToDelete = $this->media()->where('type','!=','pdf')->whereNOTIn('id', $ids)->pluck('id')->toArray();
            $this->deleteMedia($path, $idsToDelete);
         }
         else{

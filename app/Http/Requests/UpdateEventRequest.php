@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MediaType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,10 @@ class UpdateEventRequest extends FormRequest
             'status' => 'in:active,inactive',
             'category_id' => 'exists:categories,id',
             'city_id' => 'exists:cities,id',
+            'old_media' => 'array',
+            'old_media.*' =>  ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200','exists:media,id'],
+            'media' => ['array'],
+            'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupTripController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
@@ -106,6 +107,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
+    Route::get('/group_trip/{groupTrip}',[GroupTripController::class,'show'])->name('showGroupTrip');
     Route::post('/reset_password',[AuthController::class, 'resetPasswordUsingOldPassword'])->name('resetPassword');
     Route::prefix('/media')->controller(MediaController::class)->group(function () {
         Route::post('/uploadImages', 'uploadImages')->name('uploadImages');
@@ -190,11 +192,13 @@ Route::middleware('auth:api-guide')->group(function () {
     Route::get('/guides/guide/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 
 });
-Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetPasswordCode');
-Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCode');
-Route::post('/guide/checkCode', [GuideController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCode');
+Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetForeGuide');
+Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCodeForeGuide');
+Route::post('/guide/checkCode', [GuideController::class, 'checkResetPasswordCode'])->name('checkResetPasswordCodeForeGuide');
 
 Route::middleware('auth:api-guide,api-user')->group(function () {
     Route::get('/users/{user}',[UserController::class,'show'])->name('showUsers');
-    Route::get('/group_trip/{groupTrip}',[GroupTripController::class,'show'])->name('showGroupTrip');
+    Route::post('/{chat}/send-message', [MessageController::class, 'sendMessage'])->name('sendMessage');
+    Route::get('/{chat}/get_messages', [MessageController::class, 'messages'])->name('getMessages');
+    Route::get('/chats', [MessageController::class, 'chats'])->name('getChats');
 });

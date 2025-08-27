@@ -6,6 +6,7 @@ use App\Enums\Status;
 use App\Libraries\FileManager;
 use App\Models\Guide;
 use App\Models\Scopes\ActiveScope;
+use App\Models\Scopes\CheckOfferScope;
 use App\Services\GroupTripService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -71,8 +72,8 @@ class GroupTripResource extends JsonResource
             $allData = array_merge($forUser, $moreInfo);
             if($hasOffer){
                 $allData['main_price'] = $this->price;
-                $allData['offers'] = OfferResource::collection($this->offers);
             }
+            $allData['offers'] = OfferResource::collection($this->offers()->withoutGlobalScope(CheckOfferScope::class)->orderBy('start_date','DESC')->get());
             $allData['revenue'] = $this->status === Status::FINISHED->value ? $this->revenue() : 0;
 
             return $allData;

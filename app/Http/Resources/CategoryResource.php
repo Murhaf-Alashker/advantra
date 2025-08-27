@@ -26,6 +26,7 @@ class CategoryResource extends JsonResource
         ];
 
         $moreInfo = [
+            'name_ar' => $this->translate('name'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

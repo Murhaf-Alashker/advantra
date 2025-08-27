@@ -24,7 +24,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
 
 
 class AdminService
@@ -233,10 +232,10 @@ class AdminService
         ]);
     }
 
-    public function sendGift(array $data):JsonResponse
+    public static function sendGift(array $data):JsonResponse
     {
         $user = User::findOrFail($data['user_id']);
-        $success = $this->checkGift($data['user_id'],$data['points']);
+        $success = self::checkGift($data['user_id'],$data['points']);
         if(!$success){
             return response()->json([
                 'message' => 'the user has already received a gift'
@@ -250,14 +249,12 @@ class AdminService
         ]);
     }
 
-    private function checkGift($id,$points):bool
+    private static function checkGift($id,$points):bool
     {
         $success = false;
         $month = Carbon::now()->subMonth();
         $date = $month->year.'/'.$month->month;
-        $disk = Storage::disk('public');
-        $content = $disk->exists('gifts.json') ? $disk->get('gifts.json') : $this->storeGiftsJsonFile();
-        $data = json_decode($content, true);
+        $data = self::bringJsonFile();
         if(!isset($data[$date])) {
             $data[$date] = [];
         }
@@ -269,21 +266,31 @@ class AdminService
         return $success;
     }
 
-    private function storeGiftsJsonFile():string
+    private static function storeGiftsJsonFile():string
     {
         Storage::disk('public')->put('gifts.json','{}');
         return '{}';
     }
 
-    private function getUserGifts($id):string
+    public static function getUserGifts($id):string
     {
         $month = Carbon::now()->subMonth();
         $date = $month->year.'/'.$month->month;
-        $data = json_decode(Storage::disk('public')->get('gifts.json'), true);
+        $data = self::bringJsonFile();
+        if(!isset($data[$date])) {
+            $data[$date] = [];
+        }
         if (in_array($id, array_keys($data[$date]))) {
             return $data[$date][$id];
         }
         return "0";
+    }
+
+    private static function bringJsonFile()
+    {
+        $disk = Storage::disk('public');
+        $content = $disk->exists('gifts.json') ? $disk->get('gifts.json') : self::storeGiftsJsonFile();
+        return json_decode($content, true);
     }
 
     public function eventsAndGroupsPage()
@@ -291,13 +298,13 @@ class AdminService
         $upcomingGroupTrips = GroupTripResource::collection(GroupTrip::where('status' , '=' , Status::PENDING->value)
                                                                        ->orWhere('status' , '=' , Status::COMPLETED->value)
                                                                        ->groupTripWithRate()
-                                                                       ->orderBy('starting_date','DESC')
+                                                                       ->orderBy('starting_date','ASC')
                                                                        ->limit(5)
                                                                        ->get());
 
         $recentGroupTrips = GroupTripResource::collection(GroupTrip::where('status' , '=' , Status::FINISHED->value)
                                                                      ->groupTripWithRate()
-                                                                     ->orderBy('ending_date','ASC')
+                                                                     ->orderBy('ending_date','DESC')
                                                                      ->limit(5)
                                                                      ->get());
 

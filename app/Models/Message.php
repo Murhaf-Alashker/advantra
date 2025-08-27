@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Message extends Model
 {
@@ -14,7 +15,8 @@ class Message extends Model
     protected $fillable = [
         'message',
         'media',
-        'user_id',
+        'messageable_type',
+        'messageable_id',
         'chat_id',
     ];
 
@@ -26,9 +28,9 @@ class Message extends Model
         ];
     }
 
-    public function user():BelongsTo
+    public function messageable():MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
     public function chat():BelongsTo

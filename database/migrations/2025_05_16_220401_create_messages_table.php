@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->text('message')->nullable();
             $table->string('media')->nullable();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->morphs('messageable');
             $table->foreignIdFor(Chat::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

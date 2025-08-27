@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Controllers\EventController;
 use App\Libraries\FileManager;
+use App\Models\Scopes\CheckOfferScope;
 use App\Services\EventService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -77,8 +78,8 @@ class EventResource extends JsonResource
             $allData = array_merge($forUser, $moreInfo);
             if($hasOffer){
                 $allData['main_price'] = $this->price;
-                $allData['offers'] = OfferResource::collection($this->offers);
             }
+            $allData['offers'] = OfferResource::collection($this->offers()->withoutGlobalScope(CheckOfferScope::class)->orderBy('start_date','DESC')->get());
             $allData['category'] = $this->category->name;
             return $allData;
         }

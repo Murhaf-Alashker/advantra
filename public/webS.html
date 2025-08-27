@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reverb WebSocket Test</title>
+</head>
+<body>
+<h2>Laravel Reverb WebSocket Test</h2>
+<script>
+    const socket = new WebSocket("ws://127.0.0.1:8080/app/ghtvuemikgeu8bknwxmp?protocol=7&client=js&version=1.0&flash=false");
+
+    socket.onopen = () => {
+        console.log("✅ Connected to Reverb WebSocket");
+    };
+
+    socket.onmessage = (event) => {
+        console.log("📩 Message from server:", event.data);
+    };
+
+    socket.onerror = (error) => {
+        console.error("❌ WebSocket error:", error);
+    };
+
+    socket.onclose = () => {
+        console.warn("🔌 WebSocket connection closed");
+    };
+</script>
+</body>
+</html>

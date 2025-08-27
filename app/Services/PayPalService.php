@@ -459,6 +459,7 @@ class PayPalService
                 'user_id' => $item->user_id,
             ]);
             $model->decrement('remaining_tickets',$item->tickets_count);
+            $model->chat()->users()->syncWithoutDetaching(Auth::guard('api-user')->id());
 //            $model->remaining_tickets = $model->remaining_tickets - $item->tickets_count;
 //            $model->save();
             return $price;

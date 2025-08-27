@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\Status;
+use App\Models\Chat;
 use App\Models\GroupTrip;
 use App\Models\Guide;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,10 @@ class GroupTripObserver
             'start_date' => $start,
             'end_date' => $end,
             'guide_id' => $groupTrip->guide_id,
+        ]);
+        $groupTrip->chat()->create([
+            'name' => $groupTrip->name . ' ' . $groupTrip->starting_date,
+            'guide_id' => $groupTrip->guide_id
         ]);
     }
 
