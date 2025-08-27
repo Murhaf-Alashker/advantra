@@ -15,6 +15,10 @@ class LanguageController extends Controller
     public function __construct(LanguageService $languageService){
         $this->languageService = $languageService;
     }
+
+    public function index(){
+        return $this->languageService->index();
+    }
     public function store(LanguageRequest $request)
     {
         $validated = $request->validated();

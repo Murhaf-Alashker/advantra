@@ -8,6 +8,9 @@ use App\Models\Language;
 
 class LanguageService{
 
+    public function index(){
+        return LanguageResource::collection(Language::all());
+    }
     public function store(array $data){
 
      $lang = Language::create($data);

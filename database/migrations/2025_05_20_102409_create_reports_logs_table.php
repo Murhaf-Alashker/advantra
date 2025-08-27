@@ -7,8 +7,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 
-//use Ramsey\Uuid\Guid\Guid;
-
 return new class extends Migration
 {
     /**

@@ -4,12 +4,18 @@ namespace App\Services;
 
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryService
 {
     public function index()
     {
-        return CategoryResource::collection(Category::paginate(10));
+        if(Auth::guard('api-admin')->check()){
+            return CategoryResource::collection(Category::paginate(10));
+        }
+        else{
+            return CategoryResource::collection(Category::all());
+        }
     }
 
     public function show(Category $category)

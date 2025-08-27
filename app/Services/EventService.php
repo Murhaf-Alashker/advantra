@@ -25,8 +25,7 @@ class EventService{
                                                 ->activeEvents()
                                                 ->withoutOffer()
                                                 ->latest()
-                                                ->limit(10)
-                                                ->get());
+                                                ->paginate(10));
     }
 //
     public function show(Event $event)
@@ -156,6 +155,16 @@ class EventService{
     {
         $info['event_id'] = $eventId;
         LimitedEvents::create($info);
+    }
+
+    public function latestEvents()
+    {
+        return EventResource::collection(Event::eventWithRate()
+            ->activeEvents()
+            ->withoutOffer()
+            ->latest()
+            ->limit(10)
+            ->get());
     }
 
 }
