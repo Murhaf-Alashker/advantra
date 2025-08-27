@@ -38,7 +38,6 @@ class CityService{
        $description_ar = $data['description_ar'] ?? null;
        $old_media = empty($data['old_media'] ?? []) ? null : $data['old_media'];
 
-
        unset($data['name_ar'], $data['description_ar'], $data['old_media'],$data['media']);
 
 
@@ -58,7 +57,6 @@ class CityService{
            );
        }
        $city->updateMedia(self::FILE_PATH,$old_media);
-       $city->storeMedia(self::FILE_PATH);
 
        return new CityResource($city->fresh(['translations']));
    }

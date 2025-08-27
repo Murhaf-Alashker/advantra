@@ -49,7 +49,7 @@ class HomeController extends Controller
                                 'eventsByCategory' => $eventsByCategory,
                                 'guidesByCategory' => $guidesByCategory,
                                 'groupTripsWithOffer' => $groupTripsWithOffer,
-                                '$eventWithOffer' => $eventWithOffer]);
+                                'eventWithOffer' => $eventWithOffer]);
 
                         }
 
