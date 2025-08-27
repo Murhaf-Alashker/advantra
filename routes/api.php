@@ -11,6 +11,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportsLogController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
@@ -26,6 +27,8 @@ use App\Http\Controllers\CityController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+
 
 Route::post('/generateUnverifiedUser', [AuthController::class, 'sendVerificationCode'])->name('generateUnverifiedUser');
 Route::post('/resendVerificationCode', [AuthController::class, 'resendVerificationCode'])->name('resendVerificationCode');
@@ -79,7 +82,11 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //language api
     Route::post('/languages',[LanguageController::class,'store'])->name('createLanguage');
     Route::delete('/languages/{language}',[LanguageController::class,'destroy'])->name('deleteLanguage');
+    Route::post('/languages/{language}',[LanguageController::class,'update'])->name('updateLanguage');
 
+    //category api
+    Route::post('/categories',[CategoryController::class,'store'])->name('createCategory');
+    Route::post('/categories/{category}',[CategoryController::class,'update'])->name('updateCategory');
     //guide api
     Route::controller(GuideController::class)->group(function () {
         Route::post('/guides/store','store')->name('createGuide');
@@ -104,6 +111,8 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
     //notification api
     Route::post('/personalNotification', [NotificationController::class, 'storePersonalNotification'])->name('creatPersonalNotification');
     Route::post('/publicNotification', [NotificationController::class, 'storePublicNotification'])->name('creatPublicNotification');
+    //guide api
+    Route::get('/guides/{guide}/tasks',[TaskController::class,'getGuideTask']);
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
@@ -118,8 +127,7 @@ Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
     Route::get('/notification/{notification}/read',[NotificationController::class,'markAsRead'])->name('markAsRead');
     Route::get('/notification/test',[NotificationController::class,'testNotification'])->name('testNotification');
 
-    Route::get('/languages',[LanguageController::class,'index']);
-    Route::get('/categories',[CategoryController::class,'index']);
+
 });
 
 
@@ -158,7 +166,7 @@ Route::controller(EventController::class)->group(function () {
 
     //task api
     Route::controller(TaskController::class)->group(function () {
-        Route::post('/guides/{guide}/tasks','store')->name('createTask');
+      //  Route::post('/guides/{guide}/tasks','store')->name('createTask');
         Route::get('/guides/{guide}/reservedDays','getReservedDays')->name('getReservedDay');
 
 
@@ -191,6 +199,7 @@ Route::middleware('auth:api-guide')->group(function () {
     Route::post('guides/guide/daysOff',[DaysOffController::class,'store'])->name('createDaysOff');
     Route::get('/guides/guide/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 
+    Route::post('groupTrips/{groupTrip}/report',[ReportsLogController::class,'store'])->name('createReport');
 });
 Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetForeGuide');
 Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCodeForeGuide');
@@ -202,3 +211,8 @@ Route::middleware('auth:api-guide,api-user')->group(function () {
     Route::get('/{chat}/get_messages', [MessageController::class, 'messages'])->name('getMessages');
     Route::get('/chats', [MessageController::class, 'chats'])->name('getChats');
 });
+Route::middleware('auth:api-guide,api-admin')->group(function () {
+    Route::get('/languages',[LanguageController::class,'index']);
+    Route::get('/categories',[CategoryController::class,'index']);
+});
+

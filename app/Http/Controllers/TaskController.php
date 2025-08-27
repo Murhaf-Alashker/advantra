@@ -26,4 +26,8 @@ class TaskController extends Controller
     {
      return $this->TaskService->getReservedDays($guide);
     }
+
+    public function getGuideTask(Guide $guide){
+        return $this->TaskService->getGuideTask($guide);
+    }
 }

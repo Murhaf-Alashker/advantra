@@ -12,7 +12,7 @@ class ReportsLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'file_path',
+        'media',
         'guide_id',
         'group_trip_id'
     ];

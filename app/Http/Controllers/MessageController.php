@@ -13,6 +13,7 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -45,7 +46,8 @@ class MessageController extends Controller
 
         abort_unless($user->chats()->whereKey($chat->id)->exists(), 403);
 
-
+       //  Log::info('controller');
+        \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json','controller');
         $message = $chat->messages()->create([
             'message' => $validated['message'] ?? null,
             'messageable_type' => $type,

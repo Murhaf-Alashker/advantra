@@ -26,6 +26,17 @@ class CategoryService
         return new CategoryResource($category);
     }
 
+    public function store(array $data)
+    {
+       $category =  Category::create($data);
+        return $category;
+    }
+
+    public function update(array $data, Category $category)
+    {
+
+    }
+
     public function getAllCategoriesEvents()
     {
         return CategoryResource::collection(Category::with([
@@ -39,4 +50,5 @@ class CategoryService
             'guides' => fn ($query) => $query->activeGuides()->limit(5)
         ])->get());
     }
+
 }

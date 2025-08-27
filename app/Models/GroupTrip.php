@@ -97,7 +97,7 @@ class GroupTrip extends Model
 
     public function report(): HasOne
     {
-        return $this->hasOne(Report::class);
+        return $this->hasOne(ReportsLog::class);
     }
 
     public function tasks(): MorphMany

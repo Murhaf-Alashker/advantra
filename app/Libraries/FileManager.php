@@ -55,16 +55,16 @@ class FileManager
 
         $filename = Str::snake($filename);
 
-        if($type === 'pdf')
-        {
-            Storage::disk('public')->put($path . $filename, $file->getContent());
-        }
-
-        else
-        {
+//        if($type === 'pdf')
+//        {
+//            Storage::disk('public')->put($path . $filename, $file->getContent());
+//        }
+//
+//        else
+//        {
             $finalPath = $path . $type . '/';
             $file->storeAs($finalPath, $filename, 'public');
-        }
+  //      }
 
 
         return ['path' => $filename, 'type' => $type];

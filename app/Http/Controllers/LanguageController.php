@@ -31,6 +31,22 @@ class LanguageController extends Controller
         return response()->json([new LanguageResource($lang),201]);
     }
 
+    public function update(Request $request, Language $language)
+    {
+        $validated = request()->validate([
+            'name' => 'nullable|string',
+            'name_ar' => 'nullable|string',
+        ]);
+        $languageData = collect($validated)->except('name_ar')->all();
+        $language->update($languageData);
+        if($validated['name_ar']){
+            $language->translations()->updateOrCreate(
+                ['key' => 'language.name'],
+                ['translation' => $validated['name_ar'],]
+            );
+        }
+        return response()->json([new LanguageResource($language),201]);
+    }
     public function destroy(Language $language){
         $this->languageService->destroy($language);
         return response()->json([

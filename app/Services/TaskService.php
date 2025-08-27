@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Http\Resources\TaskResource;
+use App\Models\GroupTrip;
 use App\Models\Guide;
 use App\Models\Task;
 use App\Models\User;
@@ -89,5 +90,46 @@ class TaskService{
             'reservedTasks' => $reservedTasks,
             'reservedDaysOff' => $reservedDaysOff
         ]);
+    }
+
+    public function getGuideTask(Guide $guide)
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $tempUserTasks = $guide->tasks()
+            ->whereMonth('start_date', $currentMonth)
+            ->whereYear('start_date', $currentYear)
+            ->where('taskable_type','=',User::class)
+            ->get();
+
+        $tempGroupTasks = $guide->tasks()
+            ->whereMonth('start_date', $currentMonth)
+            ->whereYear('start_date', $currentYear)
+            ->where('taskable_type','=' ,GroupTrip::class)
+            ->get();
+
+        $daysOff = $guide->daysOff()
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->get();
+
+        $userTask= $tempUserTasks->map(function($task){
+
+            return[
+                'start_date' => $task->start_date,
+                'end_date' => $task->end_date,
+                'taskable_type' => class_basename($task->taskable_type),
+                'id' => $task->taskable_id,
+                'email' => $task->taskable->email,
+                ];
+
+        });
+
+        return response()->json([
+            'userTask '=> $userTask,
+            'groupTask' => TaskResource::collection($tempGroupTasks),
+            'daysOff' => $daysOff,
+        ]);
+
     }
 }
