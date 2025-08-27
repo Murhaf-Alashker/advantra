@@ -24,6 +24,8 @@ class CityResource extends JsonResource
         $path = CityService::FILE_PATH ;
         $media = $this->getMedia($path);
         $locale = App::getLocale();
+        $name_ar = $this->translate('name');
+        $desc_ar = $this->translate('description');
 
         $forUser = [
             'id' => $this->id,
@@ -37,13 +39,15 @@ class CityResource extends JsonResource
         ];
 
         $moreInfo = [
+            'name_ar' => $name_ar,
+            'description_ar' => $desc_ar,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
         if(Auth::guard('api-user')->check() || Auth::guard('api-guide')->check()) {
             if ($locale == 'ar') {
-                $forUser['name'] = $this->translate('name');
-                $forUser['description'] = $this->translate('description');
+                $forUser['name'] = $name_ar;
+                $forUser['description'] = $desc_ar;
             }
             return $forUser;
         }

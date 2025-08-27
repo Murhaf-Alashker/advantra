@@ -77,6 +77,12 @@ class Guide extends Authenticatable
         return $this->hasMany(Chat::class);
     }
 
+    public function messages(): MorphMany
+    {
+        return $this->morphMany(Message::class, 'messageable');
+    }
+
+
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
@@ -98,6 +104,7 @@ class Guide extends Authenticatable
         return $this->belongsToMany(Language::class)
             ->withTimestamps();
     }
+
 
     public function categories(): BelongsToMany
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MediaType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,11 @@ class UpdateCityRequest extends FormRequest
             'description_ar'=>'string|max:10000',
             'status' => 'in:active,inactive',
             'country_id'=>'exists:countries,id',
-            'language_id'=>'exists:languages,id'
+            'language_id'=>'exists:languages,id',
+            'old_media' => 'array',
+            'old_media.*' =>  ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200','exists:media,id'],
+            'media' => ['array'],
+            'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];
     }
 }

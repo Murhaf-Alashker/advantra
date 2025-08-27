@@ -50,6 +50,7 @@ class GuideService
 
     public function destroy(Guide $guide): bool
     {
+        $guide->deleteMedia(self::FILE_PATH);
         return $guide->delete();
     }
 

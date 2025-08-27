@@ -69,9 +69,10 @@ class EventService{
          }
         $name_ar = $data['name_ar'] ?? null;
         $description_ar = $data['description_ar'] ?? null;
+        $old_media = $data['old_media'] ?? null;
 
 
-        unset($data['name_ar'], $data['description_ar']);
+        unset($data['name_ar'], $data['description_ar'],$data['old_media'],$data['media']);
 
 
         $event->update($data);
@@ -89,11 +90,14 @@ class EventService{
                 ['translation' => $description_ar]
             );
         }
+        $event->updateMedia(self::FILE_PATH,$old_media);
+        $event->storeMedia(self::FILE_PATH);
         //->fresh(['translations']
         return new EventResource($event);
     }
 
     public function destroy(Event $event){
+        $event->deleteMedia(self::FILE_PATH);
        return $event->delete();
     }
 

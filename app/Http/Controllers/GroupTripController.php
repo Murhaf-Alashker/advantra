@@ -37,7 +37,7 @@ class GroupTripController extends Controller
     {
         $tasksCount = Task::where('start_date', '<=',$request->input('ending_date'))->where('end_date', '>=',$request->input('starting_date'))->where('guide_id', $request->input('guide_id'))->count();
         if($tasksCount > 0){
-            return response()->json(['the guide is busy in this date']);
+            return response()->json(['the guide is busy in this date'],400);
         }
         $groupTrip = DB::transaction(function () use ($request) {
 

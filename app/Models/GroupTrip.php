@@ -90,6 +90,11 @@ class GroupTrip extends Model
             ->withTimestamps();
     }
 
+    public function chat():HasOne
+    {
+        return $this->hasOne(Chat::class);
+    }
+
     public function report(): HasOne
     {
         return $this->hasOne(Report::class);
