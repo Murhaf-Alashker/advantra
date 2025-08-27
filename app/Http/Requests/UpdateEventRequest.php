@@ -38,7 +38,7 @@ class UpdateEventRequest extends FormRequest
             'category_id' => 'exists:categories,id',
             'city_id' => 'exists:cities,id',
             'old_media' => 'array',
-            'old_media.*' =>  ['exists:media,id'],
+            'old_media.*' =>  ['nullable','exists:media,id'],
             'media' => ['array'],
             'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];
