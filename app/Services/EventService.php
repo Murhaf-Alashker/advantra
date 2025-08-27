@@ -69,7 +69,7 @@ class EventService{
          }
         $name_ar = $data['name_ar'] ?? null;
         $description_ar = $data['description_ar'] ?? null;
-        $old_media = $data['old_media'] ?: null;
+        $old_media = empty($data['old_media'] ?? []) ? null : $data['old_media'];
 
 
         unset($data['name_ar'], $data['description_ar'],$data['old_media'],$data['media']);
