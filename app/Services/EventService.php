@@ -91,7 +91,6 @@ class EventService{
             );
         }
         $event->updateMedia(self::FILE_PATH,$old_media);
-        $event->storeMedia(self::FILE_PATH);
         //->fresh(['translations']
         return new EventResource($event);
     }

@@ -37,7 +37,7 @@ class UpdateCityRequest extends FormRequest
             'country_id'=>'exists:countries,id',
             'language_id'=>'exists:languages,id',
             'old_media' => 'array',
-            'old_media.*' =>  ['exists:media,id'],
+            'old_media.*' =>  ['nullable','exists:media,id'],
             'media' => ['array'],
             'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
         ];

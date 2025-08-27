@@ -27,7 +27,7 @@ trait MediaHandler
     public function deleteMedia(string $path, array|string|int|null $id = null): void
     {
         $path = Str::of($path)->finish('/').$this->id;
-        if(!$id){
+        if($id === null){
             FileManager::delete($path);
             $this->media()->delete();
         }

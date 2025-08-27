@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -30,9 +31,9 @@ class PayPalService
 
     public function __construct()
     {
-        $this->client_id = env('PAYPAL_CLIENT_ID');
-        $this->client_secret = env('PAYPAL_CLIENT_SECRET');
-        $this->base_url = env('PAYPAL_BASE_URL');
+        $this->client_id = config('services.paypal.client_id');
+        $this->client_secret = config('services.paypal.client_secret');
+        $this->base_url = config('services.paypal.base_url');
     }
 
     public function pay(array $allData,string $type):JsonResponse
@@ -59,7 +60,6 @@ class PayPalService
             $data = $this->formatData($price);
 
             $response = $this->buildRequest("POST", "/v2/checkout/orders", $data);
-
             if ($response['success']) {
                 $approval = collect($response['data']['links'] ?? [])->firstWhere('rel', 'approve');
                 $approvalUrl = data_get($approval, 'href');
@@ -459,7 +459,7 @@ class PayPalService
                 'user_id' => $item->user_id,
             ]);
             $model->decrement('remaining_tickets',$item->tickets_count);
-            $model->chat()->users()->syncWithoutDetaching(Auth::guard('api-user')->id());
+            $model->chat()->first()->users()->syncWithoutDetaching($item->user_id);
 //            $model->remaining_tickets = $model->remaining_tickets - $item->tickets_count;
 //            $model->save();
             return $price;
