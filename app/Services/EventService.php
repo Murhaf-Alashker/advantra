@@ -154,10 +154,15 @@ class EventService{
         return $offer;
     }
 
-    public function makeEventLimited(array $info , $eventId):void
+    public function makeEventLimited(array $info ,Event $event):void
     {
-        $info['event_id'] = $eventId;
+        $event->update(['status' => 'inactive']);
+        $eventInfo = $event->toArray();
+        unset($eventInfo['id'],$eventInfo['created_at'],$eventInfo['updated_at']);
+        $newEvent = Event::create($eventInfo);
+        $info['event_id'] = $newEvent->id;
         LimitedEvents::create($info);
+
     }
 
     public function latestEvents()

@@ -107,10 +107,10 @@ class EventController extends Controller
     public function makeEventLimited(MakeEventLimitedRequest $request,Event $event):JsonResponse
     {
         $validated = $request->validated();
-        if($event->isLimited()){
-            return response()->json('the event is limited');
+        if($event->wasLimited()){
+            return response()->json('the event was limited');
         }
-        $this->eventService->makeEventLimited($validated,$event->id);
+        $this->eventService->makeEventLimited($validated,$event);
         return response()->json('the is made as limited successfully');
     }
 
@@ -134,4 +134,5 @@ class EventController extends Controller
         $event->offers()->delete();
         return response()->json('the offer is updated successfully',204);
     }
+
 }

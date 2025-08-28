@@ -154,6 +154,11 @@ class Event extends Model
         return $this->limitedEvents()->exists();
     }
 
+    public function wasLimited(): bool
+    {
+        return $this->limitedEvents()->withoutGlobalScope(CheckLimitScope::class)->exists();
+    }
+
     public function isEnded():bool
     {
         return $this->limitedEvents()->withoutGlobalScope(CheckLimitScope::class)->where('end_date', '<', Carbon::now())->exists();

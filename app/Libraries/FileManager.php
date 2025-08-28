@@ -54,19 +54,18 @@ class FileManager
         $filename = Str::uuid() . '.' . $extension;
 
         $filename = Str::snake($filename);
+        $finalPath = $path . $type . '/';
 
-//        if($type === 'pdf')
-//        {
-//            Storage::disk('public')->put($path . $filename, $file->getContent());
-//        }
-//
-//        else
-//        {
-            $finalPath = $path . $type . '/';
+        if($type === 'pdf')
+     {
+           Storage::disk('public')->put($finalPath . $filename, $file->getContent());
+      }
+
+       else
+        {
+
             $file->storeAs($finalPath, $filename, 'public');
-  //      }
-
-
+        }
         return ['path' => $filename, 'type' => $type];
 
     }

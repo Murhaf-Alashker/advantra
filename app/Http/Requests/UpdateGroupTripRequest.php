@@ -3,11 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\MediaType;
-use App\Enums\Status;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class CreateGroupTripRequest extends FormRequest
+class UpdateGroupTripRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,19 +26,18 @@ class CreateGroupTripRequest extends FormRequest
         return [
             'name' => ['required','string','max:50'],
             'name_ar' => ['required','string','max:50'],
-            'description' => ['string','max:1000'],
-            'description_ar' => ['string','max:1000'],
-            'starting_date' => ['required','date'],
-            'ending_date' => ['required','date','after:starting_date'],
-            'basic_cost' => ['required','numeric'],
+            'description' => ['required','string','max:1000'],
+            'description_ar' => ['required','string','max:1000'],
+            'basic_cost' => ['required','required','numeric'],
+            'extra_cost' => ['required','numeric','min:0'],
             'price' => ['required','numeric','gt:basic_cost'],
-            'tickets_count'=>['required','numeric','min:1'],
-            'tickets_limit' => ['numeric','lt:tickets_count'],
+            'adding_tickets_count'=>['required','numeric','min:0'],
+            'tickets_limit' => ['required','numeric','min:0'],
             'guide_id' => ['required','exists:guides,id'],
-            'events' => ['required','array'],
-            'events.*' => ['required','exists:events,id'],
             'media' => ['required','array'],
             'media.*' => ['file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
+            'old_media' => 'array',
+            'old_media.*' =>  ['nullable','exists:media,id'],
         ];
     }
 }

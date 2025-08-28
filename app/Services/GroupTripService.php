@@ -87,6 +87,39 @@ class GroupTripService
 
     }
 
+    public function update(array $data, GroupTrip $group)
+    {
+        $name_ar = $data['name_ar'] ?? null;
+        $description_ar = $data['description_ar'] ?? null;
+        $old_media = empty($data['old_media'] ?? []) ? null : $data['old_media'];
+        $adding_tickets_count = $data['adding_tickets_count'] ?? 0;
+
+        unset($data['name_ar'], $data['description_ar'], $data['old_media'],$data['media'],$data['adding_tickets_count']);
+
+        $data['tickets_limit'] = min($adding_tickets_count + $group->tickets_count, $data['tickets_limit']);
+        $data['tickets_count'] = $adding_tickets_count + $group->tickets_count;
+        $data['remaining_tickets'] = $adding_tickets_count + $group->remaining_tickets;
+
+        $group->update($data);
+
+        if ($name_ar) {
+            $group->translations()->updateOrCreate(
+                ['key' => 'city.name'],
+                ['translation' => $name_ar]
+            );
+        }
+
+        if ($description_ar) {
+            $group->translations()->updateOrCreate(
+                ['key' => 'city.description'],
+                ['translation' => $description_ar]
+            );
+        }
+        $group->updateMedia(self::FILE_PATH,$old_media);
+
+        return new GroupTripResource($group->fresh(['translations']));
+    }
+
     public function topRatedGroupTrips()
     {
         return GroupTripResource::collection(GroupTrip::where('status', Status::FINISHED)

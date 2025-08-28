@@ -46,6 +46,11 @@ class GroupTripObserver
             }
         }
 
+        if($groupTrip->wasChanged('guide_id'))
+        {
+            //رسالة للغايد الجديد
+        }
+
     }
 
     /**

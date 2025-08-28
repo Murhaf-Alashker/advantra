@@ -16,6 +16,7 @@ use App\Http\Resources\LanguageResource;
 use App\Mail\GuideWelcomeMail;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Event;
 use App\Models\Guide;
 use App\Models\Language;
 use App\Models\Scopes\ActiveScope;
@@ -180,6 +181,16 @@ class GuideController extends Controller
 
    }
 
+   public function getByEvents(Request $request)
+   {
+       $ids = $request->validate([
+           'events' => ['required','array'],
+           'events.*' => ['required','exists:events,id']
+       ]);
+       $cities = Event::whereIn('id',$ids)->pluck('city_id')->toArray();
+       return GuideResource::collection(Guide::whereIn('city_id',$cities)->get());
+   }
+
     public function requestResetPasswordCode(Request $request)
     {
         if($request->email)
@@ -301,4 +312,6 @@ class GuideController extends Controller
         }
 
     }
+
+
 }

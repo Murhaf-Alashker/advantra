@@ -54,7 +54,8 @@ Schedule::call(function (){
 })->everyFiveMinutes();
 
 Schedule::call(function (){
-    $guides = Guide::ActiveGuides()->update(['extra_salary' => 0.00]);
+    ScheduleClass::importProjects(Carbon::now()->subMonth()->year . '/' . \Carbon\Carbon::now()->subMonth()->format('M'));
+    $guides = Guide::activeGuides()->update(['extra_salary' => 0.00]);
 })->monthlyOn(1, '00:00');
 
 Schedule::call(function (){

@@ -57,6 +57,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/events/{event}/offer','makeOffer')->name('makeOfferForEvent');
         Route::post('/events/{event}/offer/update','updateOffer')->name('updateOfferForEvent');
         Route::delete('/events/{event}/offer/delete','deleteOffer')->name('deleteOfferForEvent');
+        Route::post('/events/{event}/make_limited','makeEventLimited')->name('makeEventLimited');////////////////////////////////////////////////
     });
 
     Route::controller(AdminController::class)->group(function () {
@@ -92,11 +93,13 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
         Route::post('/guides/store','store')->name('createGuide');
         Route::post('/guides/{guide}','update')->name('updateGuide');
         Route::get('/guides/{guide}','destroy')->name('deleteGuide');
+        Route::post('/guides/get-by-events','getByEvents')->name('getByEvents');/////////////////////////////////////////////////////////////
     });
 
     //group trip api
     Route::controller(GroupTripController::class)->group(function () {
     Route::post('/group_trip','store')->name('createGroupTrip');
+    Route::post('/group_trips/{groupTrip}','update')->name('updateGroupTrip');//////////////////////////////////////////////////////////////
     Route::delete('/group_trips/{groupTrip}','destroy')->name('deleteGroupTrip');
     Route::post('/group_trips/{groupTrip}/offer','makeOffer')->name('makeOfferForGroupTrip');
     Route::post('/group_trips/{groupTrip}/offer/update','updateOffer')->name('updateOfferForGroupTrip');

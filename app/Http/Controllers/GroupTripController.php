@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Status;
 use App\Http\Requests\CreateGroupTripRequest;
 use App\Http\Requests\OfferRequest;
+use App\Http\Requests\UpdateGroupTripRequest;
 use App\Http\Resources\GroupTripResource;
 use App\Models\Event;
 use App\Models\GroupTrip;
@@ -45,6 +46,27 @@ class GroupTripController extends Controller
 
         });
         return response()->json(new GroupTripResource($groupTrip),201);
+    }
+
+    public function update(UpdateGroupTripRequest $request,GroupTrip $group)
+    {
+        $validated = $request->validated();
+        if($request->filled('guide_id') && $validated['guide_id'] != $group->guide_id)
+        {
+            $tasksCount = Task::where('start_date', '<=',$request->input('ending_date'))
+                ->where('end_date', '>=',$request->input('starting_date'))
+                ->where('guide_id', $request->input('guide_id'))
+                ->count();
+            if($tasksCount > 0){
+                return response()->json(['the guide is busy in this date'],400);
+            }
+        }
+
+        if($validated['adding_tickets_count'] ?? 0 + $group->tickets_count < $group->remaining_tickets)
+        {
+            return response()->json(['maximum tickets to decrease is '.$group->remaining_tickets],400);
+        }
+        return $this->groupTripService->update($validated,$group);
     }
 
     public function destroy(GroupTrip $groupTrip)

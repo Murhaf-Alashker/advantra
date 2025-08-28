@@ -23,7 +23,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
 
             'name' => 'required|string|unique:categories,name',
-         
+
             'name_ar' => 'required|string',
         ]);
         $categoryData = collect($validated)->except('name_ar')->all();
@@ -39,9 +39,9 @@ class CategoryController extends Controller
     {
         $validated = request()->validate([
 
-            'name' => 'nullable|string,unique:categories,name',
+            'name' => 'nullable|string|unique:categories,name',
 
-           
+
             'name_ar' => 'nullable|string',
         ]);
         $categoryData = collect($validated)->except('name_ar')->all();

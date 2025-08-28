@@ -11,4 +11,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel("channel.{chat_id}",function ($user,$chat_id){
     Log::info('private message');
     return $user->chats()->where('id',$chat_id)->where('status','open')->exists();
-});
+}, [
+    'guards' => ['api-user', 'api-guide'],
+]);

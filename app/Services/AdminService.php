@@ -54,10 +54,11 @@ class AdminService
                 $query->whereYear('created_at', $year - 1)->whereMonth('created_at', 12);
             })
             ->orderBy('created_at','DESC')->get();
-        foreach ($infos as $info) {
+        foreach ($infos as  $info) {
             $info->total_expenses = $info->total_income - $info->total_profit;
             $info->month_name = Carbon::parse($info->created_at)->year.'/'.Carbon::parse($info->created_at)->format('M');
             $data[] = $info;
+            $data->salary_file = ScheduleClass::exportProjects($info->month_name);
         }
         if($year == Carbon::now()->year) {
             $info = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);

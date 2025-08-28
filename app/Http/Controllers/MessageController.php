@@ -27,7 +27,7 @@ class MessageController extends Controller
     }
 
     public function messages(Chat $chat){
-        $messages = $chat->messages()->with('messageable')->paginate(50);
+        $messages = $chat->messages()->latest()->with('messageable')->paginate(50);
         return response()->json($messages);
     }
 
@@ -52,6 +52,8 @@ class MessageController extends Controller
             'message' => $validated['message'] ?? null,
             'messageable_type' => $type,
             'messageable_id' => $user->id,
+            'created_at' => now()->format('Y-m-d H:i:s'),
+            'updated_at' => now()->format('Y-m-d H:i:s'),
         ]);
         if($request->hasFile('media')){
             $media = $request->file('media')->storeAs(self::FILE_PATH.$chat->id.'/', $message->id.'.'.$request->file('media')->getClientOriginalExtension(),'public');
