@@ -33,7 +33,7 @@ class UpdateEventRequest extends FormRequest
             'description' => 'string|max:1000',
             'name_ar'=>'string|max:50',
             'description_ar'=>'string|max:10000',
-            'ticket_price' => 'numeric',
+            'price' => 'numeric',
             'status' => 'in:active,inactive',
             'category_id' => 'exists:categories,id',
             'city_id' => 'exists:cities,id',

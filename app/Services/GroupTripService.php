@@ -165,4 +165,6 @@ class GroupTripService
             ->groupTripWithRate()
             ->limit(10)->get());
     }
+
+
 }
