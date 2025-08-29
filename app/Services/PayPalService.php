@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Enums\Status;
+use App\Models\Admin;
 use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Guide;
 use App\Models\SoloTrip;
 use App\Models\TemporaryReservation;
 use App\Models\User;
+use App\Notifications\PersonalNotification;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -84,6 +86,7 @@ class PayPalService
     public function callBack(Request $request):mixed
     {
         return DB::transaction(function () use ($request) {;
+            $response=null;
             try {
                 $token = $request->query('token');
                 if (!$token) {
@@ -100,21 +103,32 @@ class PayPalService
                     $this->createSoloTrip($eventsIds);
                 }
                 //رسالة لليوزر انو تم الحجز بنجاح
+                $temp = TemporaryReservation::where('order_id', $token)->first();
+                if ($temp) {
+                    $user = User::find($temp->user_id);
+                    $user->notify(new PersonalNotification('Reservation Succeeded!', 'Enjoy your trip! your reservation has been successfully done.'));
+                }
                 return view('payment',['status' => 'success','message' => 'afkihfsfbf']);
             } catch (Exception $e) {
                 $currentMessage = $e->getMessage();
-                TemporaryReservation::where('order_id', $token)->delete();
+                $temp =  TemporaryReservation::where('order_id', $token)->first();
+                $user = User::find($temp->user_id);
+                $temp->delete();
                 if ($e->getCode() == 400) {
 
                     $refund = $this->refund($response['data']['purchase_units'][0]['payments']['captures'][0]['id'] ?? null, $response['data']['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? null);
 
                 if (!$refund) {
-                    return view('payment', ['status' => 'cancel', 'message' => $currentMessage]);
                     //رسالة للادمن قث
+                    $admin = Admin::first();
+                    $admin->notify(new PersonalNotification('Refund operation failed!','a refund operation failed for user:'.$user->name.'with amount of money'.$response['data']['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ,['email' => $user->email]));
+                    return view('payment', ['status' => 'cancel', 'message' => $currentMessage]);
+
                 }
             }
-                return view('payment',['status' => 'error','message' => $currentMessage]);
                 //رسالة لليوزر انو صار خطا و رجعو المصاري
+                $user->notify(new PersonalNotification('Payment Failed!','Unfortunately the payment failed! your money had been returned  .'));
+                return view('payment',['status' => 'error','message' => $currentMessage]);
             }
         });
 
@@ -126,8 +140,11 @@ class PayPalService
         if (!$token) {
             return view('payment',['status' => 'error','message' => __('messages.something_went_wrong')]);
         }
-        TemporaryReservation::where('order_id', $token)->delete();
+       $temp =  TemporaryReservation::where('order_id', $token)->first();
+        $user = User::find($temp->user_id);
+        $temp->delete();
         //ارسال رسالة بتاكيد الالغاء
+        $user->notify(new PersonalNotification('Reservation Cancelled!','The reservation is cancelled'));
         return view('payment',['status' => 'cancel','message' => 'canceled successfully']);
 
     }
@@ -187,6 +204,7 @@ class PayPalService
             ];
             $this->toDatabase((object)$info, $model);
             //رسالة لليوزر انو تمت عملية الدفع
+            $user->notify(new PersonalNotification('Payment Successful!','Thank you! Your payment has been successfully processed.'));
             return response()->json([
                 'message' => 'payment successful',
             ]);
