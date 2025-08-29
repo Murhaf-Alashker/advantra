@@ -64,7 +64,7 @@ class EventService{
     public function update(array $data, Event $event){
 //        $event->update($data);
 //        return new EventResource($event);
-         if($data['name']){
+         if(isset($data['name'])){
              $event->slug = Str::slug($data['name']);
          }
         $name_ar = $data['name_ar'] ?? null;

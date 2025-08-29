@@ -11,7 +11,6 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ReportsLogController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
@@ -203,7 +202,7 @@ Route::middleware('auth:api-guide')->group(function () {
     Route::post('guides/guide/daysOff',[DaysOffController::class,'store'])->name('createDaysOff');
     Route::get('/guides/guide/tasks',[TaskController::class,'getMonthlyTasks'])->name('getMonthlyTasks');
 
-    Route::post('groupTrips/{groupTrip}/report',[ReportsLogController::class,'store'])->name('createReport');
+    Route::post('groupTrips/{groupTrip}/report',[GroupTripController::class,'storeReport'])->name('createReport');
 });
 Route::post('/guide/forgetPassword', [GuideController::class, 'requestResetPasswordCode'])->name('requestResetForeGuide');
 Route::post('/guide/resetPasswordUsingCode', [GuideController::class, 'resetPasswordUsingCode'])->name('resetPasswordUsingCodeForeGuide');

@@ -13,6 +13,8 @@ use App\Models\Task;
 use App\Services\GroupTripService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GroupTripController extends Controller
@@ -112,5 +114,31 @@ class GroupTripController extends Controller
         }
         $groupTrip->offers()->delete();
         return response()->json('the offer is updated successfully');
+    }
+
+    public function storeReport(Request $request,GroupTrip $groupTrip){
+        $guide = Auth::guard('api-guide')->user();
+        if($guide->id() === $groupTrip->guide_id && $groupTrip->status !== Status::FINISHED->value) {
+            $validated = $request->validate([
+                'media' => 'required|mimes:pdf|max:2048',
+            ]);
+
+            if($request->hasFile('media') && !$groupTrip->media()->where('type','=','pdf')->exists()) {
+                $groupTrip->storeMedia(GroupTripService::FILE_PATH);
+                $groupTrip->status = Status::FINISHED->value;
+                $groupTrip->save();
+              $task = $guide->tasks()->where('taskable_id' ,'=',$groupTrip->id);
+              $task->status = Status::FINISHED->value;
+                $task->save();
+                return response()->json([
+                    'message' => 'your file is uploaded!',
+                ]);
+            }else{
+                return response()->json([
+                    'message' => 'already uploaded a report for this trip']);
+            }
+        }else{
+            return response()->json(['message' => 'this guide is not responsible for this group trip or the trip is already finished'], 401);
+        }
     }
 }
