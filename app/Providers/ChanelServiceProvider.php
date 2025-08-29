@@ -36,7 +36,7 @@ class ChanelServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Broadcast::routes([
-            'middleware' => ['auth:api-user,api-guide'],
+            'middleware' => ['auth:api-user','auth:api-guide'],
         ]);
 
         require base_path('routes/channels.php');

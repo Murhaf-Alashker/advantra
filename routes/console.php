@@ -57,7 +57,7 @@ Schedule::call(function (){
 Schedule::call(function (){
     ScheduleClass::importProjects(Carbon::now()->subMonth()->year . '/' . \Carbon\Carbon::now()->subMonth()->format('M'));
     $guides = Guide::activeGuides()->update(['extra_salary' => 0.00]);
-})->monthlyOn(1, '00:00');
+})->monthlyOn(1, '00:15');
 
 Schedule::call(function (){
     $groups = GroupTrip::where('status','<=',\App\Enums\Status::PENDING->value)

@@ -28,11 +28,11 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $media['images'] ?? [],
-            'email' => $this->email,
+
         ];
 
         $moreInfo = [
-
+            'email' => $this->email,
             'email_verified_at' => $this->email_verified_at,
             'status' => $this->status,
             'points' => $this->points,

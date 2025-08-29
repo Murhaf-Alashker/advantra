@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\MediaType;
 use App\Events\GotMessage;
+use App\Http\Resources\MessageResource;
 use App\Jobs\SendMessage;
 use App\Libraries\FileManager;
 use App\Models\Chat;
@@ -28,10 +29,13 @@ class MessageController extends Controller
 
     public function messages(Chat $chat){
         $messages = $chat->messages()->latest()->with('messageable')->paginate(50);
-        return response()->json($messages);
+        return MessageResource::collection($messages);
     }
 
     public function sendMessage(Request $request, Chat $chat){
+        if($chat->status == 'closed' || !$chat->users()->find(Auth::guard('api-user')->id())){
+            return response()->json(['message' => 'unauthorized'], 403);
+        }
         $validated = $request->validate([
             'message' => ['nullable','string','min:1','max:500'],
             'media' => ['nullable','file','mimes:' . implode(',', MediaType::values()) ,'max:51200'],
@@ -44,8 +48,6 @@ class MessageController extends Controller
 
         $type = $user instanceof User ? User::class : Guide::class;
 
-        abort_unless($user->chats()->whereKey($chat->id)->exists(), 403);
-
         \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json','controller');
         $message = $chat->messages()->create([
             'message' => $validated['message'] ?? null,
@@ -57,7 +59,7 @@ class MessageController extends Controller
         Log::info('📤 Broadcasting...');
 
         if($request->hasFile('media')){
-            $media = $request->file('media')->storeAs(self::FILE_PATH.$chat->id.'/', $message->id.'.'.$request->file('media')->getClientOriginalExtension(),'public');
+            $media = $request->file('media')->storeAs(self::FILE_PATH.$chat->id.'/', uuid_create().'.'.$request->file('media')->getClientOriginalExtension(),'public');
             $url =Storage::disk('public')->url($media);
             $message->media = $url;
             $message->save();
@@ -65,6 +67,6 @@ class MessageController extends Controller
         broadcast(new GotMessage($message->toArray()))->toOthers();
         //SendMessage::dispatch($message);
 
-        return response()->json($message,201);
+        return response()->json(new MessageResource($message->refresh()),201);
     }
 }

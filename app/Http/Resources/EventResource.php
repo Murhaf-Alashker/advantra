@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Controllers\EventController;
 use App\Libraries\FileManager;
+use App\Models\Scopes\CheckLimitScope;
 use App\Models\Scopes\CheckOfferScope;
 use App\Services\EventService;
 use Illuminate\Http\Request;
@@ -27,8 +28,8 @@ class EventResource extends JsonResource
         $locale = App::getLocale();
         $name_ar = $this->translate('name');
         $description_ar = $this->translate('description');
-        $isLimited = $this->isLimited();
-        $limit = $this->limitedEvents()->first() ?? null;
+        $isLimited = $this->wasLimited();
+        $limit = $this->limitedEvents()->withoutGlobalScope(CheckLimitScope::class)->first() ?? null;
 
 
         $forUser = [
@@ -59,7 +60,7 @@ class EventResource extends JsonResource
             'updated_at' => $this->updated_at,
 
         ];
-        if($this->isLimited()){
+        if($isLimited){
             $forUser ['tickets_count'] = $limit->tickets_count;
             $forUser['remaining_tickets'] = $limit->remaining_tickets;
             $forUser['starting_date'] = $limit->start_date;

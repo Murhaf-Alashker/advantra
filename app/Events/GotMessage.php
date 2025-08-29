@@ -46,10 +46,5 @@ class GotMessage implements ShouldBroadcastNow
         return $this->message;
     }
 
-    public function broadcastAs()
-    {
-        Log::info('test message');
-        return 'test.message';
-    }
 
 }

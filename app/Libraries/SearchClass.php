@@ -68,6 +68,11 @@ class SearchClass
             $model->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->contains.'%')
                     ->orWhere('description', 'like', '%'.$this->contains.'%');
+            })
+            ->orWhere(function ($q2){
+                $q2->whereHas('translations', function (Builder $q3){
+                    $q3->where('translation', 'like', '%'.$this->contains.'%');
+                });
             });
         }
         return $model;

@@ -96,7 +96,6 @@ class GroupTripService
 
         unset($data['name_ar'], $data['description_ar'], $data['old_media'],$data['media'],$data['adding_tickets_count']);
 
-        $data['tickets_limit'] = min($adding_tickets_count + $group->tickets_count, $data['tickets_limit']);
         $data['tickets_count'] = $adding_tickets_count + $group->tickets_count;
         $data['remaining_tickets'] = $adding_tickets_count + $group->remaining_tickets;
 

@@ -49,6 +49,11 @@ class CitySearchClass extends SearchClass
         $cities = $this->checkOrderType($cities);
         $cities = strlen($this->contains ?? '') > 0 ? $cities->where('name', 'like', '%'.$this->contains.'%')
             ->orWhere('description', 'like', '%'.$this->contains.'%')
+            ->orWhere(function ($q2){
+                $q2->whereHas('translations', function (Builder $q3){
+                    $q3->where('translation', 'like', '%'.$this->contains.'%');
+                });
+            })
             : $cities ;
         return CityResource::collection($cities->where('status', $this->status)
                                                 ->whereIn('language_id', $this->languages)

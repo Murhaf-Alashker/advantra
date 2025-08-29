@@ -15,8 +15,10 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\UserController;
+use App\Libraries\ScheduleClass;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\EventController;
@@ -45,6 +47,9 @@ Route::get('/payment/cancel',[PaypalController::class,'cancel'])->name('payment.
 Route::post('/guide/login',[GuideController::class, 'login'])->name('GuideLogin');
 Route::get('/guide/logout',[GuideController::class, 'logOut'])->middleware('auth:api-guide')->name('GuideLogOut');
 Route::get('/required_ids/',[AdminController::class,'getCitiesAndCategoriesAndLanguageIds'])->name('getIds');
+Route::get('/xl',function (){
+    return ScheduleClass::importProjects(Carbon::now()->subMonth()->year . '-' . Carbon::now()->subMonth()->format('M'));
+});
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {

@@ -56,13 +56,13 @@ class AdminService
             ->orderBy('created_at','DESC')->get();
         foreach ($infos as  $info) {
             $info->total_expenses = $info->total_income - $info->total_profit;
-            $info->month_name = Carbon::parse($info->created_at)->year.'/'.Carbon::parse($info->created_at)->format('M');
+            $info->month_name = Carbon::parse($info->created_at)->year.'-'.Carbon::parse($info->created_at)->format('M');
+            $info->salary_file = ScheduleClass::exportProjects($info->month_name) ?? null;
             $data[] = $info;
-            $data->salary_file = ScheduleClass::exportProjects($info->month_name);
         }
         if($year == Carbon::now()->year) {
             $info = ScheduleClass::getCurrentMonthInfo(Carbon::now()->month, Carbon::now()->year);
-            $info->month_name = $year . '/' . Carbon::now()->format('M');
+            $info->month_name = $year . '-' . Carbon::now()->format('M');
             $num = array_unshift($data, $info);
         }
         return ['businessInfo' => $data];

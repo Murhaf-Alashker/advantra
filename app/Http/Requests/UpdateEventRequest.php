@@ -29,14 +29,15 @@ class UpdateEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string|max:50|unique:events,name,'.$this->event->id,
-            'description' => 'string|max:1000',
-            'name_ar'=>'string|max:50',
-            'description_ar'=>'string|max:10000',
-            'price' => 'numeric',
-            'status' => 'in:active,inactive',
-            'category_id' => 'exists:categories,id',
-            'city_id' => 'exists:cities,id',
+            'name' => 'required|string|max:50|unique:events,name,'.$this->event->id,
+            'description' => 'required|string|max:1000',
+            'name_ar'=>'required|string|max:50',
+            'description_ar'=>'required|string|max:10000',
+            'price' => 'required|numeric',
+            'basic_cost' => 'required|numeric',
+            'status' => 'required|in:active,inactive',
+            'category_id' => 'required|exists:categories,id',
+            'city_id' => 'required|exists:cities,id',
             'old_media' => 'array',
             'old_media.*' =>  ['nullable','exists:media,id'],
             'media' => ['array'],

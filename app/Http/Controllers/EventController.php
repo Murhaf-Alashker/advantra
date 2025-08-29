@@ -72,7 +72,7 @@ class EventController extends Controller
       return response()->json(new EventResource($event),201) ;
     }
 
-    public function update( UpdateEventRequest $request,Event $event){
+    public function update(UpdateEventRequest $request,Event $event){
         $validated = $request->validated();
         return $this->eventService->update($validated,$event);
     }

@@ -40,7 +40,11 @@ class GroupTripController extends Controller
     public function store(CreateGroupTripRequest $request):JsonResponse
     {
         $tasksCount = Task::where('start_date', '<=',$request->input('ending_date'))->where('end_date', '>=',$request->input('starting_date'))->where('guide_id', $request->input('guide_id'))->count();
-        if($tasksCount > 0){
+
+        $daysOff = DaysOff::whereBetween('date',[$request->input('starting_date'), $request->input('ending_date')])
+            ->where('guide_id', $request->input('guide_id'))
+            ->count();
+        if($tasksCount > 0 || $daysOff > 0){
             return response()->json(['the guide is busy in this date'],400);
         }
         $groupTrip = DB::transaction(function () use ($request) {
@@ -70,7 +74,7 @@ class GroupTripController extends Controller
             }
         }
 
-        if($validated['adding_tickets_count'] ?? 0 + $group->tickets_count < $group->remaining_tickets)
+        if((-1 *$validated['adding_tickets_count'] ?? 0)  > $group->remaining_tickets)
         {
             return response()->json(['maximum tickets to decrease is '.$group->remaining_tickets],400);
         }
