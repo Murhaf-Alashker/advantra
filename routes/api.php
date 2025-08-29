@@ -150,7 +150,7 @@ Route::controller(CityController::class)->group(function () {
 //event api
 Route::controller(EventController::class)->group(function () {
     Route::get('/events','index')->name('getEvents');
-    Route::get('/events/{event}','show')->name('getEvent');
+  //  Route::get('/events/{event}','show')->name('getEvent');
     Route::get('/events/{event}/relatedEvents','relatedEvents')->name('getRelatedEvents');
     Route::get('/events/{event}/relatedGuides','relatedGuides')->name(',getRelatedGuidesFromEvent');
 });
@@ -213,6 +213,7 @@ Route::middleware('auth:api-guide,api-user')->group(function () {
     Route::post('/{chat}/send-message', [MessageController::class, 'sendMessage'])->name('sendMessage');
     Route::get('/{chat}/get_messages', [MessageController::class, 'messages'])->name('getMessages');
     Route::get('/chats', [MessageController::class, 'chats'])->name('getChats');
+    Route::get('/events/{event}',[EventController::class,'show'])->name('getEvent');
 });
 Route::middleware('auth:api-guide,api-admin')->group(function () {
     Route::get('/languages',[LanguageController::class,'index']);

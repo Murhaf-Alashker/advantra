@@ -24,7 +24,7 @@ class DaysOffController extends Controller
 
         if($total > 6){
             return response()->json([
-                'message' => 'You cannot take more than 6 days off',
+                'message' => 'You cannot take more than 6 days off a month',
             ], 422);
         }
          $conflict = [];
