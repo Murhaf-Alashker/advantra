@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             FeedbackSeeder::class,
             OfferSeeder::class,
             BusinessInfoSeeder::class,
+            HotelSeeder::class,
         ]);
     }
 }

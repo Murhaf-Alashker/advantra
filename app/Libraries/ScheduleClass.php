@@ -8,6 +8,7 @@ use App\Models\Guide;
 use App\Models\Reservation;
 use App\Models\Scopes\GuideScope;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
@@ -77,7 +78,7 @@ class ScheduleClass
                 ->addHeader($headers)
                 ->addRows($rows->toArray());
         }catch (\Exception $exception){
-
+            Log::info('error while making excel file');
         }
     }
 

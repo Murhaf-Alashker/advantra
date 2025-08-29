@@ -48,8 +48,15 @@ Route::post('/guide/login',[GuideController::class, 'login'])->name('GuideLogin'
 Route::get('/guide/logout',[GuideController::class, 'logOut'])->middleware('auth:api-guide')->name('GuideLogOut');
 Route::get('/required_ids/',[AdminController::class,'getCitiesAndCategoriesAndLanguageIds'])->name('getIds');
 Route::get('/xl',function (){
-    return ScheduleClass::importProjects(Carbon::now()->subMonth()->year . '-' . Carbon::now()->subMonth()->format('M'));
+    $country = \App\Models\Country::select('id','name')->get();
+    $countries = [];
+    foreach ($country as $c) {
+         $countries = array_merge($countries, [$c->name => $c->id]);
+    }
+    return response()->json($countries);
 });
+
+Route::get('/hotels',[\App\Http\Controllers\HotelController::class,'index'])->name('hotels');
 
 //->middleware('auth:api-admin')
 Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
