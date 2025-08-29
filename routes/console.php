@@ -41,10 +41,10 @@ Schedule::call(function (){
           ->toArray();
   $admin = \App\Models\Admin::first();
   if(!empty($groups)){
-      $admin->notify(new \App\Notifications\PersonalNotification('upcoming group trips','this group trips is 2 days away from starting',$groups,$admin->fcmToken));
+      $admin->notify(new \App\Notifications\PersonalNotification('upcoming group trips','this group trips is 2 days away from starting',['type' => 'groupTrip' , 'id' =>$groups],$admin->fcmToken));
   }
     if(!empty($limitedEvents)){
-        $admin->notify(new \App\Notifications\PersonalNotification('upcoming event','this group trips is 2 days away from starting',$limitedEvents,$admin->fcmToken));
+        $admin->notify(new \App\Notifications\PersonalNotification('upcoming event','this events is 2 days away from starting',['type' => 'event','id' => $limitedEvents],$admin->fcmToken));
     }
 })->everyMinute();
 

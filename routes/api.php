@@ -119,6 +119,7 @@ Route::prefix('/dashboard')->middleware('auth:api-admin')->group(function () {
 });
 
 Route::middleware('auth:api-user,api-admin,api-guide')->group(function () {
+    Route::get('/events/{event}',[EventController::class,'show'])->name('getEvent');
     Route::get('/group_trip/{groupTrip}',[GroupTripController::class,'show'])->name('showGroupTrip');
     Route::post('/reset_password',[AuthController::class, 'resetPasswordUsingOldPassword'])->name('resetPassword');
     Route::prefix('/media')->controller(MediaController::class)->group(function () {
@@ -213,7 +214,7 @@ Route::middleware('auth:api-guide,api-user')->group(function () {
     Route::post('/{chat}/send-message', [MessageController::class, 'sendMessage'])->name('sendMessage');
     Route::get('/{chat}/get_messages', [MessageController::class, 'messages'])->name('getMessages');
     Route::get('/chats', [MessageController::class, 'chats'])->name('getChats');
-    Route::get('/events/{event}',[EventController::class,'show'])->name('getEvent');
+
 });
 Route::middleware('auth:api-guide,api-admin')->group(function () {
     Route::get('/languages',[LanguageController::class,'index']);
