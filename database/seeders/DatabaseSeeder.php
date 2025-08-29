@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             EventGroupTripSeeder::class,
            // SoloTripSeeder::class,
           //  SoloTripEventsSeeder::class,
-            ReportsLogSeeder::class,
             TaskSeeder::class,
             SettingSeeder::class,
             MediaSeeder::class,
