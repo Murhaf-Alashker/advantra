@@ -7,7 +7,7 @@ return [
     ],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
-        'http://localhost:5173', // عنوان Vite/React
+        '*' // عنوان Vite/React
     ],
     'allowed_headers' => ['*'], // أو اذكر Authorization, X-Requested-With, X-Socket-Id
     'exposed_headers' => [],

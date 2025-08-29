@@ -110,7 +110,7 @@ class EventController extends Controller
         if($event->wasLimited()){
             return response()->json('the event was limited');
         }
-        $this->eventService->makeEventLimited($validated,$event);
+        $this->eventService->republishEventAsLimited($validated,$event);
         return response()->json('the is made as limited successfully');
     }
 

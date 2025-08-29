@@ -25,7 +25,7 @@ class SendMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        GotMessage::dispatch([
+        $array = [
             'id' => $this->message->id,
             'user_id' => $this->message->user_id,
             'message' => $this->message->message,
@@ -33,7 +33,9 @@ class SendMessage implements ShouldQueue
             'chat_id' => $this ->message->chat_id,
             'created_at' => $this->message->created_at,
             'group_trip_id' => $this->message->chat->group_trip_id,
-        ]);
+        ];
+        broadcast(new GotMessage($array))->toOthers();
+        //GotMessage::dispatch($array);
     }
 
 }

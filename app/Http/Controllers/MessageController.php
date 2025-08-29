@@ -46,7 +46,6 @@ class MessageController extends Controller
 
         abort_unless($user->chats()->whereKey($chat->id)->exists(), 403);
 
-       //  Log::info('controller');
         \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json','controller');
         $message = $chat->messages()->create([
             'message' => $validated['message'] ?? null,
@@ -55,14 +54,16 @@ class MessageController extends Controller
             'created_at' => now()->format('Y-m-d H:i:s'),
             'updated_at' => now()->format('Y-m-d H:i:s'),
         ]);
+        Log::info('📤 Broadcasting...');
+
         if($request->hasFile('media')){
             $media = $request->file('media')->storeAs(self::FILE_PATH.$chat->id.'/', $message->id.'.'.$request->file('media')->getClientOriginalExtension(),'public');
             $url =Storage::disk('public')->url($media);
             $message->media = $url;
             $message->save();
         }
-
-        SendMessage::dispatch($message);
+        broadcast(new GotMessage($message->toArray()))->toOthers();
+        //SendMessage::dispatch($message);
 
         return response()->json($message,201);
     }

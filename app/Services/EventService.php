@@ -156,13 +156,19 @@ class EventService{
 
     public function makeEventLimited(array $info ,Event $event):void
     {
+        $info['event_id'] = $event->id;
+        LimitedEvents::create($info);
+
+    }
+
+    public function republishEventAsLimited(array $info ,Event $event):void
+    {
         $event->update(['status' => 'inactive']);
         $eventInfo = $event->toArray();
         unset($eventInfo['id'],$eventInfo['created_at'],$eventInfo['updated_at']);
         $newEvent = Event::create($eventInfo);
         $info['event_id'] = $newEvent->id;
         LimitedEvents::create($info);
-
     }
 
     public function latestEvents()
