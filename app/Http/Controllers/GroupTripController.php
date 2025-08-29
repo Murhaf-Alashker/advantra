@@ -7,6 +7,7 @@ use App\Http\Requests\CreateGroupTripRequest;
 use App\Http\Requests\OfferRequest;
 use App\Http\Requests\UpdateGroupTripRequest;
 use App\Http\Resources\GroupTripResource;
+use App\Models\DaysOff;
 use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Task;
@@ -59,7 +60,12 @@ class GroupTripController extends Controller
                 ->where('end_date', '>=',$request->input('starting_date'))
                 ->where('guide_id', $request->input('guide_id'))
                 ->count();
-            if($tasksCount > 0){
+
+            $daysOff = DaysOff::whereBetween('date',[$request->input('starting_date'), $request->input('ending_date')])
+                               ->where('guide_id', $validated['guide_id'])
+                               ->count();
+
+            if($tasksCount > 0 || $daysOff > 0){
                 return response()->json(['the guide is busy in this date'],400);
             }
         }
