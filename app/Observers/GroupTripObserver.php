@@ -3,10 +3,12 @@
 namespace App\Observers;
 
 use App\Enums\Status;
+use App\Notifications\PersonalNotification;
 use App\Models\Chat;
 use App\Models\GroupTrip;
 use App\Models\Guide;
 use Illuminate\Support\Carbon;
+use App\Models\Task;
 
 class GroupTripObserver
 {
@@ -48,7 +50,21 @@ class GroupTripObserver
 
         if($groupTrip->wasChanged('guide_id'))
         {
-            //رسالة للغايد الجديد
+            $guideId = $groupTrip->getOriginal('guide_id');
+            $oldGuide = Guide::findOrFail($guideId);
+            $newGuide = Guide::findOrFail($groupTrip->guide_id);
+
+            Task::where('guide_id',$oldGuide)
+                ->where('taskable_id',$groupTrip->id)
+                ->delete();
+            $newGuide->tasks()->create([
+                'taskable_type' => GroupTrip::class,
+                'taskable_id' => $groupTrip->id,
+                'start_date' => $groupTrip->start_date,
+                'end-date' => $groupTrip->end_date
+            ]);
+            $oldGuide->notify(new PersonalNotification('Task cancelled!','The group trip '.$groupTrip->name.' is now off of your tasks for for administrative reasons. '));
+            $newGuide->notify(new PersonalNotification('A new task is added!','The group trip '.$groupTrip->name.' is now on your task schedule for for administrative reasons.'));
         }
 
     }

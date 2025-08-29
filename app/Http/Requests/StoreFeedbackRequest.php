@@ -30,7 +30,7 @@ class StoreFeedbackRequest extends FormRequest
         return [
             'type' => 'required|string|in:event,guide,group_trip',
             'id' => 'required|integer',
-            'rating' => 'required|numeric|min:0|max:5|regex:/^\d+(\.\d{1,2})?$/',
+            'rating' => 'required|numeric|min:1|max:5|regex:/^\d+(\.\d{1,2})?$/',
             'comment' => 'nullable|string'
         ];
     }
