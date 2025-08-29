@@ -66,7 +66,7 @@ class EventController extends Controller
             ]
         ]);
         if($isLimited){
-            $this->eventService->makeEventLimited($limited,$event->id);
+            $this->eventService->makeEventLimited($limited,$event);
         }
       //  $event->load('city');
       return response()->json(new EventResource($event),201) ;

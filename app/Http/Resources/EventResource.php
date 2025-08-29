@@ -80,7 +80,7 @@ class EventResource extends JsonResource
                 $allData['main_price'] = $this->price;
             }
             $allData['offers'] = OfferResource::collection($this->offers()->withoutGlobalScope(CheckOfferScope::class)->orderBy('start_date','DESC')->get());
-            $allData['category'] = $this->category->name;
+            $allData['category'] = new CategoryResource($this->category);
             return $allData;
         }
 

@@ -39,6 +39,7 @@ Schedule::call(function (){
           ->whereColumn('remaining_tickets','>','tickets_limit')
           ->pluck('event_id')
           ->toArray();
+  Log::info('groups: ' . json_encode($groups));
   $admin = \App\Models\Admin::first();
   if(!empty($groups)){
       $admin->notify(new \App\Notifications\PersonalNotification('upcoming group trips','this group trips is 2 days away from starting',['type' => 'groupTrip' , 'id' =>$groups],$admin->fcmToken));
@@ -64,13 +65,11 @@ Schedule::call(function (){
         ->update(['status' => \App\Enums\Status::IN_PROGRESS->value]);
 
     $eventIds = LimitedEvents::where('start_date', '<', Carbon::now()->format('Y-m-d H:i:s'))->pluck('event_id')->toArray();
-
      //   \Illuminate\Support\Facades\Storage::drive('public')->put('a1.json',$eventIds);
    // Log::info('Found event IDs: ', $eventIds);
-
-
      \App\Models\Event::whereIn('id', $eventIds)
         ->update(['status' => 'inactive']);
   //  Log::info('Count to update: ' . $query->count());
-
+    \App\Models\Task::where('end_date', '<', Carbon::now()->format('Y-m-d H:i:s'))
+    ->update(['status' => \App\Enums\Status::FINISHED->value]);
 })->everyFiveMinutes();

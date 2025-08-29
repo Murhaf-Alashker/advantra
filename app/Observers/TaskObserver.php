@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Guide;
 use App\Models\Task;
+use App\Notifications\PersonalNotification;
 
 class TaskObserver
 {
@@ -17,6 +18,7 @@ class TaskObserver
             $guide->extra_salary += ($guide->price * 0.85);
             $guide->save();
         }
+        $guide->notify(new PersonalNotification('New task added!','A new task has been added to your schedule check it out!'));
     }
 
     /**
