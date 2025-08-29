@@ -12,52 +12,55 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
-class TaskService{
+class TaskService
+{
 
-    public function store(array $data,Guide $guide){
-       $startDateTime = $data['date'] . ' ' . $data['start_time'] ;
-       $endDateTime = Carbon::parse($startDateTime)->endOfDay();
+    public function store(array $data, Guide $guide)
+    {
+        $startDateTime = $data['date'] . ' ' . $data['start_time'];
+        $endDateTime = Carbon::parse($startDateTime)->endOfDay();
         $startDate = Carbon::parse($startDateTime)->toDateString();
         $conflict = Task::where('guide_id', $guide->id)
-                         ->whereDate('start_date', '<=', $startDate)
-                         ->whereDate('end_date', '>=', $startDate)
-                         ->exists();
+            ->whereDate('start_date', '<=', $startDate)
+            ->whereDate('end_date', '>=', $startDate)
+            ->exists();
 
-        if($conflict){
-           return response()->json(['message' => 'already reserved '],409);
-       }
+        if ($conflict) {
+            return response()->json(['message' => 'already reserved '], 409);
+        }
 
-       $task = $guide->tasks()->create([
-           'taskable_id' => Auth::id(),
-           'taskable_type' => User::class,
-           'start_date' => $startDateTime,
-           'end_date' => $endDateTime,
-       ]);
+        $task = $guide->tasks()->create([
+            'taskable_id' => Auth::id(),
+            'taskable_type' => User::class,
+            'start_date' => $startDateTime,
+            'end_date' => $endDateTime,
+        ]);
 
-       return response()->json(['message' => 'task created',
-       'task' => new TaskResource($task)],201);
+        return response()->json(['message' => 'task created',
+            'task' => new TaskResource($task)], 201);
     }
 
-    public function getMonthlyTasks(){
+    public function getMonthlyTasks()
+    {
         $id = Auth::guard('api-guide')->id();
         $guide = Guide::findOrFail($id);
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         $tasks = $guide->tasks()
-                       ->whereMonth('start_date', $currentMonth)
-                       ->whereYear('start_date', $currentYear)
-                       ->get();
+            ->whereMonth('start_date', $currentMonth)
+            ->whereYear('start_date', $currentYear)
+            ->get();
 
         $daysOff = $guide->daysOff()
-                         ->whereMonth('date', $currentMonth)
-                         ->whereYear('date', $currentYear)
-                         ->get();
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->get();
 
         return response()->json([
-             'const_salary' =>$guide->const_salary,
-             'extra_salary' => $guide->extra_salary,
-             'Tasks' => TaskResource::collection($tasks),
-             'daysOff' => $daysOff,200]);
+            'const_salary' => $guide->const_salary,
+            'extra_salary' => $guide->extra_salary,
+            'Tasks' => TaskResource::collection($tasks),
+            'daysOff' => $daysOff, 200]);
     }
 
     public function getReservedDays(Guide $guide)
@@ -75,15 +78,15 @@ class TaskService{
             ->whereYear('date', $currentYear)
             ->get();
 
-        $reservedTasks = $tasks->map(function($task){
+        $reservedTasks = $tasks->map(function ($task) {
             return [
-               'start_date' => $task->start_date,
-               'end_date' => $task->end_date,
+                'start_date' => $task->start_date,
+                'end_date' => $task->end_date,
             ];
         });
 
-        $reservedDaysOff = $daysOff->map(function($dayOff){
-            return  ['date' => $dayOff->date];
+        $reservedDaysOff = $daysOff->map(function ($dayOff) {
+            return ['date' => $dayOff->date];
         });
 
         return response()->json([
@@ -94,42 +97,41 @@ class TaskService{
 
     public function getGuideTask(Guide $guide)
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        $tempUserTasks = $guide->tasks()
-            ->whereMonth('start_date', $currentMonth)
-            ->whereYear('start_date', $currentYear)
-            ->where('taskable_type','=',User::class)
-            ->get();
+               $now = Carbon::now();
 
-        $tempGroupTasks = $guide->tasks()
-            ->whereMonth('start_date', $currentMonth)
-            ->whereYear('start_date', $currentYear)
-            ->where('taskable_type','=' ,GroupTrip::class)
-            ->get();
+                $startDate = $now->copy()->startOfMonth();
+                $endDate = $now->copy()->addMonths(2)->endOfMonth();
 
-        $daysOff = $guide->daysOff()
-            ->whereMonth('date', $currentMonth)
-            ->whereYear('date', $currentYear)
-            ->get();
+                $tempUserTasks = $guide->tasks()
+                    ->whereBetween('start_date', [$startDate, $endDate])
+                    ->where('taskable_type', User::class)
+                    ->get();
 
-        $userTask= $tempUserTasks->map(function($task){
+                $tempGroupTasks = $guide->tasks()
+                    ->whereBetween('start_date', [$startDate, $endDate])
+                    ->where('taskable_type', GroupTrip::class)
+                    ->get();
 
-            return[
-                'start_date' => $task->start_date,
-                'end_date' => $task->end_date,
-                'taskable_type' => class_basename($task->taskable_type),
-                'id' => $task->taskable_id,
-                'email' => $task->taskable->email,
-                ];
+                $daysOff = $guide->daysOff()
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->get();
 
-        });
+                $userTask = $tempUserTasks->map(function ($task) {
+                    return [
+                        'start_date' => $task->start_date,
+                        'end_date' => $task->end_date,
+                        'taskable_type' => class_basename($task->taskable_type),
+                        'id' => $task->taskable_id,
+                        'email' => $task->taskable->email,
+                    ];
+                });
 
-        return response()->json([
-            'userTask '=> $userTask,
-            'groupTask' => TaskResource::collection($tempGroupTasks),
-            'daysOff' => $daysOff,
-        ]);
+                    return response()->json([
+                        'userTask'=> $userTask,
+                        'groupTask' => TaskResource::collection($tempGroupTasks),
+                        'daysOff' => $daysOff,
+                    ]);
 
-    }
+                    }
+
 }

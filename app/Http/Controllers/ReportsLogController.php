@@ -13,22 +13,29 @@ use Illuminate\Support\Str;
 class ReportsLogController extends Controller
 {
     public function store(Request $request,GroupTrip $groupTrip){
-        if(Auth::guard('api-guide')->id() === $groupTrip->guide_id && $groupTrip->status === Status::FINISHED->value) {
+        if(Auth::guard('api-guide')->id() === $groupTrip->guide_id && !$groupTrip->status === Status::FINISHED->value) {
             $validated = $request->validate([
                 'media' => 'required|mimes:pdf|max:2048',
             ]);
-            $filename = Str::uuid() . '.pdf';
-            $filename = Str::snake($filename);
-            $groupTrip->report()->create([
-                'media' => $filename,
-                'guide_id' => Auth::guard('api-guide')->id()
-            ]);
-            $groupTrip->storeMedia(GroupTripService::FILE_PATH);
-            return response()->json([
-                'message' => 'your file is uploaded!',
-            ]);
+//            $filename = Str::uuid() . '.pdf';
+//            $filename = Str::snake($filename);
+//            $groupTrip->report()->create([
+//                'media' => $filename,
+//                'guide_id' => Auth::guard('api-guide')->id()
+//            ]);
+            if($request->hasFile('media') && !$groupTrip->media()->where('type','=','pdf')->exists()) {
+                $groupTrip->storeMedia(GroupTripService::FILE_PATH);
+                $groupTrip->status = Status::FINISHED->value;
+                $groupTrip->save();
+                return response()->json([
+                    'message' => 'your file is uploaded!',
+                ]);
+            }else{
+                return response()->json([
+                   'message' => 'already uploaded a report for this trip']);
+            }
         }else{
-            return response()->json(['message' => 'this guide is not responsible for this group trip or the group trip is not finished'], 401);
+            return response()->json(['message' => 'this guide is not responsible for this group trip or the trip is already finished'], 401);
         }
     }
 }
