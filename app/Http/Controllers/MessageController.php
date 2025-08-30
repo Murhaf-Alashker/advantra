@@ -47,15 +47,15 @@ class MessageController extends Controller
                 return response()->json(['message' => 'unauthorized'], 403);
             }
         }
-        elseif (Auth::guard('guide')->check()) {
-            $guideId = Auth::guard('guide')->id();
+        elseif (Auth::guard('api-guide')->check()) {
+            $guideId = Auth::guard('api-guide')->id();
 
             if ($chat->guide_id != $guideId) {
                 return response()->json(['message' => 'unauthorized'], 403);
             }
         }
         else {
-   
+
            return response()->json(['message' => 'unauthorized'], 403);
         }
         $validated = $request->validate([

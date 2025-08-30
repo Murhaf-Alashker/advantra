@@ -130,7 +130,7 @@ class GroupTripController extends Controller
     public function storeReport(Request $request,GroupTrip $groupTrip){
 
         $guide = Guide::findOrFail(Auth::guard('api-guide')->id());
-        if($guide->id() === $groupTrip->guide_id && $groupTrip->status !== Status::FINISHED->value) {
+        if($guide->id=== $groupTrip->guide_id && $groupTrip->status !== Status::FINISHED->value) {
             $validated = $request->validate([
                 'media' => 'required|mimes:pdf|max:2048',
             ]);
