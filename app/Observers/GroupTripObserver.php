@@ -55,6 +55,7 @@ class GroupTripObserver
             $newGuide = Guide::findOrFail($groupTrip->guide_id);
 
             Task::where('guide_id',$oldGuide)
+                ->where('taskable_type','=',GroupTrip::class)
                 ->where('taskable_id',$groupTrip->id)
                 ->delete();
             $newGuide->tasks()->create([

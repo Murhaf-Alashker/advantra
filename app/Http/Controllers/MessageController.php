@@ -33,8 +33,30 @@ class MessageController extends Controller
     }
 
     public function sendMessage(Request $request, Chat $chat){
-        if($chat->status == 'close' || !$chat->users()->find(Auth::guard('api-user')->id())){
-            return response()->json(['message' => 'unauthorized'], 403);
+
+//        if($chat->status == 'closed' || !$chat->users()->find(Auth::guard('api-user')->id())){
+//            return response()->json(['message' => 'unauthorized'], 403);
+//        }
+        if ($chat->status === 'close') {
+            return response()->json(['message' => 'Chat is closed'], 403);
+        }
+        if (Auth::guard('api-user')->check()) {
+            $userId = Auth::guard('api-user')->id();
+
+            if (!$chat->users()->find($userId)) {
+                return response()->json(['message' => 'unauthorized'], 403);
+            }
+        }
+        elseif (Auth::guard('guide')->check()) {
+            $guideId = Auth::guard('guide')->id();
+
+            if ($chat->guide_id != $guideId) {
+                return response()->json(['message' => 'unauthorized'], 403);
+            }
+        }
+        else {
+   
+           return response()->json(['message' => 'unauthorized'], 403);
         }
         $validated = $request->validate([
             'message' => ['nullable','string','min:1','max:500'],
