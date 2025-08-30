@@ -12,6 +12,7 @@ use App\Models\Guide;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -86,8 +87,9 @@ class MessageController extends Controller
             $message->media = $url;
             $message->save();
         }
-        ;
-        broadcast($message->refresh()->toArray())->toOthers();
+        $new = $message->refresh()->toArray();
+        $new['created_at'] = Carbon::parse($new['created_at'])->addHours(3)->format('Y-m-d H:i:s');
+        broadcast(new GotMessage($new))->toOthers();
         //SendMessage::dispatch($message);/////
 
         return response()->json( new MessageResource($message->refresh()),201);
