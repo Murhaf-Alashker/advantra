@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\Status;
 use App\Models\Admin;
+use App\Models\DaysOff;
 use App\Models\Event;
 use App\Models\GroupTrip;
 use App\Models\Guide;
@@ -55,7 +56,7 @@ class PayPalService
                 $model = $this->getType($data['type'])->findOrFail($data['id']);
                 $reserved = $this->checkReservationAbility($data,$model);
                 if(!$reserved['state']){
-                    return response()->json("Item not available: " . $reserved['message'],400);
+                    return response()->json($reserved['message'],400);
                 }
                 $price += $reserved['price'];
             }
@@ -108,7 +109,7 @@ class PayPalService
                     $user = User::find($temp->user_id);
                     $user->notify(new PersonalNotification('Reservation Succeeded!', 'Enjoy your trip! your reservation has been successfully done.'));
                 }
-                return view('payment',['status' => 'success','message' => 'afkihfsfbf']);
+                return view('payment',['status' => 'success','message' => 'payment successfully']);
             } catch (Exception $e) {
                 $currentMessage = $e->getMessage();
                 $temp =  TemporaryReservation::where('order_id', $token)->first();
@@ -122,13 +123,13 @@ class PayPalService
                     //رسالة للادمن قث
                     $admin = Admin::first();
                     $admin->notify(new PersonalNotification('Refund operation failed!','a refund operation failed for user:'.$user->name.'with amount of money'.$response['data']['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ,['email' => $user->email]));
-                    return view('payment', ['status' => 'cancel', 'message' => $currentMessage]);
+                    return view('payment', ['status' => 'error', 'message' => 'something went wrong,pleas try again later,if you have any problem please contact our support team']);
 
                 }
             }
                 //رسالة لليوزر انو صار خطا و رجعو المصاري
                 $user->notify(new PersonalNotification('Payment Failed!','Unfortunately the payment failed! your money had been returned  .'));
-                return view('payment',['status' => 'error','message' => $currentMessage]);
+                return view('payment',['status' => 'error','message' => 'Unfortunately the payment failed! your money had been returned']);
             }
         });
 
@@ -145,7 +146,7 @@ class PayPalService
         $temp->delete();
         //ارسال رسالة بتاكيد الالغاء
         $user->notify(new PersonalNotification('Reservation Cancelled!','The reservation is cancelled'));
-        return view('payment',['status' => 'cancel','message' => 'canceled successfully']);
+        return view('payment',['status' => 'cancel','message' => 'payment canceled successfully']);
 
     }
 
@@ -296,11 +297,17 @@ class PayPalService
                             ->where('start_date','<=',$date)
                             ->where('end_date','>=',$date)
                             ->first();
-            if($task) {
-                return ['state'=> false, 'message'=>__('messages.guide.has_reserved')];
+
+            $dayOff = $model->daysOff()
+                ->where('date','<=',$date)
+                ->where('date','>=',$date)
+                ->first();
+
+            if($task || $dayOff) {
+                return ['state'=> false, 'message'=>__('messages.guide_has_reserved')];
             }
             elseif (Carbon::parse($date)->lessThan(Carbon::now())) {
-                return ['state'=> false, 'message'=>__('messages.guide.invalid_date')];
+                return ['state'=> false, 'message'=>__('messages.invalid_date')];
             }
 
             return ['state'=> true,'price' => $model->price];
@@ -308,11 +315,11 @@ class PayPalService
         elseif($model instanceof GroupTrip) {
 
             if($model->remaining_tickets == 0){
-                return ['state'=> false, 'message'=>__('messages.group.out_of_tickets')];
+                return ['state'=> false, 'message'=>__('messages.out_of_tickets',[__('attributes.group_trip')])];
             }
             elseif($model->status != Status::PENDING->value){
 
-                return ['state' => false, 'message' => __('messages.group.unavailable' ,[__('attributes.group_trip')])];
+                return ['state' => false, 'message' => __('messages.unavailable' ,[__('attributes.group_trip')])];
             }
             if($model->remaining_tickets >= $data['tickets_count']){
                 $price = $model->hasOffer()
@@ -320,19 +327,19 @@ class PayPalService
                     : $model->price * $data['tickets_count'];
                 return ['state'=> true, 'price' => $price];
             }
-            return ['state'=> false, 'message'=>__('messages.group.less_tickets')];
+            return ['state'=> false, 'message'=>__('messages.less_tickets',[__('attributes.group_trip')])];
         }
         else{
             if($model->isEnded()){
-                return ['state'=> false, 'message'=>__('messages.event.has_ended')];
+                return ['state'=> false, 'message'=>__('messages.event_has_ended')];
             }
             else if($model->status != 'active'){
-                return ['state' => false, 'message' => __('messages.event.unavailable',[__('attributes.event')])];
+                return ['state' => false, 'message' => __('messages.unavailable',[__('attributes.event')])];
             }
             elseif($model->isLimited()){
                 $limit = $model->limitedEvents()->where('remaining_tickets', '>', 0)->first();
                 if(!$limit){
-                    return ['state'=> false, 'message'=>__('messages.event.out_of_tickets')];
+                    return ['state'=> false, 'message'=>__('messages.out_of_tickets',[__('attributes.event')])];
                 }
 
                 if($limit->remaining_tickets >= $data['tickets_count']){
@@ -342,7 +349,7 @@ class PayPalService
                     return ['state'=> true, 'price' => $price];
             }
                 else{
-                    return ['state' => false, 'message' =>__('messages.event.less_tickets')];
+                    return ['state' => false, 'message' =>__('messages.less_tickets',[__('attributes.event')])];
                 }
             }
             $price = $model->hasOffer()

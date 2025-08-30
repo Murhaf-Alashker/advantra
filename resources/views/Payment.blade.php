@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حالة الدفع</title>
+    <title>payment status</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -13,18 +13,18 @@
         'success' => [
             'color' => 'text-green-600',
             'btn'   => 'bg-green-600 hover:bg-green-700',
-            'title' => 'إتمت عملية الدفع بنجاح',
+            'title' => 'payed successfully',
         ],
         'cancel'  => [
             'color' => 'text-yellow-600',
             'btn'   => 'bg-yellow-600 hover:bg-yellow-700',
-            'title' => 'تم إلغاء عملية الدفع',
+            'title' => 'payment canceled successfully',
             'msg'   => 'لقد قمت بإلغاء عملية الدفع. يمكنك المحاولة مرة أخرى لاحقاً.',
         ],
         'error'   => [
             'color' => 'text-red-600',
             'btn'   => 'bg-red-600 hover:bg-red-700',
-            'title' => 'فشلت عملية الدفع',
+            'title' => 'payment failed',
             'msg'   => 'حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى لاحقاً.',
         ],
     ];

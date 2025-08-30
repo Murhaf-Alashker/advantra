@@ -19,8 +19,8 @@ class GotMessage implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public array $message;
-    public function __construct(array $message)
+    public $message;
+    public function __construct($message)
     {
         $this->message = $message;
         Log::info('got message');

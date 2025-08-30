@@ -25,6 +25,12 @@ return [
     'has_already_offer' => ':attribute لديه عرض مسبقا.',
     'invalid_offer_date' => 'يجب ان ينتهي العرض قبل تاريخ بداية الرحلة.',
     'wrong_password' => 'كلمة مرور خاطئة.',
+    'guide_has_reserved' => 'الدليل السياحي غير متاح في هذا التاريخ.',
+    'invalid_date' => 'التارييخ الذي ادخلته غير صالح.',
+    'group_out_of_tickets' => 'لا يوجد تذاكر متاحة ل attribute: المختار/ة',
+    'unavailable' => ':attribute غير متاح/ة',
+    'less_tickets' => 'عدد تذاكر attribute: المتاحة اقل من عدد التذاكر الذي طلبته',
+    'event_has_ended' => 'الحدث منتهي',
 //////////////////////////////////////////////////////////////
     'custom' => [
         'attribute-name' => [

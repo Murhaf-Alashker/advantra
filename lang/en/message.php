@@ -25,6 +25,12 @@ return [
     'has_already_offer' => 'The :attribute have already offer.',
     'invalid_offer_date' => 'the offer must end before the start date.',
     'wrong_password' => 'Wrong password.',
+    'guide_has_reserved' => 'the guide is not available at that date.',
+    'invalid_date' => 'invalid date.',
+    'out_of_tickets' => 'there is no tickets for this :attribute any more',
+    'unavailable' => ':attribute unavailable',
+    'less_tickets' => ':attribute available tickets is less than you want',
+    'event_has_ended' => 'the event is already ended',
 //////////////////////////////////////////////////////////////
     'custom' => [
         'attribute-name' => [
