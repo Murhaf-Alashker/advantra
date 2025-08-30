@@ -86,10 +86,10 @@ class MessageController extends Controller
             $message->media = $url;
             $message->save();
         }
-        $newMessage = new MessageResource($message->refresh());
-        broadcast($newMessage)->toOthers();
-        //SendMessage::dispatch($message);
+        ;
+        broadcast($message->refresh()->toArray())->toOthers();
+        //SendMessage::dispatch($message);/////
 
-        return response()->json($newMessage,201);
+        return response()->json( new MessageResource($message->refresh()),201);
     }
 }

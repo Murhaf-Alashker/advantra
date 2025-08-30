@@ -56,10 +56,10 @@ class GroupTripController extends Controller
         return response()->json(new GroupTripResource($groupTrip),201);
     }
 
-    public function update(UpdateGroupTripRequest $request,GroupTrip $group)
+    public function update(UpdateGroupTripRequest $request,GroupTrip $groupTrip)
     {
         $validated = $request->validated();
-        if($request->filled('guide_id') && $validated['guide_id'] != $group->guide_id)
+        if($request->filled('guide_id') && $validated['guide_id'] != $groupTrip->guide_id)
         {
             $tasksCount = Task::where('start_date', '<=',$request->input('ending_date'))
                 ->where('end_date', '>=',$request->input('starting_date'))
@@ -75,11 +75,11 @@ class GroupTripController extends Controller
             }
         }
 
-        if((-1 *$validated['adding_tickets_count'] ?? 0)  > $group->remaining_tickets)
+        if((-1 *$validated['adding_tickets_count'] ?? 0)  > $groupTrip->remaining_tickets)
         {
-            return response()->json(['maximum tickets to decrease is '.$group->remaining_tickets],400);
+            return response()->json(['maximum tickets to decrease is '.$groupTrip->remaining_tickets],400);
         }
-        return $this->groupTripService->update($validated,$group);
+        return $this->groupTripService->update($validated,$groupTrip);
     }
 
     public function destroy(GroupTrip $groupTrip)
