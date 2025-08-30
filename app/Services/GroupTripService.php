@@ -103,14 +103,14 @@ class GroupTripService
 
         if ($name_ar) {
             $group->translations()->updateOrCreate(
-                ['key' => 'city.name'],
+                ['key' => 'group_trip.name'],
                 ['translation' => $name_ar]
             );
         }
 
         if ($description_ar) {
             $group->translations()->updateOrCreate(
-                ['key' => 'city.description'],
+                ['key' => 'group_trip.description'],
                 ['translation' => $description_ar]
             );
         }
